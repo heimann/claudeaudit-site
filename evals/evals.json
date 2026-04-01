@@ -1,0 +1,289 @@
+{
+  "skill_name": "claudeaudit",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "Audit this repository for AI agent readiness.",
+      "fixture": {
+        "repo": "3b1b/manim",
+        "description": "Popular math animation library. No tests, no agent config, minimal infrastructure.",
+        "stars": 85671,
+        "language": "Python",
+        "commit_sha": "c5e23d93659d604ff495ffe300bf7d4ef890e538",
+        "expected_maturity": "Bad",
+        "tier": "bad",
+        "expected_scores": {
+          "agent_documentation": 0,
+          "repository_structure": 1,
+          "dependency_bootstrapping": 1,
+          "self_verification": 0,
+          "permissions_tool_access": 0,
+          "code_quality_hooks": 0,
+          "rules_conventions": 0,
+          "worktree_readiness": 1,
+          "sandbox_compatibility": 0
+        },
+        "known_zero_categories": [
+          "Agent documentation",
+          "Self-verification",
+          "Permissions and tool access",
+          "Code quality hooks",
+          "Rules and conventions",
+          "Sandbox compatibility"
+        ],
+        "known_high_categories": [],
+        "known_files": [
+          "README.md",
+          "pyproject.toml",
+          "requirements.txt"
+        ],
+        "path": "evals/fixtures/bad"
+      },
+      "expectations": [
+        "Output contains one of: 'Bad', 'Ok', 'Good', 'Great' as the maturity level label",
+        "Output contains all four level headers: 'Readable', 'Runnable', 'Safe', 'Scalable'",
+        "Output does not contain '/27' anywhere",
+        "Each of the 9 categories has a score in the format '{n}/3' where n is 0-3",
+        "For every category scoring below 3, a sub-score block appears with findings and a recommendation",
+        "Agent documentation scores 0",
+        "Self-verification scores 0",
+        "Permissions and tool access scores 0",
+        "Code quality hooks scores 0",
+        "Rules and conventions scores 0",
+        "Maturity level is 'Bad'",
+        "Every recommendation is actionable: contains a concrete verb and a specific target (not just 'improve X')",
+        "Every finding cites at least one specific file path from the repo",
+        "No file paths are mentioned that do not exist in the fixture repo",
+        "Recommendations reference files that exist in the fixture repo"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "Audit this repository for AI agent readiness.",
+      "fixture": {
+        "repo": "junegunn/fzf",
+        "description": "Well-maintained fuzzy finder. Tests, CI, Makefile, Dockerfile. Zero agent-specific config.",
+        "stars": 79146,
+        "language": "Go",
+        "commit_sha": "cc16a97a40a16efecbed5bd7fb322010c033e503",
+        "expected_maturity": "Ok",
+        "tier": "ok",
+        "expected_scores": {
+          "agent_documentation": 0,
+          "repository_structure": 2,
+          "dependency_bootstrapping": 2,
+          "self_verification": 2,
+          "permissions_tool_access": 0,
+          "code_quality_hooks": 1,
+          "rules_conventions": 1,
+          "worktree_readiness": 2,
+          "sandbox_compatibility": 2
+        },
+        "known_zero_categories": [
+          "Agent documentation",
+          "Permissions and tool access"
+        ],
+        "known_high_categories": [
+          "Repository structure",
+          "Dependency bootstrapping",
+          "Self-verification"
+        ],
+        "known_files": [
+          "README.md",
+          "go.mod",
+          "Makefile",
+          "Dockerfile"
+        ],
+        "path": "evals/fixtures/ok"
+      },
+      "expectations": [
+        "Output contains one of: 'Bad', 'Ok', 'Good', 'Great' as the maturity level label",
+        "Output contains all four level headers: 'Readable', 'Runnable', 'Safe', 'Scalable'",
+        "Output does not contain '/27' anywhere",
+        "Each of the 9 categories has a score in the format '{n}/3' where n is 0-3",
+        "For every category scoring below 3, a sub-score block appears with findings and a recommendation",
+        "Agent documentation scores 0",
+        "Permissions and tool access scores 0",
+        "Repository structure scores >= 2",
+        "Dependency bootstrapping scores >= 2",
+        "Self-verification scores >= 2",
+        "Maturity level is 'Ok'",
+        "Every recommendation is actionable: contains a concrete verb and a specific target (not just 'improve X')",
+        "Every finding cites at least one specific file path from the repo",
+        "No file paths are mentioned that do not exist in the fixture repo",
+        "Recommendations reference files that exist in the fixture repo"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "Audit this repository for AI agent readiness.",
+      "fixture": {
+        "repo": "vscode-icons/vscode-icons",
+        "description": "VS Code extension with AGENTS.md, .claude/settings.json, husky hooks, ESLint+Prettier, Mocha tests. No Docker.",
+        "stars": 4991,
+        "language": "TypeScript",
+        "commit_sha": "44dd2c4fb48629626b6b77f19f43d971c9555207",
+        "expected_maturity": "Good",
+        "tier": "good",
+        "expected_scores": {
+          "agent_documentation": 2,
+          "repository_structure": 2,
+          "dependency_bootstrapping": 2,
+          "self_verification": 2,
+          "permissions_tool_access": 2,
+          "code_quality_hooks": 2,
+          "rules_conventions": 2,
+          "worktree_readiness": 1,
+          "sandbox_compatibility": 1
+        },
+        "known_zero_categories": [],
+        "known_high_categories": [
+          "Agent documentation",
+          "Permissions and tool access",
+          "Code quality hooks",
+          "Rules and conventions"
+        ],
+        "known_files": [
+          "AGENTS.md",
+          "CLAUDE.md",
+          ".claude/settings.json",
+          "package.json",
+          ".huskyrc"
+        ],
+        "path": "evals/fixtures/good"
+      },
+      "expectations": [
+        "Output contains one of: 'Bad', 'Ok', 'Good', 'Great' as the maturity level label",
+        "Output contains all four level headers: 'Readable', 'Runnable', 'Safe', 'Scalable'",
+        "Output does not contain '/27' anywhere",
+        "Each of the 9 categories has a score in the format '{n}/3' where n is 0-3",
+        "For every category scoring below 3, a sub-score block appears with findings and a recommendation",
+        "Agent documentation scores >= 2",
+        "Permissions and tool access scores >= 2",
+        "Code quality hooks scores >= 2",
+        "Rules and conventions scores >= 2",
+        "Maturity level is 'Good' or 'Great'",
+        "Every recommendation is actionable: contains a concrete verb and a specific target (not just 'improve X')",
+        "Every finding cites at least one specific file path from the repo",
+        "No file paths are mentioned that do not exist in the fixture repo",
+        "Recommendations reference files that exist in the fixture repo"
+      ]
+    },
+    {
+      "id": 4,
+      "prompt": "Audit this repository for AI agent readiness.",
+      "fixture": {
+        "repo": "nicolargo/glances",
+        "description": "System monitor with detailed CLAUDE.md, .claude/settings.json with 8 skills + PreToolUse hooks, pre-commit, Docker+compose, extensive CI.",
+        "stars": 32230,
+        "language": "Python",
+        "commit_sha": "3d2f31be61ac96ef67ee658634bafe004665d087",
+        "expected_maturity": "Great",
+        "tier": "great",
+        "expected_scores": {
+          "agent_documentation": 3,
+          "repository_structure": 2,
+          "dependency_bootstrapping": 3,
+          "self_verification": 2,
+          "permissions_tool_access": 3,
+          "code_quality_hooks": 3,
+          "rules_conventions": 2,
+          "worktree_readiness": 2,
+          "sandbox_compatibility": 2
+        },
+        "known_zero_categories": [],
+        "known_high_categories": [
+          "Agent documentation",
+          "Dependency bootstrapping",
+          "Permissions and tool access",
+          "Code quality hooks",
+          "Worktree readiness",
+          "Sandbox compatibility"
+        ],
+        "known_files": [
+          "CLAUDE.md",
+          ".claude/settings.json",
+          "Makefile",
+          "Dockerfile",
+          "docker-compose.yml",
+          ".pre-commit-config.yaml"
+        ],
+        "path": "evals/fixtures/great"
+      },
+      "expectations": [
+        "Output contains one of: 'Bad', 'Ok', 'Good', 'Great' as the maturity level label",
+        "Output contains all four level headers: 'Readable', 'Runnable', 'Safe', 'Scalable'",
+        "Output does not contain '/27' anywhere",
+        "Each of the 9 categories has a score in the format '{n}/3' where n is 0-3",
+        "For every category scoring below 3, a sub-score block appears with findings and a recommendation",
+        "Agent documentation scores >= 2",
+        "Permissions and tool access scores >= 2",
+        "Code quality hooks scores >= 2",
+        "Worktree readiness scores >= 2",
+        "Sandbox compatibility scores >= 2",
+        "Maturity level is 'Great'",
+        "Every recommendation is actionable: contains a concrete verb and a specific target (not just 'improve X')",
+        "Every finding cites at least one specific file path from the repo",
+        "No file paths are mentioned that do not exist in the fixture repo",
+        "Recommendations reference files that exist in the fixture repo"
+      ]
+    },
+    {
+      "id": 5,
+      "prompt": "Audit this repository for AI agent readiness.",
+      "fixture": {
+        "repo": "heimann/claudeaudit",
+        "description": "claudeaudit itself. CLAUDE.md exists but no tests, no CI, no linter, no .claude/settings.json. Zero dependencies.",
+        "stars": 0,
+        "language": "JavaScript",
+        "commit_sha": "66f28401c6c7f8ddd85fec1b0848270da20f63be",
+        "expected_maturity": "Bad",
+        "tier": "self",
+        "expected_scores": {
+          "agent_documentation": 2,
+          "repository_structure": 1,
+          "dependency_bootstrapping": 1,
+          "self_verification": 0,
+          "permissions_tool_access": 0,
+          "code_quality_hooks": 0,
+          "rules_conventions": 1,
+          "worktree_readiness": 2,
+          "sandbox_compatibility": 2
+        },
+        "known_zero_categories": [
+          "Self-verification",
+          "Permissions and tool access",
+          "Code quality hooks"
+        ],
+        "known_high_categories": [
+          "Agent documentation"
+        ],
+        "known_files": [
+          "CLAUDE.md",
+          "SKILL.md",
+          "bin/cli.mjs",
+          "skill/SKILL.md",
+          "package.json",
+          "site/index.html"
+        ],
+        "path": "."
+      },
+      "expectations": [
+        "Output contains one of: 'Bad', 'Ok', 'Good', 'Great' as the maturity level label",
+        "Output contains all four level headers: 'Readable', 'Runnable', 'Safe', 'Scalable'",
+        "Output does not contain '/27' anywhere",
+        "Each of the 9 categories has a score in the format '{n}/3' where n is 0-3",
+        "For every category scoring below 3, a sub-score block appears with findings and a recommendation",
+        "Self-verification scores 0",
+        "Permissions and tool access scores 0",
+        "Code quality hooks scores 0",
+        "Agent documentation scores >= 2",
+        "Maturity level is 'Bad' or 'Ok'",
+        "Every recommendation is actionable: contains a concrete verb and a specific target (not just 'improve X')",
+        "Every finding cites at least one specific file path from the repo",
+        "No file paths are mentioned that do not exist in the fixture repo",
+        "Recommendations reference files that exist in the fixture repo"
+      ]
+    }
+  ]
+}
