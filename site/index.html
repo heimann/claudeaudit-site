@@ -3,139 +3,170 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>claudeaudit — agent readiness for your repo</title>
+<title>claudeaudit - agent readiness for your repo</title>
 <meta name="description" content="Audit your repository for AI agent readiness. Works as a Claude Code skill or just tell any agent to fetch this URL.">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,300;1,400&display=swap');
-
   :root {
-    --bg: #1a1b26;
-    --fg: #a9b1d6;
-    --fg-muted: #565f89;
-    --fg-bright: #c0caf5;
-    --blue: #7aa2f7;
-    --green: #9ece6a;
-    --yellow: #e0af68;
-    --red: #f7768e;
-    --surface: rgba(255,255,255,0.03);
+    --bg: #111;
+    --surface: #1a1a1a;
+    --text-primary: #fff;
+    --text-body: #ccc;
+    --text-secondary: #999;
+    --text-tertiary: #666;
+    --border: #333;
+    --mono: "SF Mono", "Menlo", "Monaco", monospace;
+    --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  html { font-size: 15px; }
+  html { font-size: 16px; }
 
   body {
-    font-family: 'JetBrains Mono', monospace;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
     background: var(--bg);
-    color: var(--fg);
-    line-height: 1.75;
+    color: var(--text-body);
+    line-height: 1.7;
     -webkit-font-smoothing: antialiased;
   }
 
   ::selection {
-    background: var(--blue);
+    background: var(--text-primary);
     color: var(--bg);
   }
 
   .page {
     max-width: 580px;
     margin: 0 auto;
-    padding: 4.5rem 1.25rem 5rem;
+    padding: 3rem 1.5rem 5rem;
   }
 
-  /* ── Intro ── */
+  /* -- Intro -- */
   .name {
-    font-size: 0.8rem;
-    font-weight: 400;
-    color: var(--fg-muted);
-    margin-bottom: 2.5rem;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    margin-bottom: 5rem;
   }
 
   .name a {
-    color: var(--fg-muted);
+    color: var(--text-secondary);
     text-decoration: none;
-    border-bottom: 1px solid var(--fg-muted);
-    transition: color 0.15s, border-color 0.15s;
+    border-bottom: 1px solid var(--border);
+    transition: border-color 150ms var(--ease-out);
   }
 
-  .name a:hover {
-    color: var(--fg);
-    border-color: var(--fg);
+  @media (hover: hover) and (pointer: fine) {
+    .name a:hover {
+      border-color: var(--text-secondary);
+    }
   }
 
   h1 {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--fg-bright);
-    margin-bottom: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-bottom: 1.25rem;
     letter-spacing: -0.01em;
   }
 
   .intro {
-    color: var(--fg);
-    font-weight: 300;
-    font-size: 0.85rem;
-    margin-bottom: 2.5rem;
+    color: var(--text-body);
+    font-size: 0.9375rem;
+    margin-bottom: 5rem;
   }
 
-  .intro p { margin-bottom: 0.75rem; }
+  .intro p { margin-bottom: 1.25rem; }
   .intro p:last-child { margin-bottom: 0; }
 
-  /* ── Install block ── */
+  /* -- Install block -- */
+  .install-section {
+    margin-bottom: 5rem;
+  }
+
   .install-block {
-    margin-bottom: 1rem;
+    margin-bottom: 0.75rem;
   }
 
   .install-label {
-    font-size: 0.75rem;
-    color: var(--fg-muted);
-    font-weight: 300;
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
     margin-bottom: 0.4rem;
   }
 
   .install-cmd {
     background: var(--surface);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 4px;
-    padding: 0.7rem 1rem;
-    font-size: 0.8rem;
-    color: var(--fg-bright);
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    padding: 0.625rem 0.75rem;
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    color: var(--text-body);
     display: flex;
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
-    transition: border-color 0.15s;
-    position: relative;
+    transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out), transform 160ms var(--ease-out);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
   }
 
-  .install-cmd:hover {
-    border-color: rgba(255,255,255,0.12);
+  .install-cmd:active {
+    transform: scale(0.98);
   }
 
-  .install-cmd .prompt { color: var(--fg-muted); user-select: none; }
+  @media (hover: hover) and (pointer: fine) {
+    .install-cmd:hover {
+      border-color: var(--text-tertiary);
+    }
+    .install-cmd:hover .copy-hint .copy-label { opacity: 1; }
+  }
+
+  .install-cmd .prompt { color: var(--text-tertiary); user-select: none; }
 
   .install-cmd .copy-hint {
     margin-left: auto;
-    font-size: 0.65rem;
-    color: var(--fg-muted);
-    opacity: 0;
-    transition: opacity 0.15s;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    font-size: 0.6875rem;
+    color: var(--text-tertiary);
     user-select: none;
+    position: relative;
   }
 
-  .install-cmd:hover .copy-hint { opacity: 1; }
+  .install-cmd .copy-hint .copy-label,
+  .install-cmd .copy-hint .copied-label {
+    transition: opacity 200ms var(--ease-out), filter 200ms var(--ease-out);
+  }
+
+  .install-cmd .copy-hint .copy-label {
+    opacity: 0;
+  }
+
+  .install-cmd .copy-hint .copied-label {
+    position: absolute;
+    right: 0;
+    opacity: 0;
+    filter: blur(4px);
+  }
+
+  .install-cmd .copy-hint.is-copied .copy-label {
+    opacity: 0 !important;
+    filter: blur(4px);
+  }
+
+  .install-cmd .copy-hint.is-copied .copied-label {
+    opacity: 1;
+    filter: blur(0);
+  }
 
   .install-note {
-    font-size: 0.7rem;
-    color: var(--fg-muted);
-    font-weight: 300;
-    margin-bottom: 2.5rem;
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
     font-style: italic;
+    margin-top: 0.75rem;
   }
 
-  /* ── Levels ── */
+  /* -- Levels -- */
   .levels {
-    margin-bottom: 3rem;
+    margin-bottom: 5rem;
   }
 
   .level {
@@ -144,129 +175,118 @@
 
   .level:last-child { margin-bottom: 0; }
 
-  .level-line {
-    display: flex;
-    align-items: baseline;
-    gap: 0.6rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .level-tag {
-    font-size: 0.7rem;
-    font-weight: 500;
-    flex-shrink: 0;
-  }
-
-  .bad { color: var(--red); }
-  .ok { color: var(--yellow); }
-  .good { color: var(--blue); }
-  .great { color: var(--green); }
-
   .level-title {
-    font-size: 0.85rem;
-    font-weight: 400;
-    color: var(--fg-bright);
+    font-size: 0.9375rem;
+    font-weight: 500;
+    color: var(--text-primary);
+    margin-bottom: 0.125rem;
   }
 
   .level-desc {
-    font-size: 0.75rem;
-    color: var(--fg-muted);
-    font-weight: 300;
-    padding-left: 2.8rem;
+    font-size: 0.875rem;
+    color: var(--text-tertiary);
   }
 
-  /* ── Categories ── */
-  .categories {
-    margin-bottom: 3rem;
-  }
-
-  .categories h2 {
-    font-size: 0.75rem;
-    font-weight: 400;
-    color: var(--fg-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 1.25rem;
-  }
-
-  .cat-group {
+  /* -- Section header -- */
+  .section-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
     margin-bottom: 1.5rem;
   }
 
+  .section-header span {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    flex-shrink: 0;
+  }
+
+  .section-header::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+
+  /* -- Categories -- */
+  .categories {
+    margin-bottom: 5rem;
+  }
+
+  .cat-group {
+    margin-bottom: 2rem;
+  }
+
+  .cat-group:last-child { margin-bottom: 0; }
+
   .cat-group-label {
-    font-size: 0.7rem;
-    font-weight: 300;
-    margin-bottom: 0.4rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
   }
 
   .cat {
-    font-size: 0.8rem;
-    color: var(--fg);
-    font-weight: 300;
-    padding: 0.15rem 0;
+    font-size: 0.875rem;
+    color: var(--text-body);
+    padding: 0.125rem 0;
   }
 
   .cat span {
-    color: var(--fg-muted);
+    color: var(--text-tertiary);
   }
 
-  /* ── Example ── */
+  /* -- Example -- */
   .example {
-    margin-bottom: 3rem;
-  }
-
-  .example h2 {
-    font-size: 0.75rem;
-    font-weight: 400;
-    color: var(--fg-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.06em;
-    margin-bottom: 1rem;
+    margin-bottom: 5rem;
   }
 
   .output {
-    font-size: 0.72rem;
+    font-family: var(--mono);
+    font-size: 0.8125rem;
     line-height: 1.65;
     white-space: pre;
     overflow-x: auto;
-    color: var(--fg-muted);
-    padding: 1.25rem 0;
-    border-top: 1px solid rgba(255,255,255,0.04);
-    border-bottom: 1px solid rgba(255,255,255,0.04);
+    color: var(--text-tertiary);
+    padding: 1.5rem 0;
   }
 
-  .output .v { color: var(--fg-bright); }
-  .output .g { color: var(--green); }
-  .output .y { color: var(--yellow); }
-  .output .r { color: var(--red); }
-  .output .b { color: var(--blue); }
+  .output .v { color: var(--text-primary); font-weight: 500; }
+  .output .s { color: var(--text-body); }
 
-  /* ── Footer ── */
+  /* -- Footer -- */
   .footer {
-    padding-top: 2rem;
-    border-top: 1px solid rgba(255,255,255,0.04);
-    font-size: 0.7rem;
-    color: var(--fg-muted);
-    font-weight: 300;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.8125rem;
+    color: var(--text-tertiary);
     display: flex;
     justify-content: space-between;
   }
 
   .footer a {
-    color: var(--fg-muted);
+    color: var(--text-tertiary);
     text-decoration: none;
     border-bottom: 1px solid transparent;
-    transition: border-color 0.15s;
+    transition: border-color 150ms var(--ease-out);
   }
 
-  .footer a:hover {
-    border-bottom-color: var(--fg-muted);
+  @media (hover: hover) and (pointer: fine) {
+    .footer a:hover {
+      border-bottom-color: var(--text-tertiary);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .install-cmd { transition: none; }
+    .install-cmd:active { transform: none; }
+    .install-cmd .copy-hint .copy-label,
+    .install-cmd .copy-hint .copied-label { transition: none; filter: none !important; }
   }
 
   @media (max-width: 520px) {
-    html { font-size: 14px; }
-    .page { padding: 3rem 1rem 4rem; }
-    .level-desc { padding-left: 0; margin-top: 0.15rem; }
+    html { font-size: 15px; }
+    .page { padding: 2rem 1rem 3rem; }
     .footer { flex-direction: column; gap: 0.5rem; }
   }
 </style>
@@ -281,120 +301,101 @@
 
   <div class="intro">
     <p>A skill that audits your repository for AI agent readiness. How well can Claude Code understand, run, verify, and scale across your codebase?</p>
-    <p>Nine categories scored 0–3. Four levels: bad, ok, good, great. Works as an installable skill or just tell your agent to fetch this page.</p>
+    <p>Fourteen categories across two dimensions: config readiness (scored with a maturity level) and ergonomics (how productive agents are in the codebase). Works as an installable skill or just tell your agent to fetch this page.</p>
   </div>
 
-  <div class="install-block">
-    <div class="install-label">Install</div>
-    <div class="install-cmd" onclick="navigator.clipboard.writeText('npx claudeaudit')">
-      <span class="prompt">$</span> npx claudeaudit
-      <span class="copy-hint">copy</span>
+  <div class="install-section">
+    <div class="install-block">
+      <div class="install-label">Install</div>
+      <div class="install-cmd" data-copy="npx skills add heimann/claudeaudit">
+        <span class="prompt">$</span> npx skills add heimann/claudeaudit
+        <span class="copy-hint"><span class="copy-label">copy</span><span class="copied-label">copied</span></span>
+      </div>
     </div>
-  </div>
 
-  <div class="install-block">
-    <div class="install-label">Or just tell Claude to run it</div>
-    <div class="install-cmd" onclick="navigator.clipboard.writeText('fetch claudeaudit.dev/SKILL.md and run it against this repo')">
-      fetch claudeaudit.dev/SKILL.md and run it against this repo
-      <span class="copy-hint">copy</span>
-    </div>
-  </div>
-  <div class="install-note">Supports Claude Code, Codex, Cursor, and more.</div>
-
-  <div class="levels">
-    <div class="level">
-      <div class="level-line">
-        <span class="level-tag bad">Bad</span>
-        <span class="level-title">Readable</span>
+    <div class="install-block">
+      <div class="install-label">Or just tell Claude to run it</div>
+      <div class="install-cmd" data-copy="fetch claudeaudit.dev/SKILL.md and run it against this repo">
+        fetch claudeaudit.dev/SKILL.md and run it against this repo
+        <span class="copy-hint"><span class="copy-label">copy</span><span class="copied-label">copied</span></span>
       </div>
-      <div class="level-desc">the agent can understand the repo</div>
     </div>
-    <div class="level">
-      <div class="level-line">
-        <span class="level-tag ok">Ok</span>
-        <span class="level-title">Runnable</span>
-      </div>
-      <div class="level-desc">the agent can bootstrap and verify the app</div>
-    </div>
-    <div class="level">
-      <div class="level-line">
-        <span class="level-tag good">Good</span>
-        <span class="level-title">Safe</span>
-      </div>
-      <div class="level-desc">the agent can work confidently without breaking things</div>
-    </div>
-    <div class="level">
-      <div class="level-line">
-        <span class="level-tag great">Great</span>
-        <span class="level-title">Scalable</span>
-      </div>
-      <div class="level-desc">the agent can run in parallel sessions</div>
-    </div>
+    <div class="install-note">Supports Claude Code, Codex, Cursor, and more.</div>
   </div>
 
   <div class="categories">
-    <h2>what it checks</h2>
+    <div class="section-header"><span>What it checks</span></div>
 
     <div class="cat-group">
-      <div class="cat-group-label bad">Bad</div>
-      <div class="cat">Agent documentation <span>— CLAUDE.md quality, sub-directory docs</span></div>
-      <div class="cat">Repository structure <span>— layout clarity, entry points, boundaries</span></div>
+      <div class="cat-group-label">Readable</div>
+      <div class="cat">Agent documentation <span>- CLAUDE.md quality, sub-directory docs</span></div>
+      <div class="cat">Repository structure <span>- layout clarity, entry points, boundaries</span></div>
     </div>
 
     <div class="cat-group">
-      <div class="cat-group-label ok">Ok</div>
-      <div class="cat">Dependency bootstrapping <span>— clone to running in one command</span></div>
-      <div class="cat">Self-verification <span>— tests, E2E coverage, seed data</span></div>
+      <div class="cat-group-label">Runnable</div>
+      <div class="cat">Dependency bootstrapping <span>- clone to running in one command</span></div>
+      <div class="cat">Self-verification <span>- tests, E2E coverage, seed data</span></div>
     </div>
 
     <div class="cat-group">
-      <div class="cat-group-label good">Good</div>
-      <div class="cat">Permissions <span>— .claude/settings.json, scoped tool access</span></div>
-      <div class="cat">Code quality hooks <span>— pre-commit, lint, format automation</span></div>
-      <div class="cat">Rules &amp; conventions <span>— patterns, naming, architecture decisions</span></div>
+      <div class="cat-group-label">Safe</div>
+      <div class="cat">Permissions <span>- .claude/settings.json, scoped tool access</span></div>
+      <div class="cat">Code quality hooks <span>- pre-commit, lint, format automation</span></div>
+      <div class="cat">Rules &amp; conventions <span>- patterns, naming, architecture decisions</span></div>
     </div>
 
     <div class="cat-group">
-      <div class="cat-group-label great">Great</div>
-      <div class="cat">Worktree readiness <span>— no hardcoded paths, configurable ports</span></div>
-      <div class="cat">Sandbox compatibility <span>— containerized dev, mockable deps</span></div>
+      <div class="cat-group-label">Scalable</div>
+      <div class="cat">Worktree readiness <span>- no hardcoded paths, configurable ports</span></div>
+      <div class="cat">Sandbox compatibility <span>- containerized dev, mockable deps</span></div>
+    </div>
+
+    <div class="cat-group">
+      <div class="cat-group-label">Ergonomics</div>
+      <div class="cat">Feedback loop <span>- scoped tests, watch mode, fast verification</span></div>
+      <div class="cat">Error signal quality <span>- concise errors, not noisy stack traces</span></div>
+      <div class="cat">Type system <span>- static analysis catches mistakes before runtime</span></div>
+      <div class="cat">Determinism <span>- same command, same result, no flaky tests</span></div>
+      <div class="cat">Change locality <span>- change one thing without reading everything</span></div>
     </div>
   </div>
 
   <div class="example">
-    <h2>example output</h2>
-    <div class="output"><span class="v">claudeaudit</span> · acme/billing-service · 2026-03-30
+    <div class="section-header"><span>Example output</span></div>
+    <div class="output"><span class="v">claudeaudit</span> · acme/billing-service · 2026-04-01
 
-<span class="v">Ok</span> — Runnable
+<span class="v">Good</span> - Safe
 
-  Agent documentation <span class="y">2</span>/3  Repository structure <span class="g">3</span>/3
-  Dependency bootstrap <span class="g">3</span>/3  Self-verification    <span class="y">2</span>/3
-  Permissions          <span class="r">0</span>/3  Code quality hooks   <span class="y">2</span>/3
-  Rules & conventions  <span class="r">1</span>/3  Worktree readiness   <span class="r">1</span>/3
-  Sandbox compat.      <span class="y">2</span>/3
+Readable
+  Agent documentation  <span class="s">2</span>/3    Repository structure  <span class="s">3</span>/3
 
-  <span class="b">16</span>/27
+Runnable
+  Dependency bootstrap <span class="s">3</span>/3    Self-verification     <span class="s">2</span>/3
 
-<span class="v">Agent documentation</span> <span class="y">2</span>/3
-  CLAUDE.md exists, covers architecture and test commands.
-  Missing sub-directory docs for lib/billing and lib/payments.
-  → Add CLAUDE.md to each context boundary with module-specific patterns.
+Safe
+  Permissions          <span class="s">2</span>/3    Code quality hooks    <span class="s">3</span>/3
+  Rules & conventions  <span class="s">2</span>/3
 
-<span class="v">Permissions</span> <span class="r">0</span>/3
-  No .claude/settings.json found. Agent will prompt on every bash call.
-  → Create .claude/settings.json allowing mix test, mix format, mix credo.
+Scalable
+  Worktree readiness   <span class="s">1</span>/3    Sandbox compat.       <span class="s">2</span>/3
 
-<span class="v">Rules & conventions</span> <span class="r">1</span>/3
-  README mentions conventional commits but no other patterns documented.
-  Ecto schema naming is inconsistent (singular vs plural).
-  → Add conventions section to CLAUDE.md covering schema naming,
-    error tuple format, and context module boundaries.
+Ergonomics
+  Feedback loop        <span class="s">2</span>/3    Error signal quality  <span class="s">1</span>/3
+  Type system          <span class="s">2</span>/3    Determinism           <span class="s">2</span>/3
+  Change locality      <span class="s">2</span>/3
 
-<span class="v">Worktree readiness</span> <span class="r">1</span>/3
-  Port 4000 hardcoded in config/dev.exs. SQLite path is relative but
-  not configurable.
-  → Read PORT from env with fallback. Derive DB path from MIX_ENV or
-    worktree name.</div>
+<span class="v">Worktree readiness</span>  <span class="s">1/3</span>
+  Port 4000 hardcoded in config/dev.exs with no env var override.
+  > Read PORT from System.get_env("PORT", "4000") in config/runtime.exs.
+
+<span class="v">Self-verification</span>  <span class="s">2/3</span>
+  Tests exist and pass, CI runs them. No scoped test command documented.
+  > Add to CLAUDE.md: "mix test test/myapp/billing_test.exs:42"
+
+<span class="v">Error signal quality</span>  <span class="s">1/3</span>
+  Default Phoenix error output. No custom error formatters.
+  > Configure --formatter Elixir.CLI.Formatter for concise test output.</div>
   </div>
 
   <footer class="footer">
@@ -403,6 +404,19 @@
   </footer>
 
 </div>
+
+<script>
+document.querySelectorAll('.install-cmd[data-copy]').forEach(cmd => {
+  cmd.addEventListener('click', () => {
+    const text = cmd.dataset.copy;
+    const hint = cmd.querySelector('.copy-hint');
+    navigator.clipboard.writeText(text).then(() => {
+      hint.classList.add('is-copied');
+      setTimeout(() => hint.classList.remove('is-copied'), 1500);
+    });
+  });
+});
+</script>
 
 <!--
   AGENT: fetch https://claudeaudit.dev/SKILL.md for the full audit rubric and instructions.
