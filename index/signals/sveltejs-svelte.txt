@@ -1,0 +1,181 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/sveltejs-svelte
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+assets
+benchmarking
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+documentation
+eslint.config.js
+FUNDING.json
+LICENSE.md
+package.json
+packages
+playgrounds
+pnpm-lock.yaml
+pnpm-workspace.yaml
+README.md
+svelte.config.js
+vitest.config.js
+vitest-xhtml-environment.ts
+
+### README
+FILE: README.md
+<a href="https://svelte.dev">
+	<picture>
+		<source media="(prefers-color-scheme: dark)" srcset="assets/banner_dark.png">
+		<img src="assets/banner.png" alt="Svelte - web development for the rest of us" />
+	</picture>
+</a>
+
+[![License](https://img.shields.io/npm/l/svelte.svg)](LICENSE.md) [![Chat](https://img.shields.io/discord/457912077277855764?label=chat&logo=discord)](https://svelte.dev/chat)
+
+## What is Svelte?
+
+Svelte is a new way to build web applications. It's a compiler that takes your declarative components and converts them into efficient JavaScript that surgically updates the DOM.
+
+Learn more at the [Svelte website](https://svelte.dev), or stop by the [Discord chatroom](https://svelte.dev/chat).
+
+## Supporting Svelte
+
+Svelte is an MIT-licensed open source project with its ongoing development made possible entirely by fantastic volunteers. If you'd like to support their efforts, please consider:
+
+- [Becoming a backer on Open Collective](https://opencollective.com/svelte).
+
+Funds donated via Open Collective will be used for compensating expenses related to Svelte's development such as hosting costs. If sufficient donations are received, funds may also be used to support Svelte's development more directly.
+
+## Roadmap
+
+You may view [our roadmap](https://svelte.dev/roadmap) if you'd like to see what we're currently working on.
+
+## Contributing
+
+Please see the [Contributing Guide](CONTRIBUTING.md) and the [`svelte`](packages/svelte) package for information on contributing to Svelte.
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "svelte-monorepo",
+  "version": "0.0.1",
+  "description": "monorepo for svelte and friends",
+  "private": true,
+  "type": "module",
+  "license": "MIT",
+  "packageManager": "pnpm@10.4.0",
+  "engines": {
+    "pnpm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sveltejs/svelte.git"
+  },
+  "scripts": {
+    "build": "pnpm -r --filter=./packages/* build",
+    "check": "cd packages/svelte && pnpm build && cd ../../ && pnpm -r check",
+    "lint": "eslint && prettier --check .",
+    "format": "prettier --write .",
+    "test": "vitest run",
+    "changeset:version": "changeset version && pnpm -r generate:version && git add --all",
+    "changeset:publish": "changeset publish",
+    "bench": "NODE_ENV=production node --allow-natives-syntax ./benchmarking/run.js",
+    "bench:compare": "NODE_ENV=production node --allow-natives-syntax ./benchmarking/compare/index.js",
+    "bench:debug": "NODE_ENV=production node --allow-natives-syntax --inspect-brk ./benchmarking/run.js"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.29.8",
+    "@eslint/js": "^10.0.0",
+    "@sveltejs/eslint-config": "^9.0.0",
+    "@svitejs/changesets-changelog-github-compact": "^1.1.0",
+    "@types/node": "^20.11.5",
+    "@types/picomatch": "^4.0.2",
+    "@vitest/coverage-v8": "^2.1.9",
+    "eslint": "^10.0.0",
+    "eslint-plugin-lube": "^0.5.1",
+    "eslint-plugin-svelte": "^3.15.0",
+    "jsdom": "25.0.1",
+    "playwright": "^1.58.0",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 10
+ci_workflow_count: 5
+autofix.yml
+ci.yml
+ecosystem-ci-trigger.yml
+pkg.pr.new.yml
+release.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.js: EXISTS
+.prettierrc: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 171 lines
+# Contributing to Svelte
+
+Svelte is a new way to build web applications. It's a compiler that takes your declarative components and converts them into efficient JavaScript that surgically updates the DOM.
+
+The [Open Source Guides](https://opensource.guide/) website has a collection of resources for individuals, communities, and companies. These resources help people who want to learn how to run and contribute to open source projects. Contributors and people new to open source alike will find the following guides especially useful:
+
+- [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
+- [Building Welcoming Communities](https://opensource.guide/building-community/)
+
+## Get involved
+
+There are many ways to contribute to Svelte, and many of them do not involve writing any code. Here are a few ideas to get started:
+
+- Simply start using Svelte. Go through the [Getting Started](https://svelte.dev/docs#getting-started) guide. Does everything work as expected? If not, we're always looking for improvements. Let us know by [opening an issue](#reporting-new-issues).
+- Look through the [open issues](https://github.com/sveltejs/svelte/issues). A good starting point would be issues tagged [good first issue](https://github.com/sveltejs/svelte/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22). Provide workarounds, ask for clarification, or suggest labels. Help [triage issues](#triaging-issues-and-pull-requests).
+- If you find an issue you would like to fix, [open a pull request](#pull-requests).
+- Read through our [tutorials](https://svelte.dev/tutorial). If you find anything that is confusing or can be improved, you can make edits by clicking "Edit this page" at the bottom left of the tutorial page.
+- Take a look at the [features requested](https://github.com/sveltejs/svelte/labels/feature%20request) by others in the community and consider opening a pull request if you see something you want to work on.
+
+Contributions are very welcome. If you think you need help planning your contribution, please ping us on Discord at [svelte.dev/chat](https://svelte.dev/chat) and let us know you are looking for a bit of help.
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### Determinism
+sleep_pattern_count_in_tests: 1
+### Largest source files
+  81066 total
+   2234 ./packages/svelte/src/compiler/phases/1-parse/utils/entities.js
+   1998 ./packages/svelte/src/compiler/migrate/index.js
+   1718 ./packages/svelte/src/compiler/errors.js
+   1471 ./packages/svelte/src/compiler/phases/scope.js
+   1325 ./packages/svelte/src/compiler/phases/2-analyze/index.js
+   1247 ./packages/svelte/src/compiler/phases/2-analyze/css/css-prune.js
+   1231 ./packages/svelte/src/internal/client/reactivity/batch.js
+    954 ./packages/svelte/src/compiler/phases/2-analyze/visitors/shared/a11y/index.js
+    950 ./packages/svelte/src/compiler/phases/1-parse/state/element.js
+    945 ./packages/svelte/src/internal/server/renderer.js
+
+=== END SIGNALS ===

@@ -1,0 +1,207 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/Comfy-Org-ComfyUI
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+alembic_db
+alembic.ini
+api_server
+app
+blueprints
+CODEOWNERS
+comfy
+comfy_api
+comfy_api_nodes
+comfy_config
+comfy_execution
+comfy_extras
+comfyui_version.py
+CONTRIBUTING.md
+cuda_malloc.py
+custom_nodes
+execution.py
+extra_model_paths.yaml.example
+folder_paths.py
+hook_breaker_ac10a0.py
+input
+latent_preview.py
+LICENSE
+main.py
+manager_requirements.txt
+middleware
+models
+new_updater.py
+node_helpers.py
+nodes.py
+output
+protocol.py
+pyproject.toml
+pytest.ini
+QUANTIZATION.md
+README.md
+requirements.txt
+script_examples
+server.py
+tests
+tests-unit
+utils
+
+### README
+FILE: README.md
+<div align="center">
+
+# ComfyUI
+**The most powerful and modular visual AI engine and application.**
+
+
+[![Website][website-shield]][website-url]
+[![Dynamic JSON Badge][discord-shield]][discord-url]
+[![Twitter][twitter-shield]][twitter-url]
+[![Matrix][matrix-shield]][matrix-url]
+<br>
+[![][github-release-shield]][github-release-link]
+[![][github-release-date-shield]][github-release-link]
+[![][github-downloads-shield]][github-downloads-link]
+[![][github-downloads-latest-shield]][github-downloads-link]
+
+[matrix-shield]: https://img.shields.io/badge/Matrix-000000?style=flat&logo=matrix&logoColor=white
+[matrix-url]: https://app.element.io/#/room/%23comfyui_space%3Amatrix.org
+[website-shield]: https://img.shields.io/badge/ComfyOrg-4285F4?style=flat
+[website-url]: https://www.comfy.org/
+<!-- Workaround to display total user from https://github.com/badges/shields/issues/4500#issuecomment-2060079995 -->
+[discord-shield]: https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscord.com%2Fapi%2Finvites%2Fcomfyorg%3Fwith_counts%3Dtrue&query=%24.approximate_member_count&logo=discord&logoColor=white&label=Discord&color=green&suffix=%20total
+[discord-url]: https://www.comfy.org/discord
+[twitter-shield]: https://img.shields.io/twitter/follow/ComfyUI
+[twitter-url]: https://x.com/ComfyUI
+
+[github-release-shield]: https://img.shields.io/github/v/release/comfyanonymous/ComfyUI?style=flat&sort=semver
+[github-release-link]: https://github.com/comfyanonymous/ComfyUI/releases
+[github-release-date-shield]: https://img.shields.io/github/release-date/comfyanonymous/ComfyUI?style=flat
+[github-downloads-shield]: https://img.shields.io/github/downloads/comfyanonymous/ComfyUI/total?style=flat
+---END---
+
+## Dependencies
+FILE: pyproject.toml
+[project]
+name = "ComfyUI"
+version = "0.18.1"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+
+[project.urls]
+homepage = "https://www.comfy.org/"
+repository = "https://github.com/comfyanonymous/ComfyUI"
+documentation = "https://docs.comfy.org/"
+
+[tool.ruff]
+lint.select = [
+  "N805", # invalid-first-argument-name-for-method
+  "S307", # suspicious-eval-usage
+  "S102", # exec
+  "E",
+  "T",    # print-usage
+  "W",
+  # The "F" series in Ruff stands for "Pyflakes" rules, which catch various Python syntax errors and undefined names.
+  # See all rules here: https://docs.astral.sh/ruff/rules/#pyflakes-f
+  "F",
+]
+
+lint.ignore = ["E501", "E722", "E731", "E712", "E402", "E741"]
+
+exclude = ["*.ipynb", "**/generated/*.pyi"]
+
+[tool.pylint]
+master.py-version = "3.10"
+master.extension-pkg-allow-list = [
+  "pydantic",
+]
+reports.output-format = "colorized"
+similarities.ignore-imports = "yes"
+messages_control.disable = [
+  "missing-module-docstring",
+  "missing-class-docstring",
+  "missing-function-docstring",
+---END---
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 59
+ci_workflow_count: 21
+api-node-template.yml
+check-ai-co-authors.yml
+check-line-endings.yml
+pullrequest-ci-run.yml
+release-stable-all.yml
+release-webhook.yml
+ruff.yml
+stable-release.yml
+stale-issues.yml
+test-build.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 41 lines
+# Contributing to ComfyUI
+
+Welcome, and thank you for your interest in contributing to ComfyUI!
+
+There are several ways in which you can contribute, beyond writing code. The goal of this document is to provide a high-level overview of how you can get involved.
+
+## Asking Questions
+
+Have a question? Instead of opening an issue, please ask on [Discord](https://comfy.org/discord) or [Matrix](https://app.element.io/#/room/%23comfyui_space%3Amatrix.org) channels. Our team and the community will help you.
+
+## Providing Feedback
+
+Your comments and feedback are welcome, and the development team is available via a handful of different channels.
+
+See the `#bug-report`, `#feature-request` and `#feedback` channels on Discord.
+
+## Reporting Issues
+
+Have you identified a reproducible problem in ComfyUI? Do you have a feature request? We want to hear about it! Here's how you can report your issue as effectively as possible.
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### mypy config
+no [tool.mypy] section
+### Determinism
+sleep_pattern_count_in_tests: 81
+### Largest source files
+ 184609 total
+   6155 ./comfy_api_nodes/apis/__init__.py
+   3278 ./comfy_api_nodes/nodes_kling.py
+   2526 ./nodes.py
+   2280 ./comfy_api/latest/_io.py
+   1964 ./comfy/model_base.py
+   1853 ./comfy/sd.py
+   1813 ./comfy/model_management.py
+   1812 ./comfy/k_diffusion/sampling.py
+   1754 ./comfy/supported_models.py
+   1738 ./comfy/ldm/wan/model.py
+
+=== END SIGNALS ===

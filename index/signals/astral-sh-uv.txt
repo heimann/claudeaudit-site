@@ -1,0 +1,375 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/astral-sh-uv
+
+## Agent Documentation
+FILE: CLAUDE.md (19 lines)
+- Read CONTRIBUTING.md for guidelines on how to run tools
+- ALWAYS attempt to add a test case for changed behavior
+- PREFER integration tests, e.g., at `it/...` over unit tests
+- When making changes for Windows from Unix, use `cargo xwin clippy` to check compilation
+- NEVER perform builds with the release profile, unless asked or reproducing performance issues
+- PREFER running specific tests over running the entire test suite
+- AVOID using `panic!`, `unreachable!`, `.unwrap()`, unsafe code, and clippy rule ignores
+- PREFER patterns like `if let` to handle fallibility
+- ALWAYS write `SAFETY` comments following our usual style when writing `unsafe` code
+- PREFER `#[expect()]` over `[allow()]` if clippy must be disabled
+- PREFER let chains (`if let` combined with `&&`) over nested `if let` statements
+- NEVER update all dependencies in the lockfile and ALWAYS use `cargo update --precise` to make
+  lockfile changes
+- NEVER assume clippy warnings are pre-existing, it is very rare that `main` has warnings
+- ALWAYS read and copy the style of similar tests when adding new cases
+- PREFER top-level imports over local imports or fully qualified names
+- AVOID shortening variable names, e.g., use `version` instead of `ver`, and `requires_python`
+  instead of `rp`
+- PREFER [`TypeName`] references when writing Rust doc comments
+---END---
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json (26 lines)
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": ".claude/hooks/session-start.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "uv run .claude/hooks/post-edit-format.py"
+          }
+        ]
+      }
+    ]
+  }
+}
+---END---
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+### .claude/ contents
+FILE: .claude/hooks/post-edit-format.py (77 lines)
+# /// script
+# requires-python = ">=3.12"
+# dependencies = []
+# ///
+
+"""Post-edit hook to auto-format files after Claude edits."""
+
+import json
+import subprocess
+import sys
+from pathlib import Path
+
+
+def format_rust(file_path: str, cwd: str) -> None:
+    """Format Rust files with cargo fmt."""
+    try:
+        subprocess.run(
+            ["cargo", "fmt", "--", file_path],
+            cwd=cwd,
+            capture_output=True,
+        )
+    except FileNotFoundError:
+        pass
+
+
+def format_python(file_path: str, cwd: str) -> None:
+    """Format Python files with ruff."""
+    try:
+        subprocess.run(
+            ["uvx", "ruff", "format", file_path],
+            cwd=cwd,
+            capture_output=True,
+        )
+    except FileNotFoundError:
+        pass
+
+
+def format_prettier(file_path: str, cwd: str) -> None:
+    """Format files with prettier."""
+    try:
+        subprocess.run(
+            ["npx", "prettier", "--write", file_path], cwd=cwd, capture_output=True
+        )
+    except FileNotFoundError:
+        pass
+
+
+def main() -> None:
+    import os
+
+---END---
+FILE: .claude/hooks/session-start.sh (7 lines)
+#!/bin/bash
+set -euo pipefail
+
+# Dispatch to web hook if running remotely
+if [ "${CLAUDE_CODE_REMOTE:-}" = "true" ]; then
+  exec "$(dirname "$0")/session-start-web.sh"
+fi
+---END---
+FILE: .claude/hooks/session-start-web.sh (16 lines)
+#!/bin/bash
+set -euo pipefail
+
+# Install `gh`
+if ! command -v gh &> /dev/null; then
+    apt-get update -qq
+    apt-get install -y -qq gh
+fi
+
+# Install clippy and rustfmt for the active toolchain.
+rustup component add clippy rustfmt
+
+# Set GH_REPO so `gh` works even when the git remote points to a local proxy
+if [ -n "${CLAUDE_ENV_FILE:-}" ]; then
+  echo 'export GH_REPO=astral-sh/uv' >> "$CLAUDE_ENV_FILE"
+fi
+---END---
+
+## Repository Structure
+### Top-level layout
+assets
+BENCHMARKS.md
+Cargo.lock
+Cargo.toml
+CHANGELOG.md
+changelogs
+CLAUDE.md
+clippy.toml
+CONTRIBUTING.md
+crates
+dist-workspace.toml
+Dockerfile
+docs
+LICENSE-APACHE
+LICENSE-MIT
+mkdocs.yml
+PIP_COMPATIBILITY.md
+pyproject.toml
+python
+README.md
+ruff.toml
+rustfmt.toml
+rust-toolchain.toml
+scripts
+SECURITY.md
+STYLE.md
+test
+_typos.toml
+uv.lock
+uv.schema.json
+
+### README
+FILE: README.md
+# uv
+
+[![uv](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/uv/main/assets/badge/v0.json)](https://github.com/astral-sh/uv)
+[![image](https://img.shields.io/pypi/v/uv.svg)](https://pypi.python.org/pypi/uv)
+[![image](https://img.shields.io/pypi/l/uv.svg)](https://pypi.python.org/pypi/uv)
+[![image](https://img.shields.io/pypi/pyversions/uv.svg)](https://pypi.python.org/pypi/uv)
+[![Actions status](https://github.com/astral-sh/uv/actions/workflows/ci.yml/badge.svg)](https://github.com/astral-sh/uv/actions)
+[![Discord](https://img.shields.io/badge/Discord-%235865F2.svg?logo=discord&logoColor=white)](https://discord.gg/astral-sh)
+
+An extremely fast Python package and project manager, written in Rust.
+
+<p align="center">
+  <picture align="center">
+    <source media="(prefers-color-scheme: dark)" srcset="https://github.com/astral-sh/uv/assets/1309177/03aa9163-1c79-4a87-a31d-7a9311ed9310">
+    <source media="(prefers-color-scheme: light)" srcset="https://github.com/astral-sh/uv/assets/1309177/629e59c0-9c6e-4013-9ad4-adb2bcf5080d">
+    <img alt="Shows a bar chart with benchmark results." src="https://github.com/astral-sh/uv/assets/1309177/629e59c0-9c6e-4013-9ad4-adb2bcf5080d">
+  </picture>
+</p>
+
+<p align="center">
+  <i>Installing <a href="https://trio.readthedocs.io/">Trio</a>'s dependencies with a warm cache.</i>
+</p>
+
+## Highlights
+
+- A single tool to replace `pip`, `pip-tools`, `pipx`, `poetry`, `pyenv`, `twine`, `virtualenv`, and
+  more.
+- [10-100x faster](https://github.com/astral-sh/uv/blob/main/BENCHMARKS.md) than `pip`.
+- Provides [comprehensive project management](#projects), with a
+  [universal lockfile](https://docs.astral.sh/uv/concepts/projects/layout#the-lockfile).
+---END---
+
+## Dependencies
+FILE: pyproject.toml
+[build-system]
+requires = ["maturin>=1.0,<2.0"]
+build-backend = "maturin"
+
+[project]
+name = "uv"
+version = "0.11.3"
+description = "An extremely fast Python package and project manager, written in Rust."
+authors = [{ name = "Astral Software Inc.", email = "hey@astral.sh" }]
+requires-python = ">=3.8"
+keywords = [
+  "uv", "requirements", "packaging"
+]
+license="MIT OR Apache-2.0"
+license-files = ["LICENSE-APACHE", "LICENSE-MIT"]
+classifiers = [
+  "Development Status :: 5 - Production/Stable",
+  "Environment :: Console",
+  "Intended Audience :: Developers",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Programming Language :: Python :: 3.14",
+  "Programming Language :: Python :: 3.15",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Rust",
+  "Topic :: Software Development :: Quality Assurance",
+  "Topic :: Software Development :: Testing",
+  "Topic :: Software Development :: Libraries",
+]
+readme = "README.md"
+
+[project.urls]
+Repository = "https://github.com/astral-sh/uv"
+Documentation = "https://docs.astral.sh/uv"
+---END---
+### Lock files
+Cargo.lock: EXISTS
+uv.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 5
+ci_workflow_count: 25
+bench.yml
+build-dev-binaries.yml
+build-docker.yml
+build-release-binaries.yml
+check-docs.yml
+check-fmt.yml
+check-generated-files.yml
+check-lint.yml
+check-publish.yml
+check-release.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+fail_fast: true
+
+exclude: |
+  (?x)^(
+    .*/(snapshots)/.*|
+  )$
+
+repos:
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.24.1
+    hooks:
+      - id: validate-pyproject
+
+  - repo: https://github.com/crate-ci/typos
+    rev: v1.42.3
+    hooks:
+      - id: typos
+
+  - repo: local
+    hooks:
+      - id: rustfmt
+        name: rustfmt
+        entry: rustfmt
+        language: system
+        types: [rust]
+
+  - repo: local
+    hooks:
+      - id: cargo-dev-generate-all
+        name: cargo dev generate-all
+        entry: cargo dev generate-all
+        language: system
+        types: [rust]
+        pass_filenames: false
+        files: ^crates/(uv-cli|uv-settings)/
+
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.prettierrc: EXISTS
+ruff.toml: EXISTS
+rustfmt.toml: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 356 lines
+# Contributing
+
+## Finding ways to help
+
+We label issues that would be good for a first time contributor as
+[`good first issue`](https://github.com/astral-sh/uv/issues?q=is%3Aopen+is%3Aissue+label%3A%22good+first+issue%22).
+These usually do not require significant experience with Rust or the uv code base.
+
+We label issues that we think are a good opportunity for subsequent contributions as
+[`help wanted`](https://github.com/astral-sh/uv/issues?q=is%3Aopen+is%3Aissue+label%3A%22help+wanted%22).
+These require varying levels of experience with Rust and uv. Often, we want to accomplish these
+tasks but do not have the resources to do so ourselves.
+
+You don't need our permission to start on an issue we have labeled as appropriate for community
+contribution as described above. However, it's a good idea to indicate that you are going to work on
+an issue to avoid concurrent attempts to solve the same problem.
+
+Please check in with us before starting work on an issue that has not been labeled as appropriate
+for community contribution. We're happy to receive contributions for other issues, but it's
+important to make sure we have consensus on the solution to the problem first.
+---END---
+
+## Scalability
+uv.schema.json:58:      "description": "The keys to consider when caching builds for the project.\n\nCache keys enable you to specify the files or directories that should trigger a rebuild when\nmodified. By default, uv will rebuild a project whenever the `pyproject.toml`, `setup.py`,\nor `setup.cfg` files in the project directory are modified, or if a `src` directory is\nadded or removed, i.e.:\n\n```toml\ncache-keys = [{ file = \"pyproject.toml\" }, { file = \"setup.py\" }, { file = \"setup.cfg\" }, { dir = \"src\" }]\n```\n\nAs an example: if a project uses dynamic metadata to read its dependencies from a\n`requirements.txt` file, you can specify `cache-keys = [{ file = \"requirements.txt\" }, { file = \"pyproject.toml\" }]`\nto ensure that the project is rebuilt whenever the `requirements.txt` file is modified (in\naddition to watching the `pyproject.toml`).\n\nGlobs are supported, following the syntax of the [`glob`](https://docs.rs/glob/0.3.1/glob/struct.Pattern.html)\ncrate. For example, to invalidate the cache whenever a `.toml` file in the project directory\nor any of its subdirectories is modified, you can specify `cache-keys = [{ file = \"**/*.toml\" }]`.\nNote that the use of globs can be expensive, as uv may need to walk the filesystem to\ndetermine whether any files have changed.\n\nCache keys can also include version control information. For example, if a project uses\n`setuptools_scm` to read its version from a Git commit, you can specify `cache-keys = [{ git = { commit = true }, { file = \"pyproject.toml\" }]`\nto include the current Git commit hash in the cache key (in addition to the\n`pyproject.toml`). Git tags are also supported via `cache-keys = [{ git = { commit = true, tags = true } }]`.\n\nCache keys can also include environment variables. For example, if a project relies on\n`MACOSX_DEPLOYMENT_TARGET` or other environment variables to determine its behavior, you can\nspecify `cache-keys = [{ env = \"MACOSX_DEPLOYMENT_TARGET\" }]` to invalidate the cache\nwhenever the environment variable changes.\n\nCache keys only affect the project defined by the `pyproject.toml` in which they're\nspecified (as opposed to, e.g., affecting all members in a workspace), and all paths and\nglobs are interpreted as relative to the project directory.",
+uv.schema.json:550:      "description": "Configure trusted publishing.\n\nBy default, uv checks for trusted publishing when running in a supported environment, but\nignores it if it isn't configured.\n\nuv's supported environments for trusted publishing include GitHub Actions and GitLab CI/CD.",
+uv.schema.json:1471:          "description": "Install packages into `lib`, `bin`, and other top-level folders under the specified\ndirectory, as if a virtual environment were present at that location.\n\nIn general, prefer the use of `--python` to install into an alternate environment, as\nscripts and other artifacts installed via `--prefix` will reference the installing\ninterpreter, rather than any interpreter added to the `--prefix` directory, rendering them\nnon-portable.",
+uv.schema.json:1486:          "description": "The Python interpreter into which packages should be installed.\n\nBy default, uv installs into the virtual environment in the current working directory or\nany parent directory. The `--python` option allows you to specify a different interpreter,\nwhich is intended for use in continuous integration (CI) environments or other automated\nworkflows.\n\nSupported formats:\n- `3.10` looks for an installed Python 3.10 in the registry on Windows (see\n  `py --list-paths`), or `python3.10` on Linux and macOS.\n- `python3.10` or `python.exe` looks for a binary with the given name in `PATH`.\n- `/home/ferris/.local/bin/python3.10` uses the exact Python at the given path.",
+uv.schema.json:2554:          "description": "Attempt trusted publishing when we're in a supported environment, continue if that fails.\n\nSupported environments include GitHub Actions and GitLab CI/CD.",
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### mypy config
+no [tool.mypy] section
+### Determinism
+sleep_pattern_count_in_tests: 5
+### Largest source files
+  432922 total
+   34540 ./crates/uv/tests/it/lock.rs
+   18552 ./crates/uv/tests/it/pip_compile.rs
+   16505 ./crates/uv/tests/it/lock_conflict.rs
+   15970 ./crates/uv/tests/it/sync.rs
+   15231 ./crates/uv/tests/it/edit.rs
+   14770 ./crates/uv/tests/it/pip_install.rs
+   11659 ./crates/uv/tests/it/show_settings.rs
+    9572 ./crates/uv/tests/it/export.rs
+    8012 ./crates/uv-cli/src/lib.rs
+    6923 ./crates/uv-resolver/src/lock/mod.rs
+
+=== END SIGNALS ===

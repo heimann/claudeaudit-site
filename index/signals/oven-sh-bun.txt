@@ -1,0 +1,1636 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/oven-sh-bun
+
+## Agent Documentation
+FILE: CLAUDE.md (276 lines)
+This is the Bun repository - an all-in-one JavaScript runtime & toolkit designed for speed, with a bundler, test runner, and Node.js-compatible package manager. It's written primarily in Zig with C++ for JavaScriptCore integration, powered by WebKit's JavaScriptCore engine.
+
+## Building and Running Bun
+
+### Build Commands
+
+- **Build Bun**: `bun bd`
+  - Creates a debug build at `./build/debug/bun-debug`
+  - **CRITICAL**: do not set a timeout when running `bun bd`
+- **Run tests with your debug build**: `bun bd test <test-file>`
+  - **CRITICAL**: Never use `bun test` directly - it won't include your changes
+- **Run any command with debug build**: `bun bd <command>`
+- **Run with JavaScript exception scope verification**: `BUN_JSC_validateExceptionChecks=1
+BUN_JSC_dumpSimulatedThrows=1 bun bd <command>`
+
+Tip: Bun is already installed and in $PATH. The `bd` subcommand is a package.json script.
+
+**All build scripts support build-then-exec.** Any `bun run build*` command (and `bun bd`, and `bun scripts/build.ts` directly) accepts trailing args which are passed to the built executable after building. This is the recommended way to run your build — you never invoke `./build/debug/bun-debug` directly.
+
+```sh
+bun bd test foo.test.ts                    # debug build + quiet debug logs
+bun run build test foo.test.ts             # debug build
+bun run build:release -p 'Bun.version'     # release build
+bun run build:local run script.ts          # debug build with local WebKit
+```
+
+When exec args are present, build output is suppressed unless the build fails — you see only the binary's output. Build flags (e.g. `--asan=off`) go before the exec args; see `scripts/build.ts` header for the full arg routing rules.
+
+**Comparing builds:** normally use the default `build/<profile>/` dir. If you need to preserve a build as a comparison point (rare — e.g. benchmarking before/after a change), `--build-dir` parks it somewhere the next build won't overwrite:
+
+```sh
+bun run build:release --build-dir=build/baseline
+```
+
+## Testing
+
+### Running Tests
+
+- **Single test file**: `bun bd test test/js/bun/http/serve.test.ts`
+- **Fuzzy match test file**: `bun bd test http/serve.test.ts`
+- **With filter**: `bun bd test test/js/bun/http/serve.test.ts -t "should handle"`
+
+### Test Organization
+
+If a test is for a specific numbered GitHub Issue, it should be placed in `test/regression/issue/${issueNumber}.test.ts`. Ensure the issue number is **REAL** and not a placeholder!
+
+If no valid issue number is provided, find the best existing file to modify instead, such as;
+
+- `test/js/bun/` - Bun-specific API tests (http, crypto, ffi, shell, etc.)
+- `test/js/node/` - Node.js compatibility tests
+- `test/js/web/` - Web API tests (fetch, WebSocket, streams, etc.)
+- `test/cli/` - CLI command tests (install, run, test, etc.)
+- `test/bundler/` - Bundler and transpiler tests. Use `itBundled` helper.
+- `test/integration/` - End-to-end integration tests
+- `test/napi/` - N-API compatibility tests
+- `test/v8/` - V8 C++ API compatibility tests
+
+### Writing Tests
+
+Tests use Bun's Jest-compatible test runner with proper test fixtures.
+
+- For **single-file tests**, prefer `-e` over `tempDir`.
+- For **multi-file tests**, prefer `tempDir` and `Bun.spawn`.
+
+```typescript
+import { test, expect } from "bun:test";
+import { bunEnv, bunExe, normalizeBunSnapshot, tempDir } from "harness";
+
+test("(single-file test) my feature", async () => {
+  await using proc = Bun.spawn({
+    cmd: [bunExe(), "-e", "console.log('Hello, world!')"],
+    env: bunEnv,
+  });
+
+  const [stdout, stderr, exitCode] = await Promise.all([
+    proc.stdout.text(),
+    proc.stderr.text(),
+    proc.exited,
+  ]);
+
+  expect(normalizeBunSnapshot(stdout)).toMatchInlineSnapshot(`"Hello, world!"`);
+  expect(exitCode).toBe(0);
+});
+
+test("(multi-file test) my feature", async () => {
+  // Create temp directory with test files
+  using dir = tempDir("test-prefix", {
+    "index.js": `import { foo } from "./foo.ts"; foo();`,
+    "foo.ts": `export function foo() { console.log("foo"); }`,
+  });
+
+  // Spawn Bun process
+  await using proc = Bun.spawn({
+    cmd: [bunExe(), "index.js"],
+    env: bunEnv,
+    cwd: String(dir),
+    stderr: "pipe",
+  });
+
+  const [stdout, stderr, exitCode] = await Promise.all([
+---END---
+FILE: AGENTS.md (276 lines)
+This is the Bun repository - an all-in-one JavaScript runtime & toolkit designed for speed, with a bundler, test runner, and Node.js-compatible package manager. It's written primarily in Zig with C++ for JavaScriptCore integration, powered by WebKit's JavaScriptCore engine.
+
+## Building and Running Bun
+
+### Build Commands
+
+- **Build Bun**: `bun bd`
+  - Creates a debug build at `./build/debug/bun-debug`
+  - **CRITICAL**: do not set a timeout when running `bun bd`
+- **Run tests with your debug build**: `bun bd test <test-file>`
+  - **CRITICAL**: Never use `bun test` directly - it won't include your changes
+- **Run any command with debug build**: `bun bd <command>`
+- **Run with JavaScript exception scope verification**: `BUN_JSC_validateExceptionChecks=1
+BUN_JSC_dumpSimulatedThrows=1 bun bd <command>`
+
+Tip: Bun is already installed and in $PATH. The `bd` subcommand is a package.json script.
+
+**All build scripts support build-then-exec.** Any `bun run build*` command (and `bun bd`, and `bun scripts/build.ts` directly) accepts trailing args which are passed to the built executable after building. This is the recommended way to run your build — you never invoke `./build/debug/bun-debug` directly.
+
+```sh
+bun bd test foo.test.ts                    # debug build + quiet debug logs
+bun run build test foo.test.ts             # debug build
+bun run build:release -p 'Bun.version'     # release build
+bun run build:local run script.ts          # debug build with local WebKit
+```
+
+When exec args are present, build output is suppressed unless the build fails — you see only the binary's output. Build flags (e.g. `--asan=off`) go before the exec args; see `scripts/build.ts` header for the full arg routing rules.
+
+**Comparing builds:** normally use the default `build/<profile>/` dir. If you need to preserve a build as a comparison point (rare — e.g. benchmarking before/after a change), `--build-dir` parks it somewhere the next build won't overwrite:
+
+```sh
+bun run build:release --build-dir=build/baseline
+```
+
+## Testing
+
+### Running Tests
+
+- **Single test file**: `bun bd test test/js/bun/http/serve.test.ts`
+- **Fuzzy match test file**: `bun bd test http/serve.test.ts`
+- **With filter**: `bun bd test test/js/bun/http/serve.test.ts -t "should handle"`
+
+### Test Organization
+
+If a test is for a specific numbered GitHub Issue, it should be placed in `test/regression/issue/${issueNumber}.test.ts`. Ensure the issue number is **REAL** and not a placeholder!
+
+If no valid issue number is provided, find the best existing file to modify instead, such as;
+
+- `test/js/bun/` - Bun-specific API tests (http, crypto, ffi, shell, etc.)
+- `test/js/node/` - Node.js compatibility tests
+- `test/js/web/` - Web API tests (fetch, WebSocket, streams, etc.)
+- `test/cli/` - CLI command tests (install, run, test, etc.)
+- `test/bundler/` - Bundler and transpiler tests. Use `itBundled` helper.
+- `test/integration/` - End-to-end integration tests
+- `test/napi/` - N-API compatibility tests
+- `test/v8/` - V8 C++ API compatibility tests
+
+### Writing Tests
+
+Tests use Bun's Jest-compatible test runner with proper test fixtures.
+
+- For **single-file tests**, prefer `-e` over `tempDir`.
+- For **multi-file tests**, prefer `tempDir` and `Bun.spawn`.
+
+```typescript
+import { test, expect } from "bun:test";
+import { bunEnv, bunExe, normalizeBunSnapshot, tempDir } from "harness";
+
+test("(single-file test) my feature", async () => {
+  await using proc = Bun.spawn({
+    cmd: [bunExe(), "-e", "console.log('Hello, world!')"],
+    env: bunEnv,
+  });
+
+  const [stdout, stderr, exitCode] = await Promise.all([
+    proc.stdout.text(),
+    proc.stderr.text(),
+    proc.exited,
+  ]);
+
+  expect(normalizeBunSnapshot(stdout)).toMatchInlineSnapshot(`"Hello, world!"`);
+  expect(exitCode).toBe(0);
+});
+
+test("(multi-file test) my feature", async () => {
+  // Create temp directory with test files
+  using dir = tempDir("test-prefix", {
+    "index.js": `import { foo } from "./foo.ts"; foo();`,
+    "foo.ts": `export function foo() { console.log("foo"); }`,
+  });
+
+  // Spawn Bun process
+  await using proc = Bun.spawn({
+    cmd: [bunExe(), "index.js"],
+    env: bunEnv,
+    cwd: String(dir),
+    stderr: "pipe",
+  });
+
+  const [stdout, stderr, exitCode] = await Promise.all([
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json (26 lines)
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/pre-bash-zig-build.js"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/post-edit-zig-format.js"
+          }
+        ]
+      }
+    ]
+  }
+}
+---END---
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+FILE: .github/workflows/CLAUDE.md (118 lines)
+# GitHub Actions Workflow Maintenance Guide
+
+This document provides guidance for maintaining the GitHub Actions workflows in this repository.
+
+## format.yml Workflow
+
+### Overview
+
+The `format.yml` workflow runs code formatters (Prettier, clang-format, and Zig fmt) on pull requests and pushes to main. It's optimized for speed by running all formatters in parallel.
+
+### Key Components
+
+#### 1. Clang-format Script (`scripts/run-clang-format.sh`)
+
+- **Purpose**: Formats C++ source and header files
+- **What it does**:
+  - Globs C++ files via `bun scripts/glob-sources.ts cxx`
+  - Finds all header files in `src/` and `packages/`
+  - Excludes third-party directories (libuv, napi, deps, vendor, sqlite, etc.)
+  - Requires specific clang-format version (no fallbacks)
+
+**Important exclusions**:
+
+- `src/napi/` - Node API headers (third-party)
+- `src/bun.js/bindings/libuv/` - libuv headers (third-party)
+- `src/bun.js/bindings/sqlite/` - SQLite headers (third-party)
+- `src/bun.js/api/ffi-*.h` - FFI headers (generated/third-party)
+- `src/deps/` - Dependencies (third-party)
+- Files in `vendor/`, `third_party/`, `generated/` directories
+
+#### 2. Parallel Execution
+
+The workflow runs all three formatters simultaneously:
+
+- Each formatter outputs with a prefix (`[prettier]`, `[clang-format]`, `[zig]`)
+- Output is streamed in real-time without blocking
+- Uses GitHub Actions groups (`::group::`) for collapsible sections
+
+#### 3. Tool Installation
+
+##### Clang-format-21
+
+- Installs ONLY `clang-format-21` package (not the entire LLVM toolchain)
+- Uses `--no-install-recommends --no-install-suggests` to skip unnecessary packages
+- Quiet installation with `-qq` and `-o=Dpkg::Use-Pty=0`
+
+##### Zig
+
+- Downloads from `oven-sh/zig` releases (musl build for static linking)
+- URL: `https://github.com/oven-sh/zig/releases/download/autobuild-{COMMIT}/bootstrap-x86_64-linux-musl.zip`
+---END---
+FILE: scripts/build/CLAUDE.md (259 lines)
+# TypeScript Build System
+
+This directory generates `build.ninja`. The scripts **describe** the build; ninja **performs** it.
+
+## Goals
+
+**Idempotent.** Run `bun run build` over and over — that's it. Same inputs produce the same `build.ninja`, ninja sees nothing changed, exits immediately. No state drift between runs, no "did I clean first?", no sticky flags from last time. The mechanisms:
+
+- **Configure always runs.** Every `bun run build` reconfigures before spawning ninja — no separate first-time configure step, no cached options that persist across runs. Config is `profile + overrides` evaluated fresh each time. Fast enough to not matter (~200ms — we haven't tried to make it faster yet).
+- `writeIfChanged()` — preserves mtimes on unchanged content, so the always-configure cost is near-zero for ninja: if `build.ninja` didn't change, ninja doesn't restat the graph
+- `restat = 1` on fetch/codegen/dep rules — prunes downstream rebuilds when outputs don't actually change
+- Self-rebuilding `build.ninja` — the `regen` generator rule re-runs configure when running ninja directly and a build script changed
+
+**Explicit over implicit.** Every decision traceable to a line of code you can grep for. No hidden defaults, no order-dependent global state, no "it works because something else happened to set this."
+
+- **One flat `Config` struct.** All derived booleans computed once in `resolveConfig()`. No `if(ENABLE_X)` depending on `if(CI)` depending on `if(RELEASE)` — the chain resolves here, the result is a plain value.
+- **One flat table per flag category.** Each flag has a `when` predicate and a `desc`. To find why `-fno-unwind-tables` is set, grep for it in `flags.ts`. Related flags live adjacent so coupling is visible.
+- **Explicit rule registration** — see "registerXxxRules vs emitXxx" below.
+- **One concern per file** — see Module inventory.
+
+**Minimal cross-platform diffs.** Platform-specific logic is abstracted once, consumed everywhere. `Config` derives `cfg.exeSuffix`/`cfg.objSuffix`/`cfg.libPrefix`/`cfg.libSuffix` so callers write `lib${name}${cfg.libSuffix}` not `if windows ".lib" else ".a"`. Flag tables use `when: c => c.darwin` predicates — one table entry, not a new branch in N files. `shell.ts`/`stream.ts`/`tools.ts`/`compile.ts` absorb the remaining cmd.exe-vs-sh, `.exe` suffix, and clang-vs-clang-cl differences. Where a branch is unavoidable (Windows resources, Darwin dsymutil, Linux setarch), it lives in one function and returns empty on other platforms.
+
+**First-class support for deps with their own build systems.** Vendored deps keep their native cmake/cargo — we don't rewrite their build into our graph. `BuildSpec` variants:
+
+- `nested-cmake` — invoke the dep's own cmake configure + build as ninja edges. Flags forwarded via `-DCMAKE_C_FLAGS`; cmake's own dependency tracking handles incrementality inside.
+- `cargo` — invoke cargo build. Cargo's incremental build is reliable; `restat = 1` keeps our downstream no-ops fast.
+- `direct` — for deps simple enough that an overlay CMakeLists.txt is more work than listing files (tinycc, picohttpparser). Sources become first-class `cc` edges in our graph.
+- `prebuilt` — skip build entirely, download compiled `.a`/`.lib` (WebKit, nodejs-headers).
+
+The `dep` pool (depth 4) throttles concurrent sub-builds so 15 nested `cmake --build -j` don't oversubscribe cores.
+
+**Self-obsoleting workarounds** — see "Adding a workaround" below.
+
+## Configure time vs build time
+
+Configure time is Phase 1 below — resolve tools, compute flags, glob sources, write `build.ninja` and constant manifests, validate, pre-create output dirs. Build time is everything ninja does: turning source files into outputs.
+
+**The smell:** if configure code calls `spawnSync` to compile something, or compares mtimes with `statSync`, it's doing ninja's job. Make it a build edge — `n.rule()` + `n.build()`. Size doesn't matter; a 1-file compile is still a build edge.
+
+**Legitimate `spawnSync` at configure time:** tool detection (`clang --version`), git revision, `xcrun --show-sdk-path`. These probe the environment; they don't produce build artifacts.
+
+## Ninja primer
+
+A **rule** is a command template. A **build edge** instantiates a rule with specific files. The graph is just edges; rules are deduplication. Two real examples from our generated `build/<profile>/build.ninja`:
+
+```ninja
+rule cc
+  command = clang $cflags -MMD -MT $out -MF $out.d -c $in -o $out
+  depfile = $out.d
+  deps = gcc
+---END---
+FILE: scripts/verify-baseline-static/CLAUDE.md (274 lines)
+# verify-baseline-static — triage guide
+
+Static ISA scanner. Disassembles every instruction in `.text` of a baseline
+Bun binary and flags anything the baseline CPU can't decode. Catches `-march`
+leaks at compile time, before they SIGILL on a user's machine.
+
+This file is for triaging CI failures. For architecture details see
+`README.md` and inline comments in `src/main.rs` / `src/aarch64.rs`.
+
+## This is a best-effort check, not a proof
+
+A PASS here does **not** guarantee the binary is baseline-safe, and a FAIL
+does not guarantee a real bug. Treat it as a sensitive smoke detector, not an
+oracle. The emulator phase (`scripts/verify-baseline.ts`) is the complementary
+check — together they catch most things; neither alone is bulletproof.
+
+**Out of scope entirely (tool will never find these):**
+
+- **JIT-emitted code.** JSC compiles JS/WASM to machine code at runtime; none
+  of it exists in `.text` at scan time. If the JIT backend emits post-
+  baseline instructions on a baseline CPU, this tool is blind to it. The
+  emulator's `--jit-stress` path covers this.
+- **Dynamically loaded code.** N-API addons, FFI callees, dlopen'd shared
+  libs. Scanner only reads the `bun-profile` binary.
+- **Gate correctness.** The tool does not verify that a CPUID gate actually
+  checks the right bits. It trusts the allowlist. Feature ceilings catch the
+  "code grew new features, gate wasn't updated" case, but a gate that was
+  wrong from the start (checks AVX, uses AVX2) passes silently if the
+  ceiling says `[AVX, AVX2]`.
+
+**In scope but may miss:**
+
+- x64 linear-sweep may desync on data-in-`.text` and skip real instructions
+  that follow. Variable-length x86 encoding makes perfect code/data
+  separation undecidable (`README.md:53-59`). aarch64 is more reliable
+  (fixed-width words, `$d` mapping symbols mark data), but a missing mapping
+  symbol can still hide a hit.
+- Instructions deliberately ignored (TZCNT/XGETBV on x64, hint-space PAC/BTI
+  on aarch64) could theoretically be misused; we assume the compiler's idiom
+  is the only one.
+
+**Can report false violations:**
+
+- Data bytes in `.text` that happen to form a valid post-baseline encoding.
+  Rare on ELF (LLVM puts tables in `.rodata`), common on Windows PE (MSVC
+  inlines jump tables). See `README.md:61-74`.
+
+When in doubt, the emulator is ground truth: `qemu -cpu Nehalem` and hit the
+code path. SIGILL = real bug. No SIGILL = either gated or a data-in-text
+false positive.
+---END---
+FILE: src/AGENTS.md (305 lines)
+## Zig
+
+Syntax reminders:
+
+- Private fields are fully supported in Zig with the `#` prefix. `struct { #foo: u32 };` makes a struct with a private field named `#foo`.
+- Decl literals in Zig are recommended. `const decl: Decl = .{ .binding = 0, .value = 0 };`
+
+Conventions:
+
+- Prefer `@import` at the **bottom** of the file, but the auto formatter will move them so you don't need to worry about it.
+- **Never** use `@import()` inline inside of functions. **Always** put them at the bottom of the file or containing struct. Imports in Zig are free of side-effects, so there's no such thing as a "dynamic" import.
+- You must be patient with the build.
+
+## Prefer Bun APIs over `std`
+
+**Always use `bun.*` APIs instead of `std.*`.** The `bun` namespace (`@import("bun")`) provides cross-platform wrappers that preserve OS error info and never use `unreachable`. Using `std.fs`, `std.posix`, or `std.os` directly is wrong in this codebase.
+
+| Instead of                                                   | Use                                  |
+| ------------------------------------------------------------ | ------------------------------------ |
+| `std.base64`                                                 | `bun.base64`                         |
+| `std.crypto.sha{...}`                                        | `bun.sha.Hashers.{...}`              |
+| `std.fs.cwd()`                                               | `bun.FD.cwd()`                       |
+| `std.fs.File`                                                | `bun.sys.File`                       |
+| `std.fs.path.join/dirname/basename`                          | `bun.path.join/dirname/basename`     |
+| `std.mem.eql/indexOf/startsWith` (for strings)               | `bun.strings.eql/indexOf/startsWith` |
+| `std.posix.O` / `std.posix.mode_t` / `std.posix.fd_t`        | `bun.O` / `bun.Mode` / `bun.FD`      |
+| `std.posix.open/read/write/stat/mkdir/unlink/rename/symlink` | `bun.sys.*` equivalents              |
+| `std.process.Child`                                          | `bun.spawnSync`                      |
+
+## `bun.sys` — System Calls (`src/sys.zig`)
+
+All return `Maybe(T)` — a tagged union of `.result: T` or `.err: bun.sys.Error`:
+
+```zig
+const fd = switch (bun.sys.open(path, bun.O.RDONLY, 0)) {
+    .result => |fd| fd,
+    .err => |err| return .{ .err = err },
+};
+// Or: const fd = try bun.sys.open(path, bun.O.RDONLY, 0).unwrap();
+```
+
+Key functions (all take `bun.FileDescriptor`, not `std.posix.fd_t`):
+
+- `open`, `openat`, `openA` (non-sentinel) → `Maybe(bun.FileDescriptor)`
+- `read`, `readAll`, `pread` → `Maybe(usize)`
+- `write`, `pwrite`, `writev` → `Maybe(usize)`
+- `stat`, `fstat`, `lstat` → `Maybe(bun.Stat)`
+- `mkdir`, `unlink`, `rename`, `symlink`, `chmod`, `fchmod`, `fchown` → `Maybe(void)`
+- `readlink`, `getFdPath`, `getcwd` → `Maybe` of path slice
+- `getFileSize`, `dup`, `sendfile`, `mmap`
+---END---
+FILE: src/bun.js/bindings/v8/AGENTS.md (326 lines)
+# V8 C++ API Implementation Guide
+
+This directory contains Bun's implementation of the V8 C++ API on top of JavaScriptCore. This allows native Node.js modules that use V8 APIs to work with Bun.
+
+## Architecture Overview
+
+Bun implements V8 APIs by creating a compatibility layer that:
+
+- Maps V8's `Local<T>` handles to JSC's `JSValue` system
+- Uses handle scopes to manage memory lifetimes similar to V8
+- Provides V8-compatible object layouts that inline V8 functions can read
+- Manages tagged pointers for efficient value representation
+
+For detailed background, see the blog series:
+
+- [Part 1: Introduction and challenges](https://bun.com/blog/how-bun-supports-v8-apis-without-using-v8-part-1.md)
+- [Part 2: Memory layout and object representation](https://bun.com/blog/how-bun-supports-v8-apis-without-using-v8-part-2.md)
+- [Part 3: Garbage collection and primitives](https://bun.com/blog/how-bun-supports-v8-apis-without-using-v8-part-3.md)
+
+## Directory Structure
+
+```
+src/bun.js/bindings/v8/
+├── v8.h                    # Main header with V8_UNIMPLEMENTED macro
+├── v8_*.h                  # V8 compatibility headers
+├── V8*.h                   # V8 class headers (Number, String, Object, etc.)
+├── V8*.cpp                 # V8 class implementations
+├── shim/                   # Internal implementation details
+│   ├── Handle.h            # Handle and ObjectLayout implementation
+│   ├── HandleScopeBuffer.h # Handle scope memory management
+│   ├── TaggedPointer.h     # V8-style tagged pointer implementation
+│   ├── Map.h               # V8 Map objects for inline function compatibility
+│   ├── GlobalInternals.h   # V8 global state management
+│   ├── InternalFieldObject.h # Objects with internal fields
+│   └── Oddball.h           # Primitive values (undefined, null, true, false)
+├── node.h                  # Node.js module registration compatibility
+└── real_v8.h              # Includes real V8 headers when needed
+```
+
+## Implementing New V8 APIs
+
+### 1. Create Header and Implementation Files
+
+Create `V8NewClass.h`:
+
+```cpp
+#pragma once
+
+#include "v8.h"
+#include "V8Local.h"
+---END---
+FILE: src/bun.js/bindings/v8/CLAUDE.md (326 lines)
+# V8 C++ API Implementation Guide
+
+This directory contains Bun's implementation of the V8 C++ API on top of JavaScriptCore. This allows native Node.js modules that use V8 APIs to work with Bun.
+
+## Architecture Overview
+
+Bun implements V8 APIs by creating a compatibility layer that:
+
+- Maps V8's `Local<T>` handles to JSC's `JSValue` system
+- Uses handle scopes to manage memory lifetimes similar to V8
+- Provides V8-compatible object layouts that inline V8 functions can read
+- Manages tagged pointers for efficient value representation
+
+For detailed background, see the blog series:
+
+- [Part 1: Introduction and challenges](https://bun.com/blog/how-bun-supports-v8-apis-without-using-v8-part-1.md)
+- [Part 2: Memory layout and object representation](https://bun.com/blog/how-bun-supports-v8-apis-without-using-v8-part-2.md)
+- [Part 3: Garbage collection and primitives](https://bun.com/blog/how-bun-supports-v8-apis-without-using-v8-part-3.md)
+
+## Directory Structure
+
+```
+src/bun.js/bindings/v8/
+├── v8.h                    # Main header with V8_UNIMPLEMENTED macro
+├── v8_*.h                  # V8 compatibility headers
+├── V8*.h                   # V8 class headers (Number, String, Object, etc.)
+├── V8*.cpp                 # V8 class implementations
+├── shim/                   # Internal implementation details
+│   ├── Handle.h            # Handle and ObjectLayout implementation
+│   ├── HandleScopeBuffer.h # Handle scope memory management
+│   ├── TaggedPointer.h     # V8-style tagged pointer implementation
+│   ├── Map.h               # V8 Map objects for inline function compatibility
+│   ├── GlobalInternals.h   # V8 global state management
+│   ├── InternalFieldObject.h # Objects with internal fields
+│   └── Oddball.h           # Primitive values (undefined, null, true, false)
+├── node.h                  # Node.js module registration compatibility
+└── real_v8.h              # Includes real V8 headers when needed
+```
+
+## Implementing New V8 APIs
+
+### 1. Create Header and Implementation Files
+
+Create `V8NewClass.h`:
+
+```cpp
+#pragma once
+
+#include "v8.h"
+#include "V8Local.h"
+---END---
+FILE: src/CLAUDE.md (305 lines)
+## Zig
+
+Syntax reminders:
+
+- Private fields are fully supported in Zig with the `#` prefix. `struct { #foo: u32 };` makes a struct with a private field named `#foo`.
+- Decl literals in Zig are recommended. `const decl: Decl = .{ .binding = 0, .value = 0 };`
+
+Conventions:
+
+- Prefer `@import` at the **bottom** of the file, but the auto formatter will move them so you don't need to worry about it.
+- **Never** use `@import()` inline inside of functions. **Always** put them at the bottom of the file or containing struct. Imports in Zig are free of side-effects, so there's no such thing as a "dynamic" import.
+- You must be patient with the build.
+
+## Prefer Bun APIs over `std`
+
+**Always use `bun.*` APIs instead of `std.*`.** The `bun` namespace (`@import("bun")`) provides cross-platform wrappers that preserve OS error info and never use `unreachable`. Using `std.fs`, `std.posix`, or `std.os` directly is wrong in this codebase.
+
+| Instead of                                                   | Use                                  |
+| ------------------------------------------------------------ | ------------------------------------ |
+| `std.base64`                                                 | `bun.base64`                         |
+| `std.crypto.sha{...}`                                        | `bun.sha.Hashers.{...}`              |
+| `std.fs.cwd()`                                               | `bun.FD.cwd()`                       |
+| `std.fs.File`                                                | `bun.sys.File`                       |
+| `std.fs.path.join/dirname/basename`                          | `bun.path.join/dirname/basename`     |
+| `std.mem.eql/indexOf/startsWith` (for strings)               | `bun.strings.eql/indexOf/startsWith` |
+| `std.posix.O` / `std.posix.mode_t` / `std.posix.fd_t`        | `bun.O` / `bun.Mode` / `bun.FD`      |
+| `std.posix.open/read/write/stat/mkdir/unlink/rename/symlink` | `bun.sys.*` equivalents              |
+| `std.process.Child`                                          | `bun.spawnSync`                      |
+
+## `bun.sys` — System Calls (`src/sys.zig`)
+
+All return `Maybe(T)` — a tagged union of `.result: T` or `.err: bun.sys.Error`:
+
+```zig
+const fd = switch (bun.sys.open(path, bun.O.RDONLY, 0)) {
+    .result => |fd| fd,
+    .err => |err| return .{ .err = err },
+};
+// Or: const fd = try bun.sys.open(path, bun.O.RDONLY, 0).unwrap();
+```
+
+Key functions (all take `bun.FileDescriptor`, not `std.posix.fd_t`):
+
+- `open`, `openat`, `openA` (non-sentinel) → `Maybe(bun.FileDescriptor)`
+- `read`, `readAll`, `pread` → `Maybe(usize)`
+- `write`, `pwrite`, `writev` → `Maybe(usize)`
+- `stat`, `fstat`, `lstat` → `Maybe(bun.Stat)`
+- `mkdir`, `unlink`, `rename`, `symlink`, `chmod`, `fchmod`, `fchown` → `Maybe(void)`
+- `readlink`, `getFdPath`, `getcwd` → `Maybe` of path slice
+- `getFileSize`, `dup`, `sendfile`, `mmap`
+---END---
+FILE: src/js/AGENTS.md (106 lines)
+# JavaScript Builtins in Bun
+
+Write JS builtins for Bun's Node.js compatibility and APIs. Run `bun bd` after changes.
+
+## Directory Structure
+
+- `builtins/` - Individual functions (`*CodeGenerator(vm)` in C++)
+- `node/` - Node.js modules (`node:fs`, `node:path`)
+- `bun/` - Bun modules (`bun:ffi`, `bun:sqlite`)
+- `thirdparty/` - NPM replacements (`ws`, `node-fetch`)
+- `internal/` - Internal modules
+
+## Writing Modules
+
+Modules are NOT ES modules:
+
+```typescript
+const EventEmitter = require("node:events"); // String literals only
+const { validateFunction } = require("internal/validators");
+
+export default {
+  myFunction() {
+    if (!$isCallable(callback)) {
+      throw $ERR_INVALID_ARG_TYPE("cb", "function", callback);
+    }
+  },
+};
+```
+
+## Writing Builtin Functions
+
+```typescript
+export function initializeReadableStream(
+  this: ReadableStream,
+  underlyingSource,
+  strategy,
+) {
+  if (!$isObject(underlyingSource)) {
+    throw new TypeError(
+      "ReadableStream constructor takes an object as first argument",
+    );
+  }
+  $putByIdDirectPrivate(this, "state", $streamReadable);
+}
+```
+
+C++ access:
+
+```cpp
+object->putDirectBuiltinFunction(vm, globalObject, identifier,
+---END---
+FILE: src/js/CLAUDE.md (106 lines)
+# JavaScript Builtins in Bun
+
+Write JS builtins for Bun's Node.js compatibility and APIs. Run `bun bd` after changes.
+
+## Directory Structure
+
+- `builtins/` - Individual functions (`*CodeGenerator(vm)` in C++)
+- `node/` - Node.js modules (`node:fs`, `node:path`)
+- `bun/` - Bun modules (`bun:ffi`, `bun:sqlite`)
+- `thirdparty/` - NPM replacements (`ws`, `node-fetch`)
+- `internal/` - Internal modules
+
+## Writing Modules
+
+Modules are NOT ES modules:
+
+```typescript
+const EventEmitter = require("node:events"); // String literals only
+const { validateFunction } = require("internal/validators");
+
+export default {
+  myFunction() {
+    if (!$isCallable(callback)) {
+      throw $ERR_INVALID_ARG_TYPE("cb", "function", callback);
+    }
+  },
+};
+```
+
+## Writing Builtin Functions
+
+```typescript
+export function initializeReadableStream(
+  this: ReadableStream,
+  underlyingSource,
+  strategy,
+) {
+  if (!$isObject(underlyingSource)) {
+    throw new TypeError(
+      "ReadableStream constructor takes an object as first argument",
+    );
+  }
+  $putByIdDirectPrivate(this, "state", $streamReadable);
+}
+```
+
+C++ access:
+
+```cpp
+object->putDirectBuiltinFunction(vm, globalObject, identifier,
+---END---
+FILE: src/unicode/uucode/CLAUDE.md (117 lines)
+# uucode Integration for Grapheme Breaking
+
+## What This Is
+
+This directory contains Bun's integration with the [uucode](https://github.com/jacobsandlund/uucode) Unicode library (vendored at `src/deps/uucode/`). It generates the lookup tables that power Bun's grapheme cluster breaking — including GB9c (Indic Conjunct Break) support.
+
+The runtime code lives in `src/string/immutable/grapheme.zig`. This directory only contains **build-time** code for regenerating tables.
+
+## Architecture
+
+```
+src/deps/uucode/           ← Vendored uucode library (MIT, don't modify)
+src/unicode/uucode/        ← THIS DIRECTORY: build-time integration
+  ├── uucode_config.zig    ← Configures which uucode fields to generate
+  ├── grapheme_gen.zig     ← Generator binary: queries uucode → writes tables
+  ├── lut.zig              ← 3-level lookup table generator
+  └── CLAUDE.md            ← You are here
+
+src/string/immutable/      ← Runtime code (no uucode dependency)
+  ├── grapheme.zig         ← Grapheme break API + precomputed decision table
+  ├── grapheme_tables.zig  ← PRE-GENERATED property tables (committed)
+  └── visible.zig          ← String width calculation (uses grapheme.zig)
+```
+
+## How It Works
+
+### Runtime (zero uucode dependency)
+
+`grapheme.zig` does two table lookups per codepoint pair, with no branching:
+
+1. **Property lookup**: `grapheme_tables.zig` maps codepoint → `Properties` (width, grapheme_break enum, emoji_vs_base) via a 3-level lookup table (~100KB)
+2. **Break decision**: A comptime-precomputed 8KB array maps `(BreakState, gb1, gb2)` → `(break_result, new_state)` covering all 5×17×17 = 1445 permutations
+
+The break algorithm (including GB9c Indic, GB11 Emoji ZWJ, GB12/13 Regional Indicators) runs only at **comptime** to populate this array. At runtime it's a single array index.
+
+### Key Types
+
+- `GraphemeBreakNoControl` — `enum(u5)` with 17 values (the "no control" variant strips CR/LF/Control since Bun handles those externally)
+- `BreakState` — `enum(u3)` with 5 states: `default`, `regional_indicator`, `extended_pictographic`, `indic_conjunct_break_consonant`, `indic_conjunct_break_linker`
+- `Properties` — `packed struct` with `width: u2`, `grapheme_break: GraphemeBreakNoControl`, `emoji_vs_base: bool`
+
+### Table Generation (build-time only)
+
+`grapheme_gen.zig` is compiled as a standalone binary that:
+
+1. Initializes uucode (which parses the UCD data in `src/deps/uucode/ucd/`)
+2. Iterates all 2^21 codepoints
+3. Queries `uucode.get(.width, cp)`, `.grapheme_break_no_control`, `.is_emoji_vs_base`
+4. Feeds them through `lut.zig`'s 3-level table generator
+5. Writes `grapheme_tables.zig` to stdout
+---END---
+FILE: test/AGENTS.md (247 lines)
+To run tests:
+
+```sh
+bun bd test <...test file>
+```
+
+To run a command with your debug build of Bun:
+
+```sh
+bun bd <...cmd>
+```
+
+Note that compiling Bun may take up to 2.5 minutes. It is slow!
+
+**CRITICAL**: Do not use `bun test` to run tests. It will not have your changes. `bun bd test <...test file>` is the correct command, which compiles your code automatically.
+
+## Testing style
+
+Use `bun:test` with files that end in `*.test.{ts,js,jsx,tsx,mjs,cjs}`. If it's a test/js/node/test/{parallel,sequential}/\*.js without a .test.extension, use `bun bd <file>` instead of `bun bd test <file>` since those expect exit code 0 and don't use bun's test runner.
+
+- **Do not write flaky tests**. Unless explicitly asked, **never wait for time to pass in tests**. Always wait for the condition to be met instead of waiting for an arbitrary amount of time. **Never use hardcoded port numbers**. Always use `port: 0` to get a random port.
+- **Prefer concurrent tests over sequential tests**: When multiple tests in the same file spawn processes or write files, make them concurrent with `test.concurrent` or `describe.concurrent` unless it's very difficult to make them concurrent.
+
+### Spawning processes
+
+#### Spawning Bun in tests
+
+When spawning Bun processes, use `bunExe` and `bunEnv` from `harness`. This ensures the same build of Bun is used to run the test and ensures debug logging is silenced.
+
+##### Use `-e` for single-file tests
+
+```ts
+import { bunEnv, bunExe, tempDir } from "harness";
+import { test, expect } from "bun:test";
+
+test("single-file test spawns a Bun process", async () => {
+  await using proc = Bun.spawn({
+    cmd: [bunExe(), "-e", "console.log('Hello, world!')"],
+    env: bunEnv,
+  });
+
+  const [stdout, stderr, exitCode] = await Promise.all([
+    proc.stdout.text(),
+    proc.stderr.text(),
+    proc.exited,
+  ]);
+
+  expect(stderr).toBe("");
+  expect(stdout).toBe("Hello, world!\n");
+  expect(exitCode).toBe(0);
+---END---
+FILE: test/CLAUDE.md (247 lines)
+To run tests:
+
+```sh
+bun bd test <...test file>
+```
+
+To run a command with your debug build of Bun:
+
+```sh
+bun bd <...cmd>
+```
+
+Note that compiling Bun may take up to 2.5 minutes. It is slow!
+
+**CRITICAL**: Do not use `bun test` to run tests. It will not have your changes. `bun bd test <...test file>` is the correct command, which compiles your code automatically.
+
+## Testing style
+
+Use `bun:test` with files that end in `*.test.{ts,js,jsx,tsx,mjs,cjs}`. If it's a test/js/node/test/{parallel,sequential}/\*.js without a .test.extension, use `bun bd <file>` instead of `bun bd test <file>` since those expect exit code 0 and don't use bun's test runner.
+
+- **Do not write flaky tests**. Unless explicitly asked, **never wait for time to pass in tests**. Always wait for the condition to be met instead of waiting for an arbitrary amount of time. **Never use hardcoded port numbers**. Always use `port: 0` to get a random port.
+- **Prefer concurrent tests over sequential tests**: When multiple tests in the same file spawn processes or write files, make them concurrent with `test.concurrent` or `describe.concurrent` unless it's very difficult to make them concurrent.
+
+### Spawning processes
+
+#### Spawning Bun in tests
+
+When spawning Bun processes, use `bunExe` and `bunEnv` from `harness`. This ensures the same build of Bun is used to run the test and ensures debug logging is silenced.
+
+##### Use `-e` for single-file tests
+
+```ts
+import { bunEnv, bunExe, tempDir } from "harness";
+import { test, expect } from "bun:test";
+
+test("single-file test spawns a Bun process", async () => {
+  await using proc = Bun.spawn({
+    cmd: [bunExe(), "-e", "console.log('Hello, world!')"],
+    env: bunEnv,
+  });
+
+  const [stdout, stderr, exitCode] = await Promise.all([
+    proc.stdout.text(),
+    proc.stderr.text(),
+    proc.exited,
+  ]);
+
+  expect(stderr).toBe("");
+  expect(stdout).toBe("Hello, world!\n");
+  expect(exitCode).toBe(0);
+---END---
+FILE: test/js/node/test/parallel/CLAUDE.md (18 lines)
+# Node.js Compatibility Tests
+
+These are official Node.js tests from the Node.js repository.
+
+## Important Notes
+
+- These are Node.js compatibility tests **not written by Bun**, so we cannot modify these tests
+- The tests pass by exiting with code 0
+
+## Running Tests
+
+To run these tests with a debug build:
+
+```bash
+bun bd <file-path>
+```
+
+Note: `bun bd test <file-path>` does **not** work since these tests are meant to be run directly without the Bun test runner.
+---END---
+
+### .claude/ contents
+FILE: .claude/commands/dedupe.md (43 lines)
+---
+allowed-tools: Bash(gh issue view:*), Bash(gh search:*), Bash(gh issue list:*), Bash(gh api:*), Bash(gh issue comment:*)
+description: Find duplicate GitHub issues
+---
+
+# Issue deduplication command
+
+Find up to 3 likely duplicate issues for a given GitHub issue.
+
+To do this, follow these steps precisely:
+
+1. Use an agent to check if the GitHub issue (a) is closed, (b) does not need to be deduped (eg. because it is broad product feedback without a specific solution, or positive feedback), or (c) already has a duplicate detection comment (check for the exact HTML marker `<!-- dedupe-bot:marker -->` in the issue comments - ignore other bot comments). If so, do not proceed.
+2. Use an agent to view a GitHub issue, and ask the agent to return a summary of the issue
+3. Then, launch 5 parallel agents to search GitHub for duplicates of this issue, using diverse keywords and search approaches, using the summary from Step 2. **IMPORTANT**: Always scope searches with `repo:owner/repo` to constrain results to the current repository only.
+4. Next, feed the results from Steps 2 and 3 into another agent, so that it can filter out false positives, that are likely not actually duplicates of the original issue. If there are no duplicates remaining, do not proceed.
+5. Finally, comment back on the issue with a list of up to three duplicate issues (or zero, if there are no likely duplicates)
+
+Notes (be sure to tell this to your agents, too):
+
+- Use `gh` to interact with GitHub, rather than web fetch
+- Do not use other tools, beyond `gh` (eg. don't use other MCP servers, file edit, etc.)
+- Make a todo list first
+- Always scope searches with `repo:owner/repo` to prevent cross-repo false positives
+- For your comment, follow the following format precisely (assuming for this example that you found 3 suspected duplicates):
+
+---
+
+Found 3 possible duplicate issues:
+
+1. <link to issue>
+2. <link to issue>
+3. <link to issue>
+
+This issue will be automatically closed as a duplicate in 3 days.
+
+- If your issue is a duplicate, please close it and 👍 the existing issue instead
+- To prevent auto-closure, add a comment or 👎 this comment
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+<!-- dedupe-bot:marker -->
+
+---
+---END---
+FILE: .claude/commands/find-issues.md (50 lines)
+---
+allowed-tools: Bash(gh pr view:*), Bash(gh pr diff:*), Bash(gh search:*), Bash(gh issue list:*), Bash(gh issue view:*), Bash(gh api:*), Bash(gh pr comment:*)
+description: Find GitHub issues that a PR might fix
+---
+
+# Find issues for PR command
+
+Find open GitHub issues that a pull request might fix. Include all likely matches — do not artificially limit the number of results.
+
+To do this, follow these steps precisely:
+
+1. Use an agent to check if the PR (a) is closed/merged, or (b) already has a related-issues comment (check for the exact HTML marker `<!-- find-issues-bot:marker -->` in the PR comments - ignore other bot comments). If so, do not proceed.
+2. Use an agent to view the PR title, body, and diff (`gh pr view` and `gh pr diff`), and ask the agent to return a summary of:
+   - What the PR changes (files modified, functions changed, features added/fixed)
+   - Key technical terms, error messages, API names, or module names involved
+   - Any issue numbers already referenced in the PR body or commit messages
+3. Then, launch 5 parallel agents to search GitHub for open issues that this PR might fix, using diverse keywords and search approaches derived from the summary in Step 2. **IMPORTANT**: Always scope searches with `repo:owner/repo` to constrain results to the current repository only. Each agent should try a different search strategy:
+   - Agent 1: Search using error messages or symptoms described in the diff
+   - Agent 2: Search using feature/module names from the changed files
+   - Agent 3: Search using API names or function names that were modified
+   - Agent 4: Search using keywords from the PR title and description
+   - Agent 5: Search using broader terms related to the area of code changed
+4. Next, feed the results from Steps 2 and 3 into another agent, so that it can filter out false positives that are likely not actually related to the PR's changes. Exclude issues already referenced in the PR body (e.g. "fixes #123", "closes #456", "resolves #789"). Only keep issues where the PR changes are clearly relevant to the issue. If there are no related issues remaining, do not proceed.
+5. Finally, comment on the PR with all related open issues found (or zero, if there are no likely matches). Do not cap the number — list every issue that is a likely match.
+
+Notes (be sure to tell this to your agents, too):
+
+- Use `gh` to interact with GitHub, rather than web fetch
+- Do not use other tools, beyond `gh` (eg. don't use other MCP servers, file edit, etc.)
+- Make a todo list first
+- Always scope searches with `repo:owner/repo` to prevent cross-repo false positives
+- Only match against **open** issues - do not suggest closed issues
+- Exclude issues that are already linked in the PR description
+- For your comment, follow the following format precisely (assuming for this example that you found 3 related issues):
+
+---
+
+Found 3 issues this PR may fix:
+
+1. <link to issue> - <one-line summary of why this PR is relevant>
+2. <link to issue> - <one-line summary of why this PR is relevant>
+3. <link to issue> - <one-line summary of why this PR is relevant>
+
+> If this is helpful, consider adding `Fixes #<number>` to the PR description to auto-close the issue on merge.
+
+🤖 Generated with [Claude Code](https://claude.ai/code)
+
+<!-- find-issues-bot:marker -->
+
+---
+---END---
+FILE: .claude/commands/upgrade-nodejs.md (91 lines)
+# Upgrading Bun's Self-Reported Node.js Version
+
+This guide explains how to upgrade the Node.js version that Bun reports for compatibility with Node.js packages and native addons.
+
+## Overview
+
+Bun reports a Node.js version for compatibility with the Node.js ecosystem. This affects:
+- `process.version` output
+- Node-API (N-API) compatibility
+- Native addon ABI compatibility
+- V8 API compatibility for addons using V8 directly
+
+## Files That Always Need Updates
+
+### 1. Bootstrap Scripts
+- `scripts/bootstrap.sh` - Update `NODEJS_VERSION=`
+- `scripts/bootstrap.ps1` - Update `$NODEJS_VERSION =`
+
+### 2. CMake Configuration
+- `cmake/Options.cmake`
+  - `NODEJS_VERSION` - The Node.js version string (e.g., "24.3.0")
+  - `NODEJS_ABI_VERSION` - The ABI version number (find using command below)
+
+### 3. Version Strings
+- `src/bun.js/bindings/BunProcess.cpp`
+  - Update `Bun__versions_node` with the Node.js version
+  - Update `Bun__versions_v8` with the V8 version (find using command below)
+
+### 4. N-API Version
+- `src/napi/js_native_api.h`
+  - Update `NAPI_VERSION` define (check Node.js release notes)
+
+## Files That May Need Updates
+
+Only check these if the build fails or tests crash after updating version numbers:
+- V8 compatibility files in `src/bun.js/bindings/v8/` (if V8 API changed)
+- Test files (if Node.js requires newer C++ standard)
+
+## Quick Commands to Find Version Info
+
+```bash
+# Get latest Node.js version info
+curl -s https://nodejs.org/dist/index.json | jq '.[0]'
+
+# Get V8 version for a specific Node.js version (replace v24.3.0)
+curl -s https://nodejs.org/dist/v24.3.0/node-v24.3.0-headers.tar.gz | tar -xzO node-v24.3.0/include/node/node_version.h | grep V8_VERSION
+
+# Get ABI version for a specific Node.js version
+curl -s https://nodejs.org/dist/v24.3.0/node-v24.3.0-headers.tar.gz | tar -xzO node-v24.3.0/include/node/node_version.h | grep NODE_MODULE_VERSION
+
+---END---
+FILE: .claude/commands/upgrade-webkit.md (26 lines)
+Upgrade Bun's Webkit fork to the latest upstream version of Webkit.
+
+To do that:
+
+- cd vendor/WebKit
+- git fetch upstream
+- git merge upstream main
+- Fix the merge conflicts
+- bun build.ts debug
+- While it compiles, in another task review the JSC commits between the last version of Webkit and the new version. Write up a summary of the webkit changes in a file called "webkit-changes.md"
+- bun run build:local (build a build of Bun with the new Webkit, make sure it compiles)
+- After making sure it compiles, run some code to make sure things work. something like ./build/debug-local/bun-debug --print '42' should be all you need
+- cd vendor/WebKit
+- git commit -am "Upgrade Webkit to the latest version"
+- git push
+- get the commit SHA in the vendor/WebKit directory of your new commit
+- cd ../../ (back to bun)
+- Update WEBKIT_VERSION in cmake/tools/SetupWebKit.cmake to the commit SHA of your new commit
+- git checkout -b bun/webkit-upgrade-<commit-sha>
+- commit + push (without adding the webkit-changes.md file)
+- create PR titled "Upgrade Webkit to the <commit-sha>", paste your webkit-changes.md into the PR description
+- delete the webkit-changes.md file
+
+Things to check for a successful upgrade:
+- Did JSType in vendor/WebKit/Source/JavaScriptCore have any recent changes? Does the enum values align with whats present in src/bun.js/bindings/JSType.zig?
+- Were there any changes to the webcore code generator? If there are C++ compilation errors, check for differences in some of the generated code in like vendor/WebKit/source/WebCore/bindings/scripts/test/JS/
+---END---
+FILE: .claude/hooks/post-edit-zig-format.js (87 lines)
+#!/usr/bin/env bun
+import { extname } from "path";
+import { spawnSync } from "child_process";
+
+const input = await Bun.stdin.json();
+
+const toolName = input.tool_name;
+const toolInput = input.tool_input || {};
+const filePath = toolInput.file_path;
+
+// Only process Write, Edit, and MultiEdit tools
+if (!["Write", "Edit", "MultiEdit"].includes(toolName)) {
+  process.exit(0);
+}
+
+const ext = extname(filePath);
+
+// Only format known files
+if (!filePath) {
+  process.exit(0);
+}
+
+function formatZigFile() {
+  try {
+    // Format the Zig file
+    const result = spawnSync("vendor/zig/zig.exe", ["fmt", filePath], {
+      cwd: process.env.CLAUDE_PROJECT_DIR || process.cwd(),
+      encoding: "utf-8",
+    });
+
+    if (result.error) {
+      console.error(`Failed to format ${filePath}: ${result.error.message}`);
+      process.exit(0);
+    }
+
+    if (result.status !== 0) {
+      console.error(`zig fmt failed for ${filePath}:`);
+      if (result.stderr) {
+        console.error(result.stderr);
+      }
+      process.exit(0);
+    }
+  } catch (error) {}
+}
+
+function formatTypeScriptFile() {
+  try {
+    // Format only — NO organize-imports plugin. That plugin strips imports
+    // it thinks are unused, which breaks split edits (add import → use it
+    // in next edit). CI's `bun run prettier` runs the plugin, so imports
+---END---
+FILE: .claude/hooks/pre-bash-zig-build.js (207 lines)
+#!/usr/bin/env bun
+import { basename, extname } from "path";
+
+const input = await Bun.stdin.json();
+
+const toolName = input.tool_name;
+const toolInput = input.tool_input || {};
+const command = toolInput.command || "";
+const timeout = toolInput.timeout;
+const cwd = input.cwd || "";
+
+// Get environment variables from the hook context
+// Note: We check process.env directly as env vars are inherited
+let useSystemBun = process.env.USE_SYSTEM_BUN;
+
+if (toolName !== "Bash" || !command) {
+  process.exit(0);
+}
+
+function denyWithReason(reason) {
+  const output = {
+    hookSpecificOutput: {
+      hookEventName: "PreToolUse",
+      permissionDecision: "deny",
+      permissionDecisionReason: reason,
+    },
+  };
+  console.log(JSON.stringify(output));
+  process.exit(0);
+}
+
+// Parse the command to extract argv0 and positional args
+let tokens;
+try {
+  // Simple shell parsing - split on spaces but respect quotes (both single and double)
+  tokens = command.match(/(?:[^\s"']+|"[^"]*"|'[^']*')+/g)?.map(t => t.replace(/^['"]|['"]$/g, "")) || [];
+} catch {
+  process.exit(0);
+}
+
+if (tokens.length === 0) {
+  process.exit(0);
+}
+
+// Strip inline environment variable assignments (e.g., FOO=1 bun test)
+const inlineEnv = new Map();
+let commandStart = 0;
+while (
+  commandStart < tokens.length &&
+  /^[A-Za-z_][A-Za-z0-9_]*=/.test(tokens[commandStart]) &&
+---END---
+FILE: .claude/skills/implementing-jsc-classes-cpp/SKILL.md (184 lines)
+---
+name: implementing-jsc-classes-cpp
+description: Implements JavaScript classes in C++ using JavaScriptCore. Use when creating new JS classes with C++ bindings, prototypes, or constructors.
+---
+
+# Implementing JavaScript Classes in C++
+
+## Class Structure
+
+For publicly accessible Constructor and Prototype, create 3 classes:
+
+1. **`class Foo : public JSC::DestructibleObject`** - if C++ fields exist; otherwise use `JSC::constructEmptyObject` with `putDirectOffset`
+2. **`class FooPrototype : public JSC::JSNonFinalObject`**
+3. **`class FooConstructor : public JSC::InternalFunction`**
+
+No public constructor? Only Prototype and class needed.
+
+## Iso Subspaces
+
+Classes with C++ fields need subspaces in:
+
+- `src/bun.js/bindings/webcore/DOMClientIsoSubspaces.h`
+- `src/bun.js/bindings/webcore/DOMIsoSubspaces.h`
+
+```cpp
+template<typename MyClassT, JSC::SubspaceAccess mode>
+static JSC::GCClient::IsoSubspace* subspaceFor(JSC::VM& vm) {
+    if constexpr (mode == JSC::SubspaceAccess::Concurrently)
+        return nullptr;
+    return WebCore::subspaceForImpl<MyClassT, WebCore::UseCustomHeapCellType::No>(
+        vm,
+        [](auto& spaces) { return spaces.m_clientSubspaceForMyClassT.get(); },
+        [](auto& spaces, auto&& space) { spaces.m_clientSubspaceForMyClassT = std::forward<decltype(space)>(space); },
+        [](auto& spaces) { return spaces.m_subspaceForMyClassT.get(); },
+        [](auto& spaces, auto&& space) { spaces.m_subspaceForMyClassT = std::forward<decltype(space)>(space); });
+}
+```
+
+## Property Definitions
+
+```cpp
+static JSC_DECLARE_HOST_FUNCTION(jsFooProtoFuncMethod);
+static JSC_DECLARE_CUSTOM_GETTER(jsFooGetter_property);
+
+static const HashTableValue JSFooPrototypeTableValues[] = {
+    { "property"_s, static_cast<unsigned>(PropertyAttribute::ReadOnly | PropertyAttribute::CustomAccessor), NoIntrinsic, { HashTableValue::GetterSetterType, jsFooGetter_property, 0 } },
+    { "method"_s, static_cast<unsigned>(PropertyAttribute::Function), NoIntrinsic, { HashTableValue::NativeFunctionType, jsFooProtoFuncMethod, 1 } },
+};
+```
+
+---END---
+FILE: .claude/skills/implementing-jsc-classes-zig/SKILL.md (206 lines)
+---
+name: implementing-jsc-classes-zig
+description: Creates JavaScript classes using Bun's Zig bindings generator (.classes.ts). Use when implementing new JS APIs in Zig with JSC integration.
+---
+
+# Bun's JavaScriptCore Class Bindings Generator
+
+Bridge JavaScript and Zig through `.classes.ts` definitions and Zig implementations.
+
+## Architecture
+
+1. **Zig Implementation** (.zig files)
+2. **JavaScript Interface Definition** (.classes.ts files)
+3. **Generated Code** (C++/Zig files connecting them)
+
+## Class Definition (.classes.ts)
+
+```typescript
+define({
+  name: "TextDecoder",
+  constructor: true,
+  JSType: "object",
+  finalize: true,
+  proto: {
+    decode: { args: 1 },
+    encoding: { getter: true, cache: true },
+    fatal: { getter: true },
+  },
+});
+```
+
+Options:
+
+- `name`: Class name
+- `constructor`: Has public constructor
+- `JSType`: "object", "function", etc.
+- `finalize`: Needs cleanup
+- `proto`: Properties/methods
+- `cache`: Cache property values via WriteBarrier
+
+## Zig Implementation
+
+```zig
+pub const TextDecoder = struct {
+    pub const js = JSC.Codegen.JSTextDecoder;
+    pub const toJS = js.toJS;
+    pub const fromJS = js.fromJS;
+    pub const fromJSDirect = js.fromJSDirect;
+
+    encoding: []const u8,
+---END---
+FILE: .claude/skills/writing-bundler-tests/SKILL.md (222 lines)
+---
+name: writing-bundler-tests
+description: Guides writing bundler tests using itBundled/expectBundled in test/bundler/. Use when creating or modifying bundler, transpiler, or code transformation tests.
+---
+
+# Writing Bundler Tests
+
+Bundler tests use `itBundled()` from `test/bundler/expectBundled.ts` to test Bun's bundler.
+
+## Basic Usage
+
+```typescript
+import { describe } from "bun:test";
+import { itBundled, dedent } from "./expectBundled";
+
+describe("bundler", () => {
+  itBundled("category/TestName", {
+    files: {
+      "index.js": `console.log("hello");`,
+    },
+    run: {
+      stdout: "hello",
+    },
+  });
+});
+```
+
+Test ID format: `category/TestName` (e.g., `banner/CommentBanner`, `minify/Empty`)
+
+## File Setup
+
+```typescript
+{
+  files: {
+    "index.js": `console.log("test");`,
+    "lib.ts": `export const foo = 123;`,
+    "nested/file.js": `export default {};`,
+  },
+  entryPoints: ["index.js"],  // defaults to first file
+  runtimeFiles: {             // written AFTER bundling
+    "extra.js": `console.log("added later");`,
+  },
+}
+```
+
+## Bundler Options
+
+```typescript
+{
+  outfile: "/out.js",
+---END---
+FILE: .claude/skills/writing-dev-server-tests/SKILL.md (94 lines)
+---
+name: writing-dev-server-tests
+description: Guides writing HMR/Dev Server tests in test/bake/. Use when creating or modifying dev server, hot reloading, or bundling tests.
+---
+
+# Writing HMR/Dev Server Tests
+
+Dev server tests validate hot-reloading robustness and reliability.
+
+## File Structure
+
+- `test/bake/bake-harness.ts` - shared utilities: `devTest`, `prodTest`, `devAndProductionTest`, `Dev` class, `Client` class
+- `test/bake/client-fixture.mjs` - subprocess for `Client` (page loading, IPC queries)
+- `test/bake/dev/*.test.ts` - dev server and hot reload tests
+- `test/bake/dev-and-prod.ts` - tests running on both dev and production mode
+
+## Test Categories
+
+- `bundle.test.ts` - DevServer-specific bundling bugs
+- `css.test.ts` - CSS bundling issues
+- `plugins.test.ts` - development mode plugins
+- `ecosystem.test.ts` - library compatibility (prefer concrete bugs over full package tests)
+- `esm.test.ts` - ESM features in development
+- `html.test.ts` - HTML file handling
+- `react-spa.test.ts` - React, react-refresh transform, server components
+- `sourcemap.test.ts` - source map correctness
+
+## devTest Basics
+
+```ts
+import { devTest, emptyHtmlFile } from "../bake-harness";
+
+devTest("html file is watched", {
+  files: {
+    "index.html": emptyHtmlFile({
+      scripts: ["/script.ts"],
+      body: "<h1>Hello</h1>",
+    }),
+    "script.ts": `console.log("hello");`,
+  },
+  async test(dev) {
+    await dev.fetch("/").expect.toInclude("<h1>Hello</h1>");
+    await dev.patch("index.html", { find: "Hello", replace: "World" });
+    await dev.fetch("/").expect.toInclude("<h1>World</h1>");
+
+    await using c = await dev.client("/");
+    await c.expectMessage("hello");
+
+    await c.expectReload(async () => {
+      await dev.patch("index.html", { find: "World", replace: "Bar" });
+---END---
+FILE: .claude/skills/zig-system-calls/SKILL.md (268 lines)
+---
+name: zig-system-calls
+description: Guides using bun.sys for system calls and file I/O in Zig. Use when implementing file operations instead of std.fs or std.posix.
+---
+
+# System Calls & File I/O in Zig
+
+Use `bun.sys` instead of `std.fs` or `std.posix` for cross-platform syscalls with proper error handling.
+
+## bun.sys.File (Preferred)
+
+For most file operations, use the `bun.sys.File` wrapper:
+
+```zig
+const File = bun.sys.File;
+
+const file = switch (File.open(path, bun.O.RDWR, 0o644)) {
+    .result => |f| f,
+    .err => |err| return .{ .err = err },
+};
+defer file.close();
+
+// Read/write
+_ = try file.read(buffer).unwrap();
+_ = try file.writeAll(data).unwrap();
+
+// Get file info
+const stat = try file.stat().unwrap();
+const size = try file.getEndPos().unwrap();
+
+// std.io compatible
+const reader = file.reader();
+const writer = file.writer();
+```
+
+### Complete Example
+
+```zig
+const File = bun.sys.File;
+
+pub fn writeFile(path: [:0]const u8, data: []const u8) File.WriteError!void {
+    const file = switch (File.open(path, bun.O.WRONLY | bun.O.CREAT | bun.O.TRUNC, 0o664)) {
+        .result => |f| f,
+        .err => |err| return err.toError(),
+    };
+    defer file.close();
+
+    _ = switch (file.writeAll(data)) {
+        .result => {},
+        .err => |err| return err.toError(),
+---END---
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+bench
+build.zig
+bunfig.node-test.toml
+bunfig.toml
+bun.lock
+CLAUDE.md
+CODE_OF_CONDUCT.md
+completions
+CONTRIBUTING.md
+dockerhub
+docs
+entitlements.debug.plist
+entitlements.plist
+flake.lock
+flake.nix
+LATEST
+LICENSE.md
+meta.json
+misctools
+oxlint.json
+package.json
+packages
+patches
+README.md
+rust-toolchain.toml
+scripts
+SECURITY.md
+shell.nix
+src
+test
+tsconfig.base.json
+tsconfig.json
+workspace.code-workspace
+
+### README
+FILE: README.md
+<p align="center">
+  <a href="https://bun.com"><img src="https://github.com/user-attachments/assets/50282090-adfd-4ddb-9e27-c30753c6b161" alt="Logo" height=170></a>
+</p>
+<h1 align="center">Bun</h1>
+
+<p align="center">
+<a href="https://bun.com/discord" target="_blank"><img height=20 src="https://img.shields.io/discord/876711213126520882" /></a>
+<img src="https://img.shields.io/github/stars/oven-sh/bun" alt="stars">
+<a href="https://twitter.com/jarredsumner/status/1542824445810642946"><img src="https://img.shields.io/static/v1?label=speed&message=fast&color=success" alt="Bun speed" /></a>
+</p>
+
+<div align="center">
+  <a href="https://bun.com/docs">Documentation</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://discord.com/invite/CXdq2DP29u">Discord</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://github.com/oven-sh/bun/issues/new">Issues</a>
+  <span>&nbsp;&nbsp;•&nbsp;&nbsp;</span>
+  <a href="https://github.com/oven-sh/bun/issues/159">Roadmap</a>
+  <br />
+</div>
+
+### [Read the docs →](https://bun.com/docs)
+
+## What is Bun?
+
+Bun is an all-in-one toolkit for JavaScript and TypeScript apps. It ships as a single executable called `bun`.
+
+At its core is the _Bun runtime_, a fast JavaScript runtime designed as **a drop-in replacement for Node.js**. It's written in Zig and powered by JavaScriptCore under the hood, dramatically reducing startup times and memory usage.
+
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "private": true,
+  "name": "bun",
+  "version": "1.3.11",
+  "workspaces": [
+    "./packages/bun-types",
+    "./packages/@types/bun"
+  ],
+  "devDependencies": {
+    "@lezer/common": "^1.2.3",
+    "@lezer/cpp": "^1.1.3",
+    "@types/bun": "workspace:*",
+    "bun-tracestrings": "github:oven-sh/bun.report#912ca63e26c51429d3e6799aa2a6ab079b188fd8",
+    "esbuild": "^0.21.5",
+    "mitata": "^0.1.14",
+    "peechy": "0.4.34",
+    "prettier": "^3.6.2",
+    "prettier-plugin-organize-imports": "^4.3.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "source-map-js": "^1.2.1",
+    "typescript": "6.0.2"
+  },
+  "resolutions": {
+    "bun-types": "workspace:packages/bun-types",
+    "@types/bun": "workspace:packages/@types/bun",
+    "@types/node": "25.0.0"
+  },
+  "scripts": {
+    "build": "bun --silent run build:debug",
+    "ci": "bun scripts/buildkite-failures.ts ",
+    "watch": "bun run zig build check --watch -fincremental --prominent-compile-errors --global-cache-dir build/debug/zig-check-cache --zig-lib-dir vendor/zig/lib -freference-trace=30",
+    "watch-windows": "bun run zig build check-windows --watch -fincremental --prominent-compile-errors --global-cache-dir build/debug/zig-check-cache --zig-lib-dir vendor/zig/lib",
+    "bd:v": "bun scripts/build.ts --profile=debug",
+    "bd": "BUN_DEBUG_QUIET_LOGS=1 bun scripts/build.ts --profile=debug --quiet",
+    "build:debug": "bun scripts/build.ts --profile=debug",
+    "build:debug:fuzzilli": "bun scripts/build.ts --profile=debug --fuzzilli=on --build-dir=build/debug-fuzz",
+    "build:debug:noasan": "bun scripts/build.ts --profile=debug-no-asan",
+    "build:release": "bun scripts/build.ts --profile=release",
+    "build:ci": "bun scripts/build.ts --profile=ci-release --build-dir=build/release-ci",
+---END---
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 1710
+ci_workflow_count: 25
+auto-assign-types.yml
+auto-close-duplicates.yml
+auto-label-claude-prs.yml
+claude-dedupe-issues.yml
+claude-find-issues-for-pr.yml
+CLAUDE.md
+close-stale-robobun-prs.yml
+comment-lint.yml.disabled
+format.yml
+labeled.yml.disabled
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.prettierrc: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 356 lines
+Configuring a development environment for Bun can take 10-30 minutes depending on your internet connection and computer speed. You will need ~10GB of free disk space for the repository and build artifacts.
+
+If you are using Windows, please refer to [this guide](https://bun.com/docs/project/building-windows)
+
+## Using Nix (Alternative)
+
+A Nix flake is provided as an alternative to manual dependency installation:
+
+```bash
+nix develop
+# or explicitly use the pure shell
+# nix develop .#pure
+export CMAKE_SYSTEM_PROCESSOR=$(uname -m)
+bun bd
+```
+
+This provides all dependencies in an isolated, reproducible environment without requiring sudo.
+
+## Install Dependencies (Manual)
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "watch": "bun run zig build check --watch -fincremental --prominent-compile-errors --global-cache-dir build/debug/zig-check-cache --zig-lib-dir vendor/zig/lib -freference-trace=30",
+### tsconfig.json
+{
+  "files": [],
+  "include": [],
+  "compilerOptions": {
+    "noEmit": true,
+    "skipLibCheck": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
+  },
+  "references": [
+    { "path": "./src" },
+    { "path": "./src/bake" },
+    { "path": "./src/js" },
+    { "path": "./test" },
+    { "path": "./packages/bun-types" }
+  ]
+}
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 1611
+### Largest source files
+  716820 total
+  265970 ./src/bun.js/bindings/sqlite/sqlite3.c
+   73451 ./src/bun.js/bindings/EncodingTables.cpp
+   17939 ./packages/bun-inspector-protocol/src/protocol/v8/index.d.ts
+   10154 ./src/bun.js/bindings/node/http/llhttp/llhttp.c
+    9240 ./packages/bun-types/bun.d.ts
+    6839 ./src/bun.js/bindings/webcore/SerializedScriptValue.cpp
+    6474 ./src/bun.js/bindings/bindings.cpp
+    4965 ./src/bun.js/bindings/ncrypto.cpp
+    4238 ./src/js/node/http2.ts
+    4097 ./src/bun.js/bindings/BunProcess.cpp
+
+=== END SIGNALS ===

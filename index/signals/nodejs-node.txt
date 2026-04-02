@@ -1,0 +1,268 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/nodejs-node
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+android-configure
+android_configure.py
+android-patches
+benchmark
+BSDmakefile
+BUILD.gn
+BUILDING.md
+CHANGELOG.md
+codecov.yml
+CODE_OF_CONDUCT.md
+common.gypi
+configure
+configure.py
+CONTRIBUTING.md
+deps
+doc
+eslint.config.mjs
+glossary.md
+GOVERNANCE.md
+lib
+LICENSE
+Makefile
+node.gni
+node.gyp
+node.gypi
+onboarding.md
+pyproject.toml
+README.md
+SECURITY.md
+shell.nix
+src
+test
+tools
+tsconfig.json
+typings
+unofficial.gni
+vcbuild.bat
+
+### README
+FILE: README.md
+# Node.js
+
+Node.js is an open-source, cross-platform JavaScript runtime environment.
+
+For information on using Node.js, see the [Node.js website][].
+
+The Node.js project uses an [open governance model](./GOVERNANCE.md). The
+[OpenJS Foundation][] provides support for the project.
+
+Contributors are expected to act in a collaborative manner to move
+the project forward. We encourage the constructive exchange of contrary
+opinions and compromise. The [TSC](./GOVERNANCE.md#technical-steering-committee)
+reserves the right to limit or block contributors who repeatedly act in ways
+that discourage, exhaust, or otherwise negatively affect other participants.
+
+**This project has a [Code of Conduct][].**
+
+## Table of contents
+
+* [Support](#support)
+* [Release types](#release-types)
+  * [Download](#download)
+    * [Current and LTS releases](#current-and-lts-releases)
+    * [Nightly releases](#nightly-releases)
+    * [API documentation](#api-documentation)
+  * [Verifying binaries](#verifying-binaries)
+* [Building Node.js](#building-nodejs)
+* [Security](#security)
+* [Contributing to Node.js](#contributing-to-nodejs)
+* [Current project team members](#current-project-team-members)
+---END---
+
+## Dependencies
+FILE: pyproject.toml
+[tool.ruff]
+exclude = [
+  "deps",
+  "tools/cpplint.py",
+  "tools/gyp",
+  "tools/inspector_protocol",
+  "tools/eslint/node_modules"
+]
+line-length = 172
+target-version = "py310"
+
+[tool.ruff.lint]
+select = [
+  "ASYNC",  # flake8-async
+  "C90",    # McCabe cyclomatic complexity
+  "E",      # pycodestyle
+  "F",      # Pyflakes
+  "ICN",    # flake8-import-conventions
+  "INT",    # flake8-gettext
+  "PERF",   # flake8-performance
+  "PLC",    # Pylint conventions
+  "PLE",    # Pylint errors
+  "PLR09",  # Pylint refactoring: max-args, max-branches, max returns, max-statements
+  "PYI",    # flake8-pyi
+  "RSE",    # flake8-raise
+  "RUF",    # Ruff-specific rules
+  "T10",    # flake8-debugger
+  "TCH",    # flake8-type-checking
+  "TID",    # flake8-tidy-imports
+  "W",      # pycodestyle
+  "YTT",    # flake8-2020
+]
+ignore = [
+  "E401",
+  "E402",
+  "E7",
+  "PLC0415",
+  "RUF005",
+]
+
+---END---
+### Lock files
+### Setup
+FILE: Makefile (first 30 lines)
+-include config.mk
+
+BUILDTYPE ?= Release
+PYTHON ?= python3
+DESTDIR ?=
+SIGN ?=
+PREFIX ?= /usr/local
+FLAKY_TESTS ?= run
+TEST_CI_ARGS ?=
+STAGINGSERVER ?= node-www
+CLOUDFLARE_BUCKET ?= r2:dist-staging
+LOGLEVEL ?= silent
+OSTYPE := $(shell uname -s | tr '[:upper:]' '[:lower:]')
+ifeq ($(findstring os/390,$OSTYPE),os/390)
+OSTYPE ?= os390
+endif
+ARCHTYPE := $(shell uname -m | tr '[:upper:]' '[:lower:]')
+COVTESTS ?= test-cov
+COV_SKIP_TESTS ?= core_line_numbers.js,testFinalizer.js,test_function/test.js
+GTEST_FILTER ?= *
+GNUMAKEFLAGS += --no-print-directory
+GCOV ?= gcov
+PWD = $(CURDIR)
+BUILD_WITH ?= make
+FIND ?= find
+
+ifdef JOBS
+	PARALLEL_ARGS = -j $(JOBS)
+else
+	PARALLEL_ARGS =
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 694
+ci_workflow_count: 37
+auto-start-ci.yml
+build-tarball.yml
+close-stale-feature-requests.yml
+close-stale-pull-requests.yml
+close-stalled.yml
+codeql.yml
+comment-labeled.yml
+commit-lint-problem-matcher.json
+commit-lint.yml
+commit-queue.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.mjs: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 76 lines
+# Contributing to Node.js
+
+Contributions to Node.js include code, documentation, answering user questions,
+running the project's infrastructure, and advocating for all types of Node.js
+users.
+
+The Node.js project welcomes all contributions from anyone willing to work in
+good faith with other contributors and the community. No contribution is too
+small and all contributions are valued.
+
+The Node.js project has an open governance model.
+Individuals making significant and valuable contributions are made
+Collaborators and given commit-access to the project. See the
+[GOVERNANCE.md](./GOVERNANCE.md) document for more information about how this
+works.
+
+## Contents
+
+* [Code of Conduct](#code-of-conduct)
+* [Issues](#issues)
+---END---
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### tsconfig.json
+{
+  "include": ["lib", "doc"],
+  "exclude": ["src", "tools", "out"],
+  "files": [
+    "./typings/globals.d.ts",
+    "./typings/primordials.d.ts"
+  ],
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": false,
+    "noEmit": true,
+    "lib": ["ESNext", "DOM"],
+    "target": "ESNext",
+    "module": "CommonJS",
+    "baseUrl": ".",
+    "paths": {
+      "_http_agent": ["./lib/_http_agent.js"],
+      "_http_client": ["./lib/_http_client.js"],
+      "_http_common": ["./lib/_http_common.js"],
+      "_http_incoming": ["./lib/_http_incoming.js"],
+      "_http_outgoing": ["./lib/_http_outgoing.js"],
+      "_http_server": ["./lib/_http_server.js"],
+      "_tls_common": ["./lib/_tls_common.js"],
+      "_tls_wrap": ["./lib/_tls_wrap.js"],
+      "assert": ["./lib/assert.js"],
+      "assert/strict": ["./lib/assert/strict.js"],
+      "async_hooks": ["./lib/async_hooks.js"],
+      "buffer": ["./lib/buffer.js"],
+      "child_process": ["./lib/child_process.js"],
+      "cluster": ["./lib/cluster.js"],
+---END---
+### mypy config
+no [tool.mypy] section
+### Determinism
+sleep_pattern_count_in_tests: 14
+### Largest source files
+ 247858 total
+   8035 ./tools/cpplint.py
+   3970 ./tools/gyp/pylib/gyp/generator/msvs.py
+   3764 ./lib/internal/http2/core.js
+   3496 ./lib/internal/webstreams/readablestream.js
+   3376 ./lib/fs.js
+   3180 ./tools/gyp/pylib/gyp/xcodeproj_file.py
+   3097 ./tools/gyp/pylib/gyp/input.py
+   3058 ./lib/internal/util/inspect.js
+   2956 ./tools/gyp/pylib/gyp/generator/ninja.py
+   2786 ./configure.py
+
+=== END SIGNALS ===

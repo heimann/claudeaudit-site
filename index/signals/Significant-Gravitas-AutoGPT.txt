@@ -1,0 +1,2961 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/Significant-Gravitas-AutoGPT
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md (67 lines)
+# AutoGPT Platform Contribution Guide
+
+This guide provides context for Codex when updating the **autogpt_platform** folder.
+
+## Directory overview
+
+- `autogpt_platform/backend` – FastAPI based backend service.
+- `autogpt_platform/autogpt_libs` – Shared Python libraries.
+- `autogpt_platform/frontend` – Next.js + Typescript frontend.
+- `autogpt_platform/docker-compose.yml` – development stack.
+
+See `docs/content/platform/getting-started.md` for setup instructions.
+
+## Code style
+
+- Format Python code with `poetry run format`.
+- Format frontend code using `pnpm format`.
+
+## Frontend guidelines:
+
+See `/frontend/CONTRIBUTING.md` for complete patterns. Quick reference:
+
+1. **Pages**: Create in `src/app/(platform)/feature-name/page.tsx`
+   - Add `usePageName.ts` hook for logic
+   - Put sub-components in local `components/` folder
+2. **Components**: Structure as `ComponentName/ComponentName.tsx` + `useComponentName.ts` + `helpers.ts`
+   - Use design system components from `src/components/` (atoms, molecules, organisms)
+   - Never use `src/components/__legacy__/*`
+3. **Data fetching**: Use generated API hooks from `@/app/api/__generated__/endpoints/`
+   - Regenerate with `pnpm generate:api`
+   - Pattern: `use{Method}{Version}{OperationName}`
+4. **Styling**: Tailwind CSS only, use design tokens, Phosphor Icons only
+5. **Testing**: Add Storybook stories for new components, Playwright for E2E
+6. **Code conventions**: Function declarations (not arrow functions) for components/handlers
+
+- Component props should be `interface Props { ... }` (not exported) unless the interface needs to be used outside the component
+- Separate render logic from business logic (component.tsx + useComponent.ts + helpers.ts)
+- Colocate state when possible and avoid creating large components, use sub-components ( local `/components` folder next to the parent component ) when sensible
+- Avoid large hooks, abstract logic into `helpers.ts` files when sensible
+- Use function declarations for components, arrow functions only for callbacks
+- No barrel files or `index.ts` re-exports
+- Avoid comments at all times unless the code is very complex
+- Do not use `useCallback` or `useMemo` unless asked to optimise a given function
+- Do not type hook returns, let Typescript infer as much as possible
+- Never type with `any`, if not types available use `unknown`
+
+## Testing
+
+- Backend: `poetry run test` (runs pytest with a docker based postgres + prisma).
+- Frontend: `pnpm test` or `pnpm test-ui` for Playwright tests. See `docs/content/platform/contributing/tests.md` for tips.
+
+Always run the relevant linters and tests before committing.
+Use conventional commit messages for all commits (e.g. `feat(backend): add API`).
+Types: - feat - fix - refactor - ci - dx (developer experience)
+Scopes: - platform - platform/library - platform/marketplace - backend - backend/executor - frontend - frontend/library - frontend/marketplace - blocks
+
+## Pull requests
+
+- Use the template in `.github/PULL_REQUEST_TEMPLATE.md`.
+- Rely on the pre-commit checks for linting and formatting
+- Fill out the **Changes** section and the checklist.
+- Use conventional commit titles with a scope (e.g. `feat(frontend): add feature`).
+- Keep out-of-scope changes under 20% of the PR.
+- Ensure PR descriptions are complete.
+- For changes touching `data/*.py`, validate user ID checks or explain why not needed.
+- If adding protected frontend routes, update `frontend/lib/supabase/middleware.ts`.
+- Use the linear ticket branch structure if given codex/open-1668-resume-dropped-runs
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (322 lines)
+# GitHub Copilot Instructions for AutoGPT
+
+This file provides comprehensive onboarding information for GitHub Copilot coding agent to work efficiently with the AutoGPT repository.
+
+## Repository Overview
+
+**AutoGPT** is a powerful platform for creating, deploying, and managing continuous AI agents that automate complex workflows. This is a large monorepo (~150MB) containing multiple components:
+
+- **AutoGPT Platform** (`autogpt_platform/`) - Main focus: Modern AI agent platform (Polyform Shield License)
+- **Classic AutoGPT** (`classic/`) - Legacy agent system (MIT License)
+- **Documentation** (`docs/`) - MkDocs-based documentation site
+- **Infrastructure** - Docker configurations, CI/CD, and development tools
+
+**Primary Languages & Frameworks:**
+
+- **Backend**: Python 3.10-3.13, FastAPI, Prisma ORM, PostgreSQL, RabbitMQ
+- **Frontend**: TypeScript, Next.js 15, React, Tailwind CSS, Radix UI
+- **Development**: Docker, Poetry, pnpm, Playwright, Storybook
+
+## Build and Validation Instructions
+
+### Essential Setup Commands
+
+**Always run these commands in the correct directory and in this order:**
+
+1. **Initial Setup** (required once):
+
+   ```bash
+   # Clone and enter repository
+   git clone <repo> && cd AutoGPT
+
+   # Start all services (database, redis, rabbitmq, clamav)
+   cd autogpt_platform && docker compose --profile local up deps --build --detach
+   ```
+
+2. **Backend Setup** (always run before backend development):
+
+   ```bash
+   cd autogpt_platform/backend
+   poetry install                    # Install dependencies
+   poetry run prisma migrate dev     # Run database migrations
+   poetry run prisma generate        # Generate Prisma client
+   ```
+
+3. **Frontend Setup** (always run before frontend development):
+   ```bash
+   cd autogpt_platform/frontend
+   pnpm install                      # Install dependencies
+   ```
+
+### Runtime Requirements
+
+**Critical:** Always ensure Docker services are running before starting development:
+
+```bash
+cd autogpt_platform && docker compose --profile local up deps --build --detach
+```
+
+**Python Version:** Use Python 3.11 (required; managed by Poetry via pyproject.toml)
+**Node.js Version:** Use Node.js 21+ with pnpm package manager
+
+### Development Commands
+
+**Backend Development:**
+
+```bash
+cd autogpt_platform/backend
+poetry run serve                     # Start development server (port 8000)
+poetry run test                      # Run all tests (requires ~5 minutes)
+poetry run pytest path/to/test.py    # Run specific test
+poetry run format                    # Format code (Black + isort) - always run first
+poetry run lint                      # Lint code (ruff) - run after format
+```
+
+**Frontend Development:**
+
+```bash
+cd autogpt_platform/frontend
+pnpm dev                            # Start development server (port 3000) - use for active development
+pnpm build                          # Build for production (only needed for E2E tests or deployment)
+pnpm test                           # Run Playwright E2E tests (requires build first)
+pnpm test-ui                        # Run tests with UI
+pnpm format                         # Format and lint code
+pnpm storybook                      # Start component development server
+```
+
+### Testing Strategy
+
+**Backend Tests:**
+
+- **Block Tests**: `poetry run pytest backend/blocks/test/test_block.py -xvs` (validates all blocks)
+- **Specific Block**: `poetry run pytest 'backend/blocks/test/test_block.py::test_available_blocks[BlockName]' -xvs`
+- **Snapshot Tests**: Use `--snapshot-update` when output changes, always review with `git diff`
+
+**Frontend Tests:**
+
+- **E2E Tests**: Always run `pnpm dev` before `pnpm test` (Playwright requires running instance)
+- **Component Tests**: Use Storybook for isolated component development
+
+### Critical Validation Steps
+---END---
+
+### Subdirectory agent docs
+FILE: autogpt_platform/backend/CLAUDE.md (227 lines)
+# CLAUDE.md - Backend
+
+This file provides guidance to Claude Code when working with the backend.
+
+## Essential Commands
+
+To run something with Python package dependencies you MUST use `poetry run ...`.
+
+```bash
+# Install dependencies
+poetry install
+
+# Run database migrations
+poetry run prisma migrate dev
+
+# Start all services (database, redis, rabbitmq, clamav)
+docker compose up -d
+
+# Run the backend as a whole
+poetry run app
+
+# Run tests
+poetry run test
+
+# Run specific test
+poetry run pytest path/to/test_file.py::test_function_name
+
+# Run block tests (tests that validate all blocks work correctly)
+poetry run pytest backend/blocks/test/test_block.py -xvs
+
+# Run tests for a specific block (e.g., GetCurrentTimeBlock)
+poetry run pytest 'backend/blocks/test/test_block.py::test_available_blocks[GetCurrentTimeBlock]' -xvs
+
+# Lint and format
+# prefer format if you want to just "fix" it and only get the errors that can't be autofixed
+poetry run format  # Black + isort
+poetry run lint    # ruff
+```
+
+More details can be found in @TESTING.md
+
+### Creating/Updating Snapshots
+
+When you first write a test or when the expected output changes:
+
+```bash
+poetry run pytest path/to/test.py --snapshot-update
+```
+
+⚠️ **Important**: Always review snapshot changes before committing! Use `git diff` to verify the changes are expected.
+---END---
+FILE: autogpt_platform/CLAUDE.md (120 lines)
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Repository Overview
+
+AutoGPT Platform is a monorepo containing:
+
+- **Backend** (`backend`): Python FastAPI server with async support
+- **Frontend** (`frontend`): Next.js React application
+- **Shared Libraries** (`autogpt_libs`): Common Python utilities
+
+## Component Documentation
+
+- **Backend**: See @backend/CLAUDE.md for backend-specific commands, architecture, and development tasks
+- **Frontend**: See @frontend/CLAUDE.md for frontend-specific commands, architecture, and development patterns
+
+## Key Concepts
+
+1. **Agent Graphs**: Workflow definitions stored as JSON, executed by the backend
+2. **Blocks**: Reusable components in `backend/backend/blocks/` that perform specific tasks
+3. **Integrations**: OAuth and API connections stored per user
+4. **Store**: Marketplace for sharing agent templates
+5. **Virus Scanning**: ClamAV integration for file upload security
+
+### Environment Configuration
+
+#### Configuration Files
+
+- **Backend**: `backend/.env.default` (defaults) → `backend/.env` (user overrides)
+- **Frontend**: `frontend/.env.default` (defaults) → `frontend/.env` (user overrides)
+- **Platform**: `.env.default` (Supabase/shared defaults) → `.env` (user overrides)
+
+#### Docker Environment Loading Order
+
+1. `.env.default` files provide base configuration (tracked in git)
+2. `.env` files provide user-specific overrides (gitignored)
+3. Docker Compose `environment:` sections provide service-specific overrides
+4. Shell environment variables have highest precedence
+
+#### Key Points
+
+- All services use hardcoded defaults in docker-compose files (no `${VARIABLE}` substitutions)
+- The `env_file` directive loads variables INTO containers at runtime
+- Backend/Frontend services use YAML anchors for consistent configuration
+- Supabase services (`db/docker/docker-compose.yml`) follow the same pattern
+
+### Branching Strategy
+
+- **`dev`** is the main development branch. All PRs should target `dev`.
+---END---
+FILE: autogpt_platform/frontend/CLAUDE.md (93 lines)
+# CLAUDE.md - Frontend
+
+This file provides guidance to Claude Code when working with the frontend.
+
+## Essential Commands
+
+```bash
+# Install dependencies
+pnpm i
+
+# Generate API client from OpenAPI spec
+pnpm generate:api
+
+# Start development server
+pnpm dev
+
+# Run E2E tests
+pnpm test
+
+# Run Storybook for component development
+pnpm storybook
+
+# Build production
+pnpm build
+
+# Format and lint
+pnpm format
+
+# Type checking
+pnpm types
+```
+
+### Pre-completion Checks (MANDATORY)
+
+After making **any** code changes in the frontend, you MUST run the following commands **in order** before reporting work as done, creating commits, or opening PRs:
+
+1. `pnpm format` — auto-fix formatting issues
+2. `pnpm lint` — check for lint errors; fix any that appear
+3. `pnpm types` — check for type errors; fix any that appear
+
+Do NOT skip these steps. If any command reports errors, fix them and re-run until clean. Only then may you consider the task complete. If typing keeps failing, stop and ask the user.
+
+### Code Style
+
+- Fully capitalize acronyms in symbols, e.g. `graphID`, `useBackendAPI`
+- Use function declarations (not arrow functions) for components/handlers
+- No `dark:` Tailwind classes — the design system handles dark mode
+- Use Next.js `<Link>` for internal navigation — never raw `<a>` tags
+- No `any` types unless the value genuinely can be anything
+- No linter suppressors (`// @ts-ignore`, `// eslint-disable`) — fix the actual issue
+---END---
+FILE: autogpt_platform/frontend/src/tests/CLAUDE.md (220 lines)
+# Frontend Testing Rules 🧪
+
+## Testing Types Overview
+
+| Type            | Tool                  | Speed           | Purpose                          |
+| --------------- | --------------------- | --------------- | -------------------------------- |
+| **E2E**         | Playwright            | Slow (~5s/test) | Real browser, full user journeys |
+| **Integration** | Vitest + RTL          | Fast (~100ms)   | Component + mocked API           |
+| **Unit**        | Vitest + RTL          | Fastest (~10ms) | Individual functions/components  |
+| **Visual**      | Storybook + Chromatic | N/A             | UI appearance, design system     |
+
+---
+
+## When to Use Each
+
+### ✅ E2E Tests (Playwright)
+
+**Use for:** Critical user journeys that MUST work in a real browser.
+
+- Authentication flows (login, signup, logout)
+- Payment or sensitive transactions
+- Flows requiring real browser APIs (clipboard, downloads)
+- Cross-page navigation that must work end-to-end
+
+**Location:** `src/tests/*.spec.ts` (centralized, as there will be fewer of them)
+
+### ✅ Integration Tests (Vitest + RTL)
+
+**Use for:** Testing components with their dependencies (API calls, state).
+
+- Page-level behavior with mocked API responses
+- Components that fetch data
+- User interactions that trigger API calls
+- Feature flows within a single page
+
+**Location:** Place tests in a `__tests__` folder next to the component:
+
+```
+ComponentName/
+  __tests__/
+    main.test.tsx
+    some-flow.test.tsx
+  ComponentName.tsx
+  useComponentName.ts
+```
+
+**Start at page level:** Initially write integration tests at the "page" level. No need to write them for every small component.
+
+```
+/library/
+---END---
+FILE: .claude/skills/vercel-react-best-practices/AGENTS.md (2249 lines)
+# React Best Practices
+
+**Version 1.0.0**  
+Vercel Engineering  
+January 2026
+
+> **Note:**  
+> This document is mainly for agents and LLMs to follow when maintaining,  
+> generating, or refactoring React and Next.js codebases at Vercel. Humans  
+> may also find it useful, but guidance here is optimized for automation  
+> and consistency by AI-assisted workflows.
+
+---
+
+## Abstract
+
+Comprehensive performance optimization guide for React and Next.js applications, designed for AI agents and LLMs. Contains 40+ rules across 8 categories, prioritized by impact from critical (eliminating waterfalls, reducing bundle size) to incremental (advanced patterns). Each rule includes detailed explanations, real-world examples comparing incorrect vs. correct implementations, and specific impact metrics to guide automated refactoring and code generation.
+
+---
+
+## Table of Contents
+
+1. [Eliminating Waterfalls](#1-eliminating-waterfalls) — **CRITICAL**
+   - 1.1 [Defer Await Until Needed](#11-defer-await-until-needed)
+   - 1.2 [Dependency-Based Parallelization](#12-dependency-based-parallelization)
+   - 1.3 [Prevent Waterfall Chains in API Routes](#13-prevent-waterfall-chains-in-api-routes)
+   - 1.4 [Promise.all() for Independent Operations](#14-promiseall-for-independent-operations)
+   - 1.5 [Strategic Suspense Boundaries](#15-strategic-suspense-boundaries)
+2. [Bundle Size Optimization](#2-bundle-size-optimization) — **CRITICAL**
+   - 2.1 [Avoid Barrel File Imports](#21-avoid-barrel-file-imports)
+   - 2.2 [Conditional Module Loading](#22-conditional-module-loading)
+   - 2.3 [Defer Non-Critical Third-Party Libraries](#23-defer-non-critical-third-party-libraries)
+   - 2.4 [Dynamic Imports for Heavy Components](#24-dynamic-imports-for-heavy-components)
+   - 2.5 [Preload Based on User Intent](#25-preload-based-on-user-intent)
+3. [Server-Side Performance](#3-server-side-performance) — **HIGH**
+   - 3.1 [Cross-Request LRU Caching](#31-cross-request-lru-caching)
+   - 3.2 [Minimize Serialization at RSC Boundaries](#32-minimize-serialization-at-rsc-boundaries)
+   - 3.3 [Parallel Data Fetching with Component Composition](#33-parallel-data-fetching-with-component-composition)
+   - 3.4 [Per-Request Deduplication with React.cache()](#34-per-request-deduplication-with-reactcache)
+   - 3.5 [Use after() for Non-Blocking Operations](#35-use-after-for-non-blocking-operations)
+4. [Client-Side Data Fetching](#4-client-side-data-fetching) — **MEDIUM-HIGH**
+   - 4.1 [Deduplicate Global Event Listeners](#41-deduplicate-global-event-listeners)
+   - 4.2 [Use SWR for Automatic Deduplication](#42-use-swr-for-automatic-deduplication)
+5. [Re-render Optimization](#5-re-render-optimization) — **MEDIUM**
+   - 5.1 [Defer State Reads to Usage Point](#51-defer-state-reads-to-usage-point)
+   - 5.2 [Extract to Memoized Components](#52-extract-to-memoized-components)
+   - 5.3 [Narrow Effect Dependencies](#53-narrow-effect-dependencies)
+   - 5.4 [Subscribe to Derived State](#54-subscribe-to-derived-state)
+   - 5.5 [Use Functional setState Updates](#55-use-functional-setstate-updates)
+   - 5.6 [Use Lazy State Initialization](#56-use-lazy-state-initialization)
+---END---
+FILE: docs/CLAUDE.md (44 lines)
+# Documentation Guidelines
+
+## Block Documentation Manual Sections
+
+When updating manual sections (`<!-- MANUAL: ... -->`) in block documentation files (e.g., `docs/integrations/basic.md`), follow these formats:
+
+### How It Works Section
+
+Provide a technical explanation of how the block functions:
+- Describe the processing logic in 1-2 paragraphs
+- Mention any validation, error handling, or edge cases
+- Use code examples with backticks when helpful (e.g., `[[1, 2], [3, 4]]` becomes `[1, 2, 3, 4]`)
+
+Example:
+```markdown
+<!-- MANUAL: how_it_works -->
+The block iterates through each list in the input and extends a result list with all elements from each one. It processes lists in order, so `[[1, 2], [3, 4]]` becomes `[1, 2, 3, 4]`.
+
+The block includes validation to ensure each item is actually a list. If a non-list value is encountered, the block outputs an error message instead of proceeding.
+<!-- END MANUAL -->
+```
+
+### Use Case Section
+
+Provide 3 practical use cases in this format:
+- **Bold Heading**: Short one-sentence description
+
+Example:
+```markdown
+<!-- MANUAL: use_case -->
+**Paginated API Merging**: Combine results from multiple API pages into a single list for batch processing or display.
+
+**Parallel Task Aggregation**: Merge outputs from parallel workflow branches that each produce a list of results.
+
+**Multi-Source Data Collection**: Combine data collected from different sources (like multiple RSS feeds or API endpoints) into one unified list.
+<!-- END MANUAL -->
+```
+
+### Style Guidelines
+
+- Keep descriptions concise and action-oriented
+- Focus on practical, real-world scenarios
+- Use consistent terminology with other blocks
+- Avoid overly technical jargon unless necessary
+---END---
+
+### .claude/ contents
+FILE: .claude/skills/pr-address/SKILL.md (210 lines)
+---
+name: pr-address
+description: Address PR review comments and loop until CI green and all comments resolved. TRIGGER when user asks to address comments, fix PR feedback, respond to reviewers, or babysit/monitor a PR.
+user-invocable: true
+argument-hint: "[PR number or URL] — if omitted, finds PR for current branch."
+metadata:
+  author: autogpt-team
+  version: "1.0.0"
+---
+
+# PR Address
+
+## Find the PR
+
+```bash
+gh pr list --head $(git branch --show-current) --repo Significant-Gravitas/AutoGPT
+gh pr view {N}
+```
+
+## Read the PR description
+
+Understand the **Why / What / How** before addressing comments — you need context to make good fixes:
+
+```bash
+gh pr view {N} --json body --jq '.body'
+```
+
+## Fetch comments (all sources)
+
+### 1. Inline review threads — GraphQL (primary source of actionable items)
+
+Use GraphQL to fetch inline threads. It natively exposes `isResolved`, returns threads already grouped with all replies, and paginates via cursor — no manual thread reconstruction needed.
+
+```bash
+gh api graphql -f query='
+{
+  repository(owner: "Significant-Gravitas", name: "AutoGPT") {
+    pullRequest(number: {N}) {
+      reviewThreads(first: 100) {
+        pageInfo { hasNextPage endCursor }
+        nodes {
+          id
+          isResolved
+          path
+          comments(last: 1) {
+            nodes { databaseId body author { login } createdAt }
+          }
+        }
+      }
+    }
+---END---
+FILE: .claude/skills/pr-review/SKILL.md (86 lines)
+---
+name: pr-review
+description: Review a PR for correctness, security, code quality, and testing issues. TRIGGER when user asks to review a PR, check PR quality, or give feedback on a PR.
+user-invocable: true
+args: "[PR number or URL] — if omitted, finds PR for current branch."
+metadata:
+  author: autogpt-team
+  version: "1.0.0"
+---
+
+# PR Review
+
+## Find the PR
+
+```bash
+gh pr list --head $(git branch --show-current) --repo Significant-Gravitas/AutoGPT
+gh pr view {N}
+```
+
+## Read the PR description
+
+Before reading code, understand the **why**, **what**, and **how** from the PR description:
+
+```bash
+gh pr view {N} --json body --jq '.body'
+```
+
+Every PR should have a Why / What / How structure. If any of these are missing, note it as feedback.
+
+## Read the diff
+
+```bash
+gh pr diff {N}
+```
+
+## Fetch existing review comments
+
+Before posting anything, fetch existing inline comments to avoid duplicates:
+
+```bash
+gh api repos/Significant-Gravitas/AutoGPT/pulls/{N}/comments --paginate
+gh api repos/Significant-Gravitas/AutoGPT/pulls/{N}/reviews
+```
+
+## What to check
+
+**Description quality:** Does the PR description cover Why (motivation/problem), What (summary of changes), and How (approach/implementation details)? If any are missing, request them — you can't judge the approach without understanding the problem and intent.
+
+**Correctness:** logic errors, off-by-one, missing edge cases, race conditions (TOCTOU in file access, credit charging), error handling gaps, async correctness (missing `await`, unclosed resources).
+
+---END---
+FILE: .claude/skills/pr-test/SKILL.md (754 lines)
+---
+name: pr-test
+description: "E2E manual testing of PRs/branches using docker compose, agent-browser, and API calls. TRIGGER when user asks to manually test a PR, test a feature end-to-end, or run integration tests against a running system."
+user-invocable: true
+argument-hint: "[worktree path or PR number] — tests the PR in the given worktree. Optional flags: --fix (auto-fix issues found)"
+metadata:
+  author: autogpt-team
+  version: "2.0.0"
+---
+
+# Manual E2E Test
+
+Test a PR/branch end-to-end by building the full platform, interacting via browser and API, capturing screenshots, and reporting results.
+
+## Critical Requirements
+
+These are NON-NEGOTIABLE. Every test run MUST satisfy ALL the following:
+
+### 1. Screenshots at Every Step
+- Take a screenshot at EVERY significant test step — not just at the end
+- Every test scenario MUST have at least one BEFORE and one AFTER screenshot
+- Name screenshots sequentially: `{NN}-{action}-{state}.png` (e.g., `01-credits-before.png`, `02-credits-after.png`)
+- If a screenshot is missing for a scenario, the test is INCOMPLETE — go back and take it
+
+### 2. Screenshots MUST Be Posted to PR
+- Push ALL screenshots to a temp branch `test-screenshots/pr-{N}`
+- Post a PR comment with ALL screenshots embedded inline using GitHub raw URLs
+- This is NOT optional — every test run MUST end with a PR comment containing screenshots
+- If screenshot upload fails, retry. If it still fails, list failed files and require manual drag-and-drop/paste attachment in the PR comment
+
+### 3. State Verification with Before/After Evidence
+- For EVERY state-changing operation (API call, user action), capture the state BEFORE and AFTER
+- Log the actual API response values (e.g., `credits_before=100, credits_after=95`)
+- Screenshot MUST show the relevant UI state change
+- Compare expected vs actual values explicitly — do not just eyeball it
+
+### 4. Negative Test Cases Are Mandatory
+- Test at least ONE negative case per feature (e.g., insufficient credits, invalid input, unauthorized access)
+- Verify error messages are user-friendly and accurate
+- Verify the system state did NOT change after a rejected operation
+
+### 5. Test Report Must Include Full Evidence
+Each test scenario in the report MUST have:
+- **Steps**: What was done (exact commands or UI actions)
+- **Expected**: What should happen
+- **Actual**: What actually happened
+- **API Evidence**: Before/after API response values for state-changing operations
+- **Screenshot Evidence**: Before/after screenshots with explanations
+
+## State Manipulation for Realistic Testing
+---END---
+FILE: .claude/skills/vercel-react-best-practices/AGENTS.md (2249 lines)
+# React Best Practices
+
+**Version 1.0.0**  
+Vercel Engineering  
+January 2026
+
+> **Note:**  
+> This document is mainly for agents and LLMs to follow when maintaining,  
+> generating, or refactoring React and Next.js codebases at Vercel. Humans  
+> may also find it useful, but guidance here is optimized for automation  
+> and consistency by AI-assisted workflows.
+
+---
+
+## Abstract
+
+Comprehensive performance optimization guide for React and Next.js applications, designed for AI agents and LLMs. Contains 40+ rules across 8 categories, prioritized by impact from critical (eliminating waterfalls, reducing bundle size) to incremental (advanced patterns). Each rule includes detailed explanations, real-world examples comparing incorrect vs. correct implementations, and specific impact metrics to guide automated refactoring and code generation.
+
+---
+
+## Table of Contents
+
+1. [Eliminating Waterfalls](#1-eliminating-waterfalls) — **CRITICAL**
+   - 1.1 [Defer Await Until Needed](#11-defer-await-until-needed)
+   - 1.2 [Dependency-Based Parallelization](#12-dependency-based-parallelization)
+   - 1.3 [Prevent Waterfall Chains in API Routes](#13-prevent-waterfall-chains-in-api-routes)
+   - 1.4 [Promise.all() for Independent Operations](#14-promiseall-for-independent-operations)
+   - 1.5 [Strategic Suspense Boundaries](#15-strategic-suspense-boundaries)
+2. [Bundle Size Optimization](#2-bundle-size-optimization) — **CRITICAL**
+   - 2.1 [Avoid Barrel File Imports](#21-avoid-barrel-file-imports)
+   - 2.2 [Conditional Module Loading](#22-conditional-module-loading)
+   - 2.3 [Defer Non-Critical Third-Party Libraries](#23-defer-non-critical-third-party-libraries)
+   - 2.4 [Dynamic Imports for Heavy Components](#24-dynamic-imports-for-heavy-components)
+   - 2.5 [Preload Based on User Intent](#25-preload-based-on-user-intent)
+3. [Server-Side Performance](#3-server-side-performance) — **HIGH**
+   - 3.1 [Cross-Request LRU Caching](#31-cross-request-lru-caching)
+   - 3.2 [Minimize Serialization at RSC Boundaries](#32-minimize-serialization-at-rsc-boundaries)
+   - 3.3 [Parallel Data Fetching with Component Composition](#33-parallel-data-fetching-with-component-composition)
+   - 3.4 [Per-Request Deduplication with React.cache()](#34-per-request-deduplication-with-reactcache)
+   - 3.5 [Use after() for Non-Blocking Operations](#35-use-after-for-non-blocking-operations)
+4. [Client-Side Data Fetching](#4-client-side-data-fetching) — **MEDIUM-HIGH**
+   - 4.1 [Deduplicate Global Event Listeners](#41-deduplicate-global-event-listeners)
+   - 4.2 [Use SWR for Automatic Deduplication](#42-use-swr-for-automatic-deduplication)
+5. [Re-render Optimization](#5-re-render-optimization) — **MEDIUM**
+   - 5.1 [Defer State Reads to Usage Point](#51-defer-state-reads-to-usage-point)
+   - 5.2 [Extract to Memoized Components](#52-extract-to-memoized-components)
+   - 5.3 [Narrow Effect Dependencies](#53-narrow-effect-dependencies)
+   - 5.4 [Subscribe to Derived State](#54-subscribe-to-derived-state)
+   - 5.5 [Use Functional setState Updates](#55-use-functional-setstate-updates)
+   - 5.6 [Use Lazy State Initialization](#56-use-lazy-state-initialization)
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/advanced-event-handler-refs.md (55 lines)
+---
+title: Store Event Handlers in Refs
+impact: LOW
+impactDescription: stable subscriptions
+tags: advanced, hooks, refs, event-handlers, optimization
+---
+
+## Store Event Handlers in Refs
+
+Store callbacks in refs when used in effects that shouldn't re-subscribe on callback changes.
+
+**Incorrect (re-subscribes on every render):**
+
+```tsx
+function useWindowEvent(event: string, handler: () => void) {
+  useEffect(() => {
+    window.addEventListener(event, handler)
+    return () => window.removeEventListener(event, handler)
+  }, [event, handler])
+}
+```
+
+**Correct (stable subscription):**
+
+```tsx
+function useWindowEvent(event: string, handler: () => void) {
+  const handlerRef = useRef(handler)
+  useEffect(() => {
+    handlerRef.current = handler
+  }, [handler])
+
+  useEffect(() => {
+    const listener = () => handlerRef.current()
+    window.addEventListener(event, listener)
+    return () => window.removeEventListener(event, listener)
+  }, [event])
+}
+```
+
+**Alternative: use `useEffectEvent` if you're on latest React:**
+
+```tsx
+import { useEffectEvent } from 'react'
+
+function useWindowEvent(event: string, handler: () => void) {
+  const onEvent = useEffectEvent(handler)
+
+  useEffect(() => {
+    window.addEventListener(event, onEvent)
+    return () => window.removeEventListener(event, onEvent)
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/advanced-use-latest.md (49 lines)
+---
+title: useLatest for Stable Callback Refs
+impact: LOW
+impactDescription: prevents effect re-runs
+tags: advanced, hooks, useLatest, refs, optimization
+---
+
+## useLatest for Stable Callback Refs
+
+Access latest values in callbacks without adding them to dependency arrays. Prevents effect re-runs while avoiding stale closures.
+
+**Implementation:**
+
+```typescript
+function useLatest<T>(value: T) {
+  const ref = useRef(value)
+  useEffect(() => {
+    ref.current = value
+  }, [value])
+  return ref
+}
+```
+
+**Incorrect (effect re-runs on every callback change):**
+
+```tsx
+function SearchInput({ onSearch }: { onSearch: (q: string) => void }) {
+  const [query, setQuery] = useState('')
+
+  useEffect(() => {
+    const timeout = setTimeout(() => onSearch(query), 300)
+    return () => clearTimeout(timeout)
+  }, [query, onSearch])
+}
+```
+
+**Correct (stable effect, fresh callback):**
+
+```tsx
+function SearchInput({ onSearch }: { onSearch: (q: string) => void }) {
+  const [query, setQuery] = useState('')
+  const onSearchRef = useLatest(onSearch)
+
+  useEffect(() => {
+    const timeout = setTimeout(() => onSearchRef.current(query), 300)
+    return () => clearTimeout(timeout)
+  }, [query])
+}
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/async-api-routes.md (38 lines)
+---
+title: Prevent Waterfall Chains in API Routes
+impact: CRITICAL
+impactDescription: 2-10× improvement
+tags: api-routes, server-actions, waterfalls, parallelization
+---
+
+## Prevent Waterfall Chains in API Routes
+
+In API routes and Server Actions, start independent operations immediately, even if you don't await them yet.
+
+**Incorrect (config waits for auth, data waits for both):**
+
+```typescript
+export async function GET(request: Request) {
+  const session = await auth()
+  const config = await fetchConfig()
+  const data = await fetchData(session.user.id)
+  return Response.json({ data, config })
+}
+```
+
+**Correct (auth and config start immediately):**
+
+```typescript
+export async function GET(request: Request) {
+  const sessionPromise = auth()
+  const configPromise = fetchConfig()
+  const session = await sessionPromise
+  const [config, data] = await Promise.all([
+    configPromise,
+    fetchData(session.user.id)
+  ])
+  return Response.json({ data, config })
+}
+```
+
+For operations with more complex dependency chains, use `better-all` to automatically maximize parallelism (see Dependency-Based Parallelization).
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/async-defer-await.md (80 lines)
+---
+title: Defer Await Until Needed
+impact: HIGH
+impactDescription: avoids blocking unused code paths
+tags: async, await, conditional, optimization
+---
+
+## Defer Await Until Needed
+
+Move `await` operations into the branches where they're actually used to avoid blocking code paths that don't need them.
+
+**Incorrect (blocks both branches):**
+
+```typescript
+async function handleRequest(userId: string, skipProcessing: boolean) {
+  const userData = await fetchUserData(userId)
+  
+  if (skipProcessing) {
+    // Returns immediately but still waited for userData
+    return { skipped: true }
+  }
+  
+  // Only this branch uses userData
+  return processUserData(userData)
+}
+```
+
+**Correct (only blocks when needed):**
+
+```typescript
+async function handleRequest(userId: string, skipProcessing: boolean) {
+  if (skipProcessing) {
+    // Returns immediately without waiting
+    return { skipped: true }
+  }
+  
+  // Fetch only when needed
+  const userData = await fetchUserData(userId)
+  return processUserData(userData)
+}
+```
+
+**Another example (early return optimization):**
+
+```typescript
+// Incorrect: always fetches permissions
+async function updateResource(resourceId: string, userId: string) {
+  const permissions = await fetchPermissions(userId)
+  const resource = await getResource(resourceId)
+  
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/async-dependencies.md (36 lines)
+---
+title: Dependency-Based Parallelization
+impact: CRITICAL
+impactDescription: 2-10× improvement
+tags: async, parallelization, dependencies, better-all
+---
+
+## Dependency-Based Parallelization
+
+For operations with partial dependencies, use `better-all` to maximize parallelism. It automatically starts each task at the earliest possible moment.
+
+**Incorrect (profile waits for config unnecessarily):**
+
+```typescript
+const [user, config] = await Promise.all([
+  fetchUser(),
+  fetchConfig()
+])
+const profile = await fetchProfile(user.id)
+```
+
+**Correct (config and profile run in parallel):**
+
+```typescript
+import { all } from 'better-all'
+
+const { user, config, profile } = await all({
+  async user() { return fetchUser() },
+  async config() { return fetchConfig() },
+  async profile() {
+    return fetchProfile((await this.$.user).id)
+  }
+})
+```
+
+Reference: [https://github.com/shuding/better-all](https://github.com/shuding/better-all)
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/async-parallel.md (28 lines)
+---
+title: Promise.all() for Independent Operations
+impact: CRITICAL
+impactDescription: 2-10× improvement
+tags: async, parallelization, promises, waterfalls
+---
+
+## Promise.all() for Independent Operations
+
+When async operations have no interdependencies, execute them concurrently using `Promise.all()`.
+
+**Incorrect (sequential execution, 3 round trips):**
+
+```typescript
+const user = await fetchUser()
+const posts = await fetchPosts()
+const comments = await fetchComments()
+```
+
+**Correct (parallel execution, 1 round trip):**
+
+```typescript
+const [user, posts, comments] = await Promise.all([
+  fetchUser(),
+  fetchPosts(),
+  fetchComments()
+])
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/async-suspense-boundaries.md (99 lines)
+---
+title: Strategic Suspense Boundaries
+impact: HIGH
+impactDescription: faster initial paint
+tags: async, suspense, streaming, layout-shift
+---
+
+## Strategic Suspense Boundaries
+
+Instead of awaiting data in async components before returning JSX, use Suspense boundaries to show the wrapper UI faster while data loads.
+
+**Incorrect (wrapper blocked by data fetching):**
+
+```tsx
+async function Page() {
+  const data = await fetchData() // Blocks entire page
+  
+  return (
+    <div>
+      <div>Sidebar</div>
+      <div>Header</div>
+      <div>
+        <DataDisplay data={data} />
+      </div>
+      <div>Footer</div>
+    </div>
+  )
+}
+```
+
+The entire layout waits for data even though only the middle section needs it.
+
+**Correct (wrapper shows immediately, data streams in):**
+
+```tsx
+function Page() {
+  return (
+    <div>
+      <div>Sidebar</div>
+      <div>Header</div>
+      <div>
+        <Suspense fallback={<Skeleton />}>
+          <DataDisplay />
+        </Suspense>
+      </div>
+      <div>Footer</div>
+    </div>
+  )
+}
+
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/bundle-barrel-imports.md (59 lines)
+---
+title: Avoid Barrel File Imports
+impact: CRITICAL
+impactDescription: 200-800ms import cost, slow builds
+tags: bundle, imports, tree-shaking, barrel-files, performance
+---
+
+## Avoid Barrel File Imports
+
+Import directly from source files instead of barrel files to avoid loading thousands of unused modules. **Barrel files** are entry points that re-export multiple modules (e.g., `index.js` that does `export * from './module'`).
+
+Popular icon and component libraries can have **up to 10,000 re-exports** in their entry file. For many React packages, **it takes 200-800ms just to import them**, affecting both development speed and production cold starts.
+
+**Why tree-shaking doesn't help:** When a library is marked as external (not bundled), the bundler can't optimize it. If you bundle it to enable tree-shaking, builds become substantially slower analyzing the entire module graph.
+
+**Incorrect (imports entire library):**
+
+```tsx
+import { Check, X, Menu } from 'lucide-react'
+// Loads 1,583 modules, takes ~2.8s extra in dev
+// Runtime cost: 200-800ms on every cold start
+
+import { Button, TextField } from '@mui/material'
+// Loads 2,225 modules, takes ~4.2s extra in dev
+```
+
+**Correct (imports only what you need):**
+
+```tsx
+import Check from 'lucide-react/dist/esm/icons/check'
+import X from 'lucide-react/dist/esm/icons/x'
+import Menu from 'lucide-react/dist/esm/icons/menu'
+// Loads only 3 modules (~2KB vs ~1MB)
+
+import Button from '@mui/material/Button'
+import TextField from '@mui/material/TextField'
+// Loads only what you use
+```
+
+**Alternative (Next.js 13.5+):**
+
+```js
+// next.config.js - use optimizePackageImports
+module.exports = {
+  experimental: {
+    optimizePackageImports: ['lucide-react', '@mui/material']
+  }
+}
+
+// Then you can keep the ergonomic barrel imports:
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/bundle-conditional.md (31 lines)
+---
+title: Conditional Module Loading
+impact: HIGH
+impactDescription: loads large data only when needed
+tags: bundle, conditional-loading, lazy-loading
+---
+
+## Conditional Module Loading
+
+Load large data or modules only when a feature is activated.
+
+**Example (lazy-load animation frames):**
+
+```tsx
+function AnimationPlayer({ enabled }: { enabled: boolean }) {
+  const [frames, setFrames] = useState<Frame[] | null>(null)
+
+  useEffect(() => {
+    if (enabled && !frames && typeof window !== 'undefined') {
+      import('./animation-frames.js')
+        .then(mod => setFrames(mod.frames))
+        .catch(() => setEnabled(false))
+    }
+  }, [enabled, frames])
+
+  if (!frames) return <Skeleton />
+  return <Canvas frames={frames} />
+}
+```
+
+The `typeof window !== 'undefined'` check prevents bundling this module for SSR, optimizing server bundle size and build speed.
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/bundle-defer-third-party.md (49 lines)
+---
+title: Defer Non-Critical Third-Party Libraries
+impact: MEDIUM
+impactDescription: loads after hydration
+tags: bundle, third-party, analytics, defer
+---
+
+## Defer Non-Critical Third-Party Libraries
+
+Analytics, logging, and error tracking don't block user interaction. Load them after hydration.
+
+**Incorrect (blocks initial bundle):**
+
+```tsx
+import { Analytics } from '@vercel/analytics/react'
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Analytics />
+      </body>
+    </html>
+  )
+}
+```
+
+**Correct (loads after hydration):**
+
+```tsx
+import dynamic from 'next/dynamic'
+
+const Analytics = dynamic(
+  () => import('@vercel/analytics/react').then(m => m.Analytics),
+  { ssr: false }
+)
+
+export default function RootLayout({ children }) {
+  return (
+    <html>
+      <body>
+        {children}
+        <Analytics />
+      </body>
+    </html>
+  )
+}
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/bundle-dynamic-imports.md (35 lines)
+---
+title: Dynamic Imports for Heavy Components
+impact: CRITICAL
+impactDescription: directly affects TTI and LCP
+tags: bundle, dynamic-import, code-splitting, next-dynamic
+---
+
+## Dynamic Imports for Heavy Components
+
+Use `next/dynamic` to lazy-load large components not needed on initial render.
+
+**Incorrect (Monaco bundles with main chunk ~300KB):**
+
+```tsx
+import { MonacoEditor } from './monaco-editor'
+
+function CodePanel({ code }: { code: string }) {
+  return <MonacoEditor value={code} />
+}
+```
+
+**Correct (Monaco loads on demand):**
+
+```tsx
+import dynamic from 'next/dynamic'
+
+const MonacoEditor = dynamic(
+  () => import('./monaco-editor').then(m => m.MonacoEditor),
+  { ssr: false }
+)
+
+function CodePanel({ code }: { code: string }) {
+  return <MonacoEditor value={code} />
+}
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/bundle-preload.md (50 lines)
+---
+title: Preload Based on User Intent
+impact: MEDIUM
+impactDescription: reduces perceived latency
+tags: bundle, preload, user-intent, hover
+---
+
+## Preload Based on User Intent
+
+Preload heavy bundles before they're needed to reduce perceived latency.
+
+**Example (preload on hover/focus):**
+
+```tsx
+function EditorButton({ onClick }: { onClick: () => void }) {
+  const preload = () => {
+    if (typeof window !== 'undefined') {
+      void import('./monaco-editor')
+    }
+  }
+
+  return (
+    <button
+      onMouseEnter={preload}
+      onFocus={preload}
+      onClick={onClick}
+    >
+      Open Editor
+    </button>
+  )
+}
+```
+
+**Example (preload when feature flag is enabled):**
+
+```tsx
+function FlagsProvider({ children, flags }: Props) {
+  useEffect(() => {
+    if (flags.editorEnabled && typeof window !== 'undefined') {
+      void import('./monaco-editor').then(mod => mod.init())
+    }
+  }, [flags.editorEnabled])
+
+  return <FlagsContext.Provider value={flags}>
+    {children}
+  </FlagsContext.Provider>
+}
+```
+
+The `typeof window !== 'undefined'` check prevents bundling preloaded modules for SSR, optimizing server bundle size and build speed.
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/client-event-listeners.md (74 lines)
+---
+title: Deduplicate Global Event Listeners
+impact: LOW
+impactDescription: single listener for N components
+tags: client, swr, event-listeners, subscription
+---
+
+## Deduplicate Global Event Listeners
+
+Use `useSWRSubscription()` to share global event listeners across component instances.
+
+**Incorrect (N instances = N listeners):**
+
+```tsx
+function useKeyboardShortcut(key: string, callback: () => void) {
+  useEffect(() => {
+    const handler = (e: KeyboardEvent) => {
+      if (e.metaKey && e.key === key) {
+        callback()
+      }
+    }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [key, callback])
+}
+```
+
+When using the `useKeyboardShortcut` hook multiple times, each instance will register a new listener.
+
+**Correct (N instances = 1 listener):**
+
+```tsx
+import useSWRSubscription from 'swr/subscription'
+
+// Module-level Map to track callbacks per key
+const keyCallbacks = new Map<string, Set<() => void>>()
+
+function useKeyboardShortcut(key: string, callback: () => void) {
+  // Register this callback in the Map
+  useEffect(() => {
+    if (!keyCallbacks.has(key)) {
+      keyCallbacks.set(key, new Set())
+    }
+    keyCallbacks.get(key)!.add(callback)
+
+    return () => {
+      const set = keyCallbacks.get(key)
+      if (set) {
+        set.delete(callback)
+        if (set.size === 0) {
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/client-swr-dedup.md (56 lines)
+---
+title: Use SWR for Automatic Deduplication
+impact: MEDIUM-HIGH
+impactDescription: automatic deduplication
+tags: client, swr, deduplication, data-fetching
+---
+
+## Use SWR for Automatic Deduplication
+
+SWR enables request deduplication, caching, and revalidation across component instances.
+
+**Incorrect (no deduplication, each instance fetches):**
+
+```tsx
+function UserList() {
+  const [users, setUsers] = useState([])
+  useEffect(() => {
+    fetch('/api/users')
+      .then(r => r.json())
+      .then(setUsers)
+  }, [])
+}
+```
+
+**Correct (multiple instances share one request):**
+
+```tsx
+import useSWR from 'swr'
+
+function UserList() {
+  const { data: users } = useSWR('/api/users', fetcher)
+}
+```
+
+**For immutable data:**
+
+```tsx
+import { useImmutableSWR } from '@/lib/swr'
+
+function StaticContent() {
+  const { data } = useImmutableSWR('/api/config', fetcher)
+}
+```
+
+**For mutations:**
+
+```tsx
+import { useSWRMutation } from 'swr/mutation'
+
+function UpdateButton() {
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-batch-dom-css.md (82 lines)
+---
+title: Batch DOM CSS Changes
+impact: MEDIUM
+impactDescription: reduces reflows/repaints
+tags: javascript, dom, css, performance, reflow
+---
+
+## Batch DOM CSS Changes
+
+Avoid changing styles one property at a time. Group multiple CSS changes together via classes or `cssText` to minimize browser reflows.
+
+**Incorrect (multiple reflows):**
+
+```typescript
+function updateElementStyles(element: HTMLElement) {
+  // Each line triggers a reflow
+  element.style.width = '100px'
+  element.style.height = '200px'
+  element.style.backgroundColor = 'blue'
+  element.style.border = '1px solid black'
+}
+```
+
+**Correct (add class - single reflow):**
+
+```typescript
+// CSS file
+.highlighted-box {
+  width: 100px;
+  height: 200px;
+  background-color: blue;
+  border: 1px solid black;
+}
+
+// JavaScript
+function updateElementStyles(element: HTMLElement) {
+  element.classList.add('highlighted-box')
+}
+```
+
+**Correct (change cssText - single reflow):**
+
+```typescript
+function updateElementStyles(element: HTMLElement) {
+  element.style.cssText = `
+    width: 100px;
+    height: 200px;
+    background-color: blue;
+    border: 1px solid black;
+  `
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-cache-function-results.md (80 lines)
+---
+title: Cache Repeated Function Calls
+impact: MEDIUM
+impactDescription: avoid redundant computation
+tags: javascript, cache, memoization, performance
+---
+
+## Cache Repeated Function Calls
+
+Use a module-level Map to cache function results when the same function is called repeatedly with the same inputs during render.
+
+**Incorrect (redundant computation):**
+
+```typescript
+function ProjectList({ projects }: { projects: Project[] }) {
+  return (
+    <div>
+      {projects.map(project => {
+        // slugify() called 100+ times for same project names
+        const slug = slugify(project.name)
+        
+        return <ProjectCard key={project.id} slug={slug} />
+      })}
+    </div>
+  )
+}
+```
+
+**Correct (cached results):**
+
+```typescript
+// Module-level cache
+const slugifyCache = new Map<string, string>()
+
+function cachedSlugify(text: string): string {
+  if (slugifyCache.has(text)) {
+    return slugifyCache.get(text)!
+  }
+  const result = slugify(text)
+  slugifyCache.set(text, result)
+  return result
+}
+
+function ProjectList({ projects }: { projects: Project[] }) {
+  return (
+    <div>
+      {projects.map(project => {
+        // Computed only once per unique project name
+        const slug = cachedSlugify(project.name)
+        
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-cache-property-access.md (28 lines)
+---
+title: Cache Property Access in Loops
+impact: LOW-MEDIUM
+impactDescription: reduces lookups
+tags: javascript, loops, optimization, caching
+---
+
+## Cache Property Access in Loops
+
+Cache object property lookups in hot paths.
+
+**Incorrect (3 lookups × N iterations):**
+
+```typescript
+for (let i = 0; i < arr.length; i++) {
+  process(obj.config.settings.value)
+}
+```
+
+**Correct (1 lookup total):**
+
+```typescript
+const value = obj.config.settings.value
+const len = arr.length
+for (let i = 0; i < len; i++) {
+  process(value)
+}
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-cache-storage.md (70 lines)
+---
+title: Cache Storage API Calls
+impact: LOW-MEDIUM
+impactDescription: reduces expensive I/O
+tags: javascript, localStorage, storage, caching, performance
+---
+
+## Cache Storage API Calls
+
+`localStorage`, `sessionStorage`, and `document.cookie` are synchronous and expensive. Cache reads in memory.
+
+**Incorrect (reads storage on every call):**
+
+```typescript
+function getTheme() {
+  return localStorage.getItem('theme') ?? 'light'
+}
+// Called 10 times = 10 storage reads
+```
+
+**Correct (Map cache):**
+
+```typescript
+const storageCache = new Map<string, string | null>()
+
+function getLocalStorage(key: string) {
+  if (!storageCache.has(key)) {
+    storageCache.set(key, localStorage.getItem(key))
+  }
+  return storageCache.get(key)
+}
+
+function setLocalStorage(key: string, value: string) {
+  localStorage.setItem(key, value)
+  storageCache.set(key, value)  // keep cache in sync
+}
+```
+
+Use a Map (not a hook) so it works everywhere: utilities, event handlers, not just React components.
+
+**Cookie caching:**
+
+```typescript
+let cookieCache: Record<string, string> | null = null
+
+function getCookie(name: string) {
+  if (!cookieCache) {
+    cookieCache = Object.fromEntries(
+      document.cookie.split('; ').map(c => c.split('='))
+    )
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-combine-iterations.md (32 lines)
+---
+title: Combine Multiple Array Iterations
+impact: LOW-MEDIUM
+impactDescription: reduces iterations
+tags: javascript, arrays, loops, performance
+---
+
+## Combine Multiple Array Iterations
+
+Multiple `.filter()` or `.map()` calls iterate the array multiple times. Combine into one loop.
+
+**Incorrect (3 iterations):**
+
+```typescript
+const admins = users.filter(u => u.isAdmin)
+const testers = users.filter(u => u.isTester)
+const inactive = users.filter(u => !u.isActive)
+```
+
+**Correct (1 iteration):**
+
+```typescript
+const admins: User[] = []
+const testers: User[] = []
+const inactive: User[] = []
+
+for (const user of users) {
+  if (user.isAdmin) admins.push(user)
+  if (user.isTester) testers.push(user)
+  if (!user.isActive) inactive.push(user)
+}
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-early-exit.md (50 lines)
+---
+title: Early Return from Functions
+impact: LOW-MEDIUM
+impactDescription: avoids unnecessary computation
+tags: javascript, functions, optimization, early-return
+---
+
+## Early Return from Functions
+
+Return early when result is determined to skip unnecessary processing.
+
+**Incorrect (processes all items even after finding answer):**
+
+```typescript
+function validateUsers(users: User[]) {
+  let hasError = false
+  let errorMessage = ''
+  
+  for (const user of users) {
+    if (!user.email) {
+      hasError = true
+      errorMessage = 'Email required'
+    }
+    if (!user.name) {
+      hasError = true
+      errorMessage = 'Name required'
+    }
+    // Continues checking all users even after error found
+  }
+  
+  return hasError ? { valid: false, error: errorMessage } : { valid: true }
+}
+```
+
+**Correct (returns immediately on first error):**
+
+```typescript
+function validateUsers(users: User[]) {
+  for (const user of users) {
+    if (!user.email) {
+      return { valid: false, error: 'Email required' }
+    }
+    if (!user.name) {
+      return { valid: false, error: 'Name required' }
+    }
+  }
+
+  return { valid: true }
+}
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-hoist-regexp.md (45 lines)
+---
+title: Hoist RegExp Creation
+impact: LOW-MEDIUM
+impactDescription: avoids recreation
+tags: javascript, regexp, optimization, memoization
+---
+
+## Hoist RegExp Creation
+
+Don't create RegExp inside render. Hoist to module scope or memoize with `useMemo()`.
+
+**Incorrect (new RegExp every render):**
+
+```tsx
+function Highlighter({ text, query }: Props) {
+  const regex = new RegExp(`(${query})`, 'gi')
+  const parts = text.split(regex)
+  return <>{parts.map((part, i) => ...)}</>
+}
+```
+
+**Correct (memoize or hoist):**
+
+```tsx
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+function Highlighter({ text, query }: Props) {
+  const regex = useMemo(
+    () => new RegExp(`(${escapeRegex(query)})`, 'gi'),
+    [query]
+  )
+  const parts = text.split(regex)
+  return <>{parts.map((part, i) => ...)}</>
+}
+```
+
+**Warning (global regex has mutable state):**
+
+Global regex (`/g`) has mutable `lastIndex` state:
+
+```typescript
+const regex = /foo/g
+regex.test('foo')  // true, lastIndex = 3
+regex.test('foo')  // false, lastIndex = 0
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-index-maps.md (37 lines)
+---
+title: Build Index Maps for Repeated Lookups
+impact: LOW-MEDIUM
+impactDescription: 1M ops to 2K ops
+tags: javascript, map, indexing, optimization, performance
+---
+
+## Build Index Maps for Repeated Lookups
+
+Multiple `.find()` calls by the same key should use a Map.
+
+**Incorrect (O(n) per lookup):**
+
+```typescript
+function processOrders(orders: Order[], users: User[]) {
+  return orders.map(order => ({
+    ...order,
+    user: users.find(u => u.id === order.userId)
+  }))
+}
+```
+
+**Correct (O(1) per lookup):**
+
+```typescript
+function processOrders(orders: Order[], users: User[]) {
+  const userById = new Map(users.map(u => [u.id, u]))
+
+  return orders.map(order => ({
+    ...order,
+    user: userById.get(order.userId)
+  }))
+}
+```
+
+Build map once (O(n)), then all lookups are O(1).
+For 1000 orders × 1000 users: 1M ops → 2K ops.
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-length-check-first.md (49 lines)
+---
+title: Early Length Check for Array Comparisons
+impact: MEDIUM-HIGH
+impactDescription: avoids expensive operations when lengths differ
+tags: javascript, arrays, performance, optimization, comparison
+---
+
+## Early Length Check for Array Comparisons
+
+When comparing arrays with expensive operations (sorting, deep equality, serialization), check lengths first. If lengths differ, the arrays cannot be equal.
+
+In real-world applications, this optimization is especially valuable when the comparison runs in hot paths (event handlers, render loops).
+
+**Incorrect (always runs expensive comparison):**
+
+```typescript
+function hasChanges(current: string[], original: string[]) {
+  // Always sorts and joins, even when lengths differ
+  return current.sort().join() !== original.sort().join()
+}
+```
+
+Two O(n log n) sorts run even when `current.length` is 5 and `original.length` is 100. There is also overhead of joining the arrays and comparing the strings.
+
+**Correct (O(1) length check first):**
+
+```typescript
+function hasChanges(current: string[], original: string[]) {
+  // Early return if lengths differ
+  if (current.length !== original.length) {
+    return true
+  }
+  // Only sort/join when lengths match
+  const currentSorted = current.toSorted()
+  const originalSorted = original.toSorted()
+  for (let i = 0; i < currentSorted.length; i++) {
+    if (currentSorted[i] !== originalSorted[i]) {
+      return true
+    }
+  }
+  return false
+}
+```
+
+This new approach is more efficient because:
+- It avoids the overhead of sorting and joining the arrays when lengths differ
+- It avoids consuming memory for the joined strings (especially important for large arrays)
+- It avoids mutating the original arrays
+- It returns early when a difference is found
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-min-max-loop.md (82 lines)
+---
+title: Use Loop for Min/Max Instead of Sort
+impact: LOW
+impactDescription: O(n) instead of O(n log n)
+tags: javascript, arrays, performance, sorting, algorithms
+---
+
+## Use Loop for Min/Max Instead of Sort
+
+Finding the smallest or largest element only requires a single pass through the array. Sorting is wasteful and slower.
+
+**Incorrect (O(n log n) - sort to find latest):**
+
+```typescript
+interface Project {
+  id: string
+  name: string
+  updatedAt: number
+}
+
+function getLatestProject(projects: Project[]) {
+  const sorted = [...projects].sort((a, b) => b.updatedAt - a.updatedAt)
+  return sorted[0]
+}
+```
+
+Sorts the entire array just to find the maximum value.
+
+**Incorrect (O(n log n) - sort for oldest and newest):**
+
+```typescript
+function getOldestAndNewest(projects: Project[]) {
+  const sorted = [...projects].sort((a, b) => a.updatedAt - b.updatedAt)
+  return { oldest: sorted[0], newest: sorted[sorted.length - 1] }
+}
+```
+
+Still sorts unnecessarily when only min/max are needed.
+
+**Correct (O(n) - single loop):**
+
+```typescript
+function getLatestProject(projects: Project[]) {
+  if (projects.length === 0) return null
+  
+  let latest = projects[0]
+  
+  for (let i = 1; i < projects.length; i++) {
+    if (projects[i].updatedAt > latest.updatedAt) {
+      latest = projects[i]
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-set-map-lookups.md (24 lines)
+---
+title: Use Set/Map for O(1) Lookups
+impact: LOW-MEDIUM
+impactDescription: O(n) to O(1)
+tags: javascript, set, map, data-structures, performance
+---
+
+## Use Set/Map for O(1) Lookups
+
+Convert arrays to Set/Map for repeated membership checks.
+
+**Incorrect (O(n) per check):**
+
+```typescript
+const allowedIds = ['a', 'b', 'c', ...]
+items.filter(item => allowedIds.includes(item.id))
+```
+
+**Correct (O(1) per check):**
+
+```typescript
+const allowedIds = new Set(['a', 'b', 'c', ...])
+items.filter(item => allowedIds.has(item.id))
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/js-tosorted-immutable.md (57 lines)
+---
+title: Use toSorted() Instead of sort() for Immutability
+impact: MEDIUM-HIGH
+impactDescription: prevents mutation bugs in React state
+tags: javascript, arrays, immutability, react, state, mutation
+---
+
+## Use toSorted() Instead of sort() for Immutability
+
+`.sort()` mutates the array in place, which can cause bugs with React state and props. Use `.toSorted()` to create a new sorted array without mutation.
+
+**Incorrect (mutates original array):**
+
+```typescript
+function UserList({ users }: { users: User[] }) {
+  // Mutates the users prop array!
+  const sorted = useMemo(
+    () => users.sort((a, b) => a.name.localeCompare(b.name)),
+    [users]
+  )
+  return <div>{sorted.map(renderUser)}</div>
+}
+```
+
+**Correct (creates new array):**
+
+```typescript
+function UserList({ users }: { users: User[] }) {
+  // Creates new sorted array, original unchanged
+  const sorted = useMemo(
+    () => users.toSorted((a, b) => a.name.localeCompare(b.name)),
+    [users]
+  )
+  return <div>{sorted.map(renderUser)}</div>
+}
+```
+
+**Why this matters in React:**
+
+1. Props/state mutations break React's immutability model - React expects props and state to be treated as read-only
+2. Causes stale closure bugs - Mutating arrays inside closures (callbacks, effects) can lead to unexpected behavior
+
+**Browser support (fallback for older browsers):**
+
+`.toSorted()` is available in all modern browsers (Chrome 110+, Safari 16+, Firefox 115+, Node.js 20+). For older environments, use spread operator:
+
+```typescript
+// Fallback for older browsers
+const sorted = [...items].sort((a, b) => a.value - b.value)
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rendering-activity.md (26 lines)
+---
+title: Use Activity Component for Show/Hide
+impact: MEDIUM
+impactDescription: preserves state/DOM
+tags: rendering, activity, visibility, state-preservation
+---
+
+## Use Activity Component for Show/Hide
+
+Use React's `<Activity>` to preserve state/DOM for expensive components that frequently toggle visibility.
+
+**Usage:**
+
+```tsx
+import { Activity } from 'react'
+
+function Dropdown({ isOpen }: Props) {
+  return (
+    <Activity mode={isOpen ? 'visible' : 'hidden'}>
+      <ExpensiveMenu />
+    </Activity>
+  )
+}
+```
+
+Avoids expensive re-renders and state loss.
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rendering-animate-svg-wrapper.md (47 lines)
+---
+title: Animate SVG Wrapper Instead of SVG Element
+impact: LOW
+impactDescription: enables hardware acceleration
+tags: rendering, svg, css, animation, performance
+---
+
+## Animate SVG Wrapper Instead of SVG Element
+
+Many browsers don't have hardware acceleration for CSS3 animations on SVG elements. Wrap SVG in a `<div>` and animate the wrapper instead.
+
+**Incorrect (animating SVG directly - no hardware acceleration):**
+
+```tsx
+function LoadingSpinner() {
+  return (
+    <svg 
+      className="animate-spin"
+      width="24" 
+      height="24" 
+      viewBox="0 0 24 24"
+    >
+      <circle cx="12" cy="12" r="10" stroke="currentColor" />
+    </svg>
+  )
+}
+```
+
+**Correct (animating wrapper div - hardware accelerated):**
+
+```tsx
+function LoadingSpinner() {
+  return (
+    <div className="animate-spin">
+      <svg 
+        width="24" 
+        height="24" 
+        viewBox="0 0 24 24"
+      >
+        <circle cx="12" cy="12" r="10" stroke="currentColor" />
+      </svg>
+    </div>
+  )
+}
+```
+
+This applies to all CSS transforms and transitions (`transform`, `opacity`, `translate`, `scale`, `rotate`). The wrapper div allows browsers to use GPU acceleration for smoother animations.
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rendering-conditional-render.md (40 lines)
+---
+title: Use Explicit Conditional Rendering
+impact: LOW
+impactDescription: prevents rendering 0 or NaN
+tags: rendering, conditional, jsx, falsy-values
+---
+
+## Use Explicit Conditional Rendering
+
+Use explicit ternary operators (`? :`) instead of `&&` for conditional rendering when the condition can be `0`, `NaN`, or other falsy values that render.
+
+**Incorrect (renders "0" when count is 0):**
+
+```tsx
+function Badge({ count }: { count: number }) {
+  return (
+    <div>
+      {count && <span className="badge">{count}</span>}
+    </div>
+  )
+}
+
+// When count = 0, renders: <div>0</div>
+// When count = 5, renders: <div><span class="badge">5</span></div>
+```
+
+**Correct (renders nothing when count is 0):**
+
+```tsx
+function Badge({ count }: { count: number }) {
+  return (
+    <div>
+      {count > 0 ? <span className="badge">{count}</span> : null}
+    </div>
+  )
+}
+
+// When count = 0, renders: <div></div>
+// When count = 5, renders: <div><span class="badge">5</span></div>
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rendering-content-visibility.md (38 lines)
+---
+title: CSS content-visibility for Long Lists
+impact: HIGH
+impactDescription: faster initial render
+tags: rendering, css, content-visibility, long-lists
+---
+
+## CSS content-visibility for Long Lists
+
+Apply `content-visibility: auto` to defer off-screen rendering.
+
+**CSS:**
+
+```css
+.message-item {
+  content-visibility: auto;
+  contain-intrinsic-size: 0 80px;
+}
+```
+
+**Example:**
+
+```tsx
+function MessageList({ messages }: { messages: Message[] }) {
+  return (
+    <div className="overflow-y-auto h-screen">
+      {messages.map(msg => (
+        <div key={msg.id} className="message-item">
+          <Avatar user={msg.author} />
+          <div>{msg.content}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+```
+
+For 1000 messages, browser skips layout/paint for ~990 off-screen items (10× faster initial render).
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rendering-hoist-jsx.md (46 lines)
+---
+title: Hoist Static JSX Elements
+impact: LOW
+impactDescription: avoids re-creation
+tags: rendering, jsx, static, optimization
+---
+
+## Hoist Static JSX Elements
+
+Extract static JSX outside components to avoid re-creation.
+
+**Incorrect (recreates element every render):**
+
+```tsx
+function LoadingSkeleton() {
+  return <div className="animate-pulse h-20 bg-gray-200" />
+}
+
+function Container() {
+  return (
+    <div>
+      {loading && <LoadingSkeleton />}
+    </div>
+  )
+}
+```
+
+**Correct (reuses same element):**
+
+```tsx
+const loadingSkeleton = (
+  <div className="animate-pulse h-20 bg-gray-200" />
+)
+
+function Container() {
+  return (
+    <div>
+      {loading && loadingSkeleton}
+    </div>
+  )
+}
+```
+
+This is especially helpful for large and static SVG nodes, which can be expensive to recreate on every render.
+
+**Note:** If your project has [React Compiler](https://react.dev/learn/react-compiler) enabled, the compiler automatically hoists static JSX elements and optimizes component re-renders, making manual hoisting unnecessary.
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rendering-hydration-no-flicker.md (82 lines)
+---
+title: Prevent Hydration Mismatch Without Flickering
+impact: MEDIUM
+impactDescription: avoids visual flicker and hydration errors
+tags: rendering, ssr, hydration, localStorage, flicker
+---
+
+## Prevent Hydration Mismatch Without Flickering
+
+When rendering content that depends on client-side storage (localStorage, cookies), avoid both SSR breakage and post-hydration flickering by injecting a synchronous script that updates the DOM before React hydrates.
+
+**Incorrect (breaks SSR):**
+
+```tsx
+function ThemeWrapper({ children }: { children: ReactNode }) {
+  // localStorage is not available on server - throws error
+  const theme = localStorage.getItem('theme') || 'light'
+  
+  return (
+    <div className={theme}>
+      {children}
+    </div>
+  )
+}
+```
+
+Server-side rendering will fail because `localStorage` is undefined.
+
+**Incorrect (visual flickering):**
+
+```tsx
+function ThemeWrapper({ children }: { children: ReactNode }) {
+  const [theme, setTheme] = useState('light')
+  
+  useEffect(() => {
+    // Runs after hydration - causes visible flash
+    const stored = localStorage.getItem('theme')
+    if (stored) {
+      setTheme(stored)
+    }
+  }, [])
+  
+  return (
+    <div className={theme}>
+      {children}
+    </div>
+  )
+}
+```
+
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rendering-svg-precision.md (28 lines)
+---
+title: Optimize SVG Precision
+impact: LOW
+impactDescription: reduces file size
+tags: rendering, svg, optimization, svgo
+---
+
+## Optimize SVG Precision
+
+Reduce SVG coordinate precision to decrease file size. The optimal precision depends on the viewBox size, but in general reducing precision should be considered.
+
+**Incorrect (excessive precision):**
+
+```svg
+<path d="M 10.293847 20.847362 L 30.938472 40.192837" />
+```
+
+**Correct (1 decimal place):**
+
+```svg
+<path d="M 10.3 20.8 L 30.9 40.2" />
+```
+
+**Automate with SVGO:**
+
+```bash
+npx svgo --precision=1 --multipass icon.svg
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rerender-defer-reads.md (39 lines)
+---
+title: Defer State Reads to Usage Point
+impact: MEDIUM
+impactDescription: avoids unnecessary subscriptions
+tags: rerender, searchParams, localStorage, optimization
+---
+
+## Defer State Reads to Usage Point
+
+Don't subscribe to dynamic state (searchParams, localStorage) if you only read it inside callbacks.
+
+**Incorrect (subscribes to all searchParams changes):**
+
+```tsx
+function ShareButton({ chatId }: { chatId: string }) {
+  const searchParams = useSearchParams()
+
+  const handleShare = () => {
+    const ref = searchParams.get('ref')
+    shareChat(chatId, { ref })
+  }
+
+  return <button onClick={handleShare}>Share</button>
+}
+```
+
+**Correct (reads on demand, no subscription):**
+
+```tsx
+function ShareButton({ chatId }: { chatId: string }) {
+  const handleShare = () => {
+    const params = new URLSearchParams(window.location.search)
+    const ref = params.get('ref')
+    shareChat(chatId, { ref })
+  }
+
+  return <button onClick={handleShare}>Share</button>
+}
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rerender-dependencies.md (45 lines)
+---
+title: Narrow Effect Dependencies
+impact: LOW
+impactDescription: minimizes effect re-runs
+tags: rerender, useEffect, dependencies, optimization
+---
+
+## Narrow Effect Dependencies
+
+Specify primitive dependencies instead of objects to minimize effect re-runs.
+
+**Incorrect (re-runs on any user field change):**
+
+```tsx
+useEffect(() => {
+  console.log(user.id)
+}, [user])
+```
+
+**Correct (re-runs only when id changes):**
+
+```tsx
+useEffect(() => {
+  console.log(user.id)
+}, [user.id])
+```
+
+**For derived state, compute outside effect:**
+
+```tsx
+// Incorrect: runs on width=767, 766, 765...
+useEffect(() => {
+  if (width < 768) {
+    enableMobileMode()
+  }
+}, [width])
+
+// Correct: runs only on boolean transition
+const isMobile = width < 768
+useEffect(() => {
+  if (isMobile) {
+    enableMobileMode()
+  }
+}, [isMobile])
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rerender-derived-state.md (29 lines)
+---
+title: Subscribe to Derived State
+impact: MEDIUM
+impactDescription: reduces re-render frequency
+tags: rerender, derived-state, media-query, optimization
+---
+
+## Subscribe to Derived State
+
+Subscribe to derived boolean state instead of continuous values to reduce re-render frequency.
+
+**Incorrect (re-renders on every pixel change):**
+
+```tsx
+function Sidebar() {
+  const width = useWindowWidth()  // updates continuously
+  const isMobile = width < 768
+  return <nav className={isMobile ? 'mobile' : 'desktop'}>
+}
+```
+
+**Correct (re-renders only when boolean changes):**
+
+```tsx
+function Sidebar() {
+  const isMobile = useMediaQuery('(max-width: 767px)')
+  return <nav className={isMobile ? 'mobile' : 'desktop'}>
+}
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rerender-functional-setstate.md (74 lines)
+---
+title: Use Functional setState Updates
+impact: MEDIUM
+impactDescription: prevents stale closures and unnecessary callback recreations
+tags: react, hooks, useState, useCallback, callbacks, closures
+---
+
+## Use Functional setState Updates
+
+When updating state based on the current state value, use the functional update form of setState instead of directly referencing the state variable. This prevents stale closures, eliminates unnecessary dependencies, and creates stable callback references.
+
+**Incorrect (requires state as dependency):**
+
+```tsx
+function TodoList() {
+  const [items, setItems] = useState(initialItems)
+  
+  // Callback must depend on items, recreated on every items change
+  const addItems = useCallback((newItems: Item[]) => {
+    setItems([...items, ...newItems])
+  }, [items])  // ❌ items dependency causes recreations
+  
+  // Risk of stale closure if dependency is forgotten
+  const removeItem = useCallback((id: string) => {
+    setItems(items.filter(item => item.id !== id))
+  }, [])  // ❌ Missing items dependency - will use stale items!
+  
+  return <ItemsEditor items={items} onAdd={addItems} onRemove={removeItem} />
+}
+```
+
+The first callback is recreated every time `items` changes, which can cause child components to re-render unnecessarily. The second callback has a stale closure bug—it will always reference the initial `items` value.
+
+**Correct (stable callbacks, no stale closures):**
+
+```tsx
+function TodoList() {
+  const [items, setItems] = useState(initialItems)
+  
+  // Stable callback, never recreated
+  const addItems = useCallback((newItems: Item[]) => {
+    setItems(curr => [...curr, ...newItems])
+  }, [])  // ✅ No dependencies needed
+  
+  // Always uses latest state, no stale closure risk
+  const removeItem = useCallback((id: string) => {
+    setItems(curr => curr.filter(item => item.id !== id))
+  }, [])  // ✅ Safe and stable
+  
+  return <ItemsEditor items={items} onAdd={addItems} onRemove={removeItem} />
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rerender-lazy-state-init.md (58 lines)
+---
+title: Use Lazy State Initialization
+impact: MEDIUM
+impactDescription: wasted computation on every render
+tags: react, hooks, useState, performance, initialization
+---
+
+## Use Lazy State Initialization
+
+Pass a function to `useState` for expensive initial values. Without the function form, the initializer runs on every render even though the value is only used once.
+
+**Incorrect (runs on every render):**
+
+```tsx
+function FilteredList({ items }: { items: Item[] }) {
+  // buildSearchIndex() runs on EVERY render, even after initialization
+  const [searchIndex, setSearchIndex] = useState(buildSearchIndex(items))
+  const [query, setQuery] = useState('')
+  
+  // When query changes, buildSearchIndex runs again unnecessarily
+  return <SearchResults index={searchIndex} query={query} />
+}
+
+function UserProfile() {
+  // JSON.parse runs on every render
+  const [settings, setSettings] = useState(
+    JSON.parse(localStorage.getItem('settings') || '{}')
+  )
+  
+  return <SettingsForm settings={settings} onChange={setSettings} />
+}
+```
+
+**Correct (runs only once):**
+
+```tsx
+function FilteredList({ items }: { items: Item[] }) {
+  // buildSearchIndex() runs ONLY on initial render
+  const [searchIndex, setSearchIndex] = useState(() => buildSearchIndex(items))
+  const [query, setQuery] = useState('')
+  
+  return <SearchResults index={searchIndex} query={query} />
+}
+
+function UserProfile() {
+  // JSON.parse runs only on initial render
+  const [settings, setSettings] = useState(() => {
+    const stored = localStorage.getItem('settings')
+    return stored ? JSON.parse(stored) : {}
+  })
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rerender-memo.md (44 lines)
+---
+title: Extract to Memoized Components
+impact: MEDIUM
+impactDescription: enables early returns
+tags: rerender, memo, useMemo, optimization
+---
+
+## Extract to Memoized Components
+
+Extract expensive work into memoized components to enable early returns before computation.
+
+**Incorrect (computes avatar even when loading):**
+
+```tsx
+function Profile({ user, loading }: Props) {
+  const avatar = useMemo(() => {
+    const id = computeAvatarId(user)
+    return <Avatar id={id} />
+  }, [user])
+
+  if (loading) return <Skeleton />
+  return <div>{avatar}</div>
+}
+```
+
+**Correct (skips computation when loading):**
+
+```tsx
+const UserAvatar = memo(function UserAvatar({ user }: { user: User }) {
+  const id = useMemo(() => computeAvatarId(user), [user])
+  return <Avatar id={id} />
+})
+
+function Profile({ user, loading }: Props) {
+  if (loading) return <Skeleton />
+  return (
+    <div>
+      <UserAvatar user={user} />
+    </div>
+  )
+}
+```
+
+**Note:** If your project has [React Compiler](https://react.dev/learn/react-compiler) enabled, manual memoization with `memo()` and `useMemo()` is not necessary. The compiler automatically optimizes re-renders.
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/rerender-transitions.md (40 lines)
+---
+title: Use Transitions for Non-Urgent Updates
+impact: MEDIUM
+impactDescription: maintains UI responsiveness
+tags: rerender, transitions, startTransition, performance
+---
+
+## Use Transitions for Non-Urgent Updates
+
+Mark frequent, non-urgent state updates as transitions to maintain UI responsiveness.
+
+**Incorrect (blocks UI on every scroll):**
+
+```tsx
+function ScrollTracker() {
+  const [scrollY, setScrollY] = useState(0)
+  useEffect(() => {
+    const handler = () => setScrollY(window.scrollY)
+    window.addEventListener('scroll', handler, { passive: true })
+    return () => window.removeEventListener('scroll', handler)
+  }, [])
+}
+```
+
+**Correct (non-blocking updates):**
+
+```tsx
+import { startTransition } from 'react'
+
+function ScrollTracker() {
+  const [scrollY, setScrollY] = useState(0)
+  useEffect(() => {
+    const handler = () => {
+      startTransition(() => setScrollY(window.scrollY))
+    }
+    window.addEventListener('scroll', handler, { passive: true })
+    return () => window.removeEventListener('scroll', handler)
+  }, [])
+}
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/server-after-nonblocking.md (73 lines)
+---
+title: Use after() for Non-Blocking Operations
+impact: MEDIUM
+impactDescription: faster response times
+tags: server, async, logging, analytics, side-effects
+---
+
+## Use after() for Non-Blocking Operations
+
+Use Next.js's `after()` to schedule work that should execute after a response is sent. This prevents logging, analytics, and other side effects from blocking the response.
+
+**Incorrect (blocks response):**
+
+```tsx
+import { logUserAction } from '@/app/utils'
+
+export async function POST(request: Request) {
+  // Perform mutation
+  await updateDatabase(request)
+  
+  // Logging blocks the response
+  const userAgent = request.headers.get('user-agent') || 'unknown'
+  await logUserAction({ userAgent })
+  
+  return new Response(JSON.stringify({ status: 'success' }), {
+    status: 200,
+    headers: { 'Content-Type': 'application/json' }
+  })
+}
+```
+
+**Correct (non-blocking):**
+
+```tsx
+import { after } from 'next/server'
+import { headers, cookies } from 'next/headers'
+import { logUserAction } from '@/app/utils'
+
+export async function POST(request: Request) {
+  // Perform mutation
+  await updateDatabase(request)
+  
+  // Log after response is sent
+  after(async () => {
+    const userAgent = (await headers()).get('user-agent') || 'unknown'
+    const sessionCookie = (await cookies()).get('session-id')?.value || 'anonymous'
+    
+    logUserAction({ sessionCookie, userAgent })
+  })
+  
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/server-cache-lru.md (41 lines)
+---
+title: Cross-Request LRU Caching
+impact: HIGH
+impactDescription: caches across requests
+tags: server, cache, lru, cross-request
+---
+
+## Cross-Request LRU Caching
+
+`React.cache()` only works within one request. For data shared across sequential requests (user clicks button A then button B), use an LRU cache.
+
+**Implementation:**
+
+```typescript
+import { LRUCache } from 'lru-cache'
+
+const cache = new LRUCache<string, any>({
+  max: 1000,
+  ttl: 5 * 60 * 1000  // 5 minutes
+})
+
+export async function getUser(id: string) {
+  const cached = cache.get(id)
+  if (cached) return cached
+
+  const user = await db.user.findUnique({ where: { id } })
+  cache.set(id, user)
+  return user
+}
+
+// Request 1: DB query, result cached
+// Request 2: cache hit, no DB query
+```
+
+Use when sequential user actions hit multiple endpoints needing the same data within seconds.
+
+**With Vercel's [Fluid Compute](https://vercel.com/docs/fluid-compute):** LRU caching is especially effective because multiple concurrent requests can share the same function instance and cache. This means the cache persists across requests without needing external storage like Redis.
+
+**In traditional serverless:** Each invocation runs in isolation, so consider Redis for cross-process caching.
+
+Reference: [https://github.com/isaacs/node-lru-cache](https://github.com/isaacs/node-lru-cache)
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/server-cache-react.md (26 lines)
+---
+title: Per-Request Deduplication with React.cache()
+impact: MEDIUM
+impactDescription: deduplicates within request
+tags: server, cache, react-cache, deduplication
+---
+
+## Per-Request Deduplication with React.cache()
+
+Use `React.cache()` for server-side request deduplication. Authentication and database queries benefit most.
+
+**Usage:**
+
+```typescript
+import { cache } from 'react'
+
+export const getCurrentUser = cache(async () => {
+  const session = await auth()
+  if (!session?.user?.id) return null
+  return await db.user.findUnique({
+    where: { id: session.user.id }
+  })
+})
+```
+
+Within a single request, multiple calls to `getCurrentUser()` execute the query only once.
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/server-parallel-fetching.md (79 lines)
+---
+title: Parallel Data Fetching with Component Composition
+impact: CRITICAL
+impactDescription: eliminates server-side waterfalls
+tags: server, rsc, parallel-fetching, composition
+---
+
+## Parallel Data Fetching with Component Composition
+
+React Server Components execute sequentially within a tree. Restructure with composition to parallelize data fetching.
+
+**Incorrect (Sidebar waits for Page's fetch to complete):**
+
+```tsx
+export default async function Page() {
+  const header = await fetchHeader()
+  return (
+    <div>
+      <div>{header}</div>
+      <Sidebar />
+    </div>
+  )
+}
+
+async function Sidebar() {
+  const items = await fetchSidebarItems()
+  return <nav>{items.map(renderItem)}</nav>
+}
+```
+
+**Correct (both fetch simultaneously):**
+
+```tsx
+async function Header() {
+  const data = await fetchHeader()
+  return <div>{data}</div>
+}
+
+async function Sidebar() {
+  const items = await fetchSidebarItems()
+  return <nav>{items.map(renderItem)}</nav>
+}
+
+export default function Page() {
+  return (
+    <div>
+      <Header />
+      <Sidebar />
+    </div>
+  )
+---END---
+FILE: .claude/skills/vercel-react-best-practices/rules/server-serialization.md (38 lines)
+---
+title: Minimize Serialization at RSC Boundaries
+impact: HIGH
+impactDescription: reduces data transfer size
+tags: server, rsc, serialization, props
+---
+
+## Minimize Serialization at RSC Boundaries
+
+The React Server/Client boundary serializes all object properties into strings and embeds them in the HTML response and subsequent RSC requests. This serialized data directly impacts page weight and load time, so **size matters a lot**. Only pass fields that the client actually uses.
+
+**Incorrect (serializes all 50 fields):**
+
+```tsx
+async function Page() {
+  const user = await fetchUser()  // 50 fields
+  return <Profile user={user} />
+}
+
+'use client'
+function Profile({ user }: { user: User }) {
+  return <div>{user.name}</div>  // uses 1 field
+}
+```
+
+**Correct (serializes only 1 field):**
+
+```tsx
+async function Page() {
+  const user = await fetchUser()
+  return <Profile name={user.name} />
+}
+
+'use client'
+function Profile({ name }: { name: string }) {
+  return <div>{name}</div>
+}
+```
+---END---
+FILE: .claude/skills/vercel-react-best-practices/SKILL.md (125 lines)
+---
+name: vercel-react-best-practices
+description: React and Next.js performance optimization guidelines from Vercel Engineering. This skill should be used when writing, reviewing, or refactoring React/Next.js code to ensure optimal performance patterns. Triggers on tasks involving React components, Next.js pages, data fetching, bundle optimization, or performance improvements.
+license: MIT
+metadata:
+  author: vercel
+  version: "1.0.0"
+---
+
+# Vercel React Best Practices
+
+Comprehensive performance optimization guide for React and Next.js applications, maintained by Vercel. Contains 45 rules across 8 categories, prioritized by impact to guide automated refactoring and code generation.
+
+## When to Apply
+
+Reference these guidelines when:
+- Writing new React components or Next.js pages
+- Implementing data fetching (client or server-side)
+- Reviewing code for performance issues
+- Refactoring existing React/Next.js code
+- Optimizing bundle size or load times
+
+## Rule Categories by Priority
+
+| Priority | Category | Impact | Prefix |
+|----------|----------|--------|--------|
+| 1 | Eliminating Waterfalls | CRITICAL | `async-` |
+| 2 | Bundle Size Optimization | CRITICAL | `bundle-` |
+| 3 | Server-Side Performance | HIGH | `server-` |
+| 4 | Client-Side Data Fetching | MEDIUM-HIGH | `client-` |
+| 5 | Re-render Optimization | MEDIUM | `rerender-` |
+| 6 | Rendering Performance | MEDIUM | `rendering-` |
+| 7 | JavaScript Performance | LOW-MEDIUM | `js-` |
+| 8 | Advanced Patterns | LOW | `advanced-` |
+
+## Quick Reference
+
+### 1. Eliminating Waterfalls (CRITICAL)
+
+- `async-defer-await` - Move await into branches where actually used
+- `async-parallel` - Use Promise.all() for independent operations
+- `async-dependencies` - Use better-all for partial dependencies
+- `async-api-routes` - Start promises early, await late in API routes
+- `async-suspense-boundaries` - Use Suspense to stream content
+
+### 2. Bundle Size Optimization (CRITICAL)
+
+- `bundle-barrel-imports` - Import directly, avoid barrel files
+- `bundle-dynamic-imports` - Use next/dynamic for heavy components
+- `bundle-defer-third-party` - Load analytics/logging after hydration
+---END---
+FILE: .claude/skills/worktree/SKILL.md (85 lines)
+---
+name: worktree
+description: Set up a new git worktree for parallel development. Creates the worktree, copies .env files, installs dependencies, and generates Prisma client. TRIGGER when user asks to set up a worktree, work on a branch in isolation, or needs a separate environment for a branch or PR.
+user-invocable: true
+args: "[name] — optional worktree name (e.g., 'AutoGPT7'). If omitted, uses next available AutoGPT<N>."
+metadata:
+  author: autogpt-team
+  version: "3.0.0"
+---
+
+# Worktree Setup
+
+## Create the worktree
+
+Derive paths from the git toplevel. If a name is provided as argument, use it. Otherwise, check `git worktree list` and pick the next `AutoGPT<N>`.
+
+```bash
+ROOT=$(git rev-parse --show-toplevel)
+PARENT=$(dirname "$ROOT")
+
+# From an existing branch
+git worktree add "$PARENT/<NAME>" <branch-name>
+
+# From a new branch off dev
+git worktree add -b <new-branch> "$PARENT/<NAME>" dev
+```
+
+## Copy environment files
+
+Copy `.env` from the root worktree. Falls back to `.env.default` if `.env` doesn't exist.
+
+```bash
+ROOT=$(git rev-parse --show-toplevel)
+TARGET="$(dirname "$ROOT")/<NAME>"
+
+for envpath in autogpt_platform/backend autogpt_platform/frontend autogpt_platform; do
+  if [ -f "$ROOT/$envpath/.env" ]; then
+    cp "$ROOT/$envpath/.env" "$TARGET/$envpath/.env"
+  elif [ -f "$ROOT/$envpath/.env.default" ]; then
+    cp "$ROOT/$envpath/.env.default" "$TARGET/$envpath/.env"
+  fi
+done
+```
+
+## Install dependencies
+
+```bash
+TARGET="$(dirname "$(git rev-parse --show-toplevel)")/<NAME>"
+cd "$TARGET/autogpt_platform/autogpt_libs" && poetry install
+cd "$TARGET/autogpt_platform/backend" && poetry install && poetry run prisma generate
+---END---
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+assets
+autogpt_platform
+CITATION.cff
+classic
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+docs
+LICENSE
+README.md
+SECURITY.md
+
+### README
+FILE: README.md
+# AutoGPT: Build, Deploy, and Run AI Agents
+
+[![Discord Follow](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fdiscord.com%2Fapi%2Finvites%2Fautogpt%3Fwith_counts%3Dtrue&query=%24.approximate_member_count&label=total%20members&logo=discord&logoColor=white&color=7289da)](https://discord.gg/autogpt) &ensp;
+[![Twitter Follow](https://img.shields.io/twitter/follow/Auto_GPT?style=social)](https://twitter.com/Auto_GPT) &ensp;
+
+<!-- Keep these links. Translations will automatically update with the README. -->
+[Deutsch](https://zdoc.app/de/Significant-Gravitas/AutoGPT) | 
+[Español](https://zdoc.app/es/Significant-Gravitas/AutoGPT) | 
+[français](https://zdoc.app/fr/Significant-Gravitas/AutoGPT) | 
+[日本語](https://zdoc.app/ja/Significant-Gravitas/AutoGPT) | 
+[한국어](https://zdoc.app/ko/Significant-Gravitas/AutoGPT) | 
+[Português](https://zdoc.app/pt/Significant-Gravitas/AutoGPT) | 
+[Русский](https://zdoc.app/ru/Significant-Gravitas/AutoGPT) | 
+[中文](https://zdoc.app/zh/Significant-Gravitas/AutoGPT)
+
+**AutoGPT** is a powerful platform that allows you to create, deploy, and manage continuous AI agents that automate complex workflows. 
+
+## Hosting Options 
+   - Download to self-host (Free!)
+   - [Join the Waitlist](https://bit.ly/3ZDijAI) for the cloud-hosted beta (Closed Beta - Public release Coming Soon!)
+
+## How to Self-Host the AutoGPT Platform
+> [!NOTE]
+> Setting up and hosting the AutoGPT Platform yourself is a technical process. 
+> If you'd rather something that just works, we recommend [joining the waitlist](https://bit.ly/3ZDijAI) for the cloud-hosted beta.
+
+### System Requirements
+
+Before proceeding with the installation, ensure your system meets the following requirements:
+
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+.nvmrc: 22
+
+## Tests
+test_file_count: 278
+ci_workflow_count: 30
+classic-autogpt-ci.yml
+classic-autogpt-docker-cache-clean.yml
+classic-autogpt-docker-ci.yml
+classic-autogpt-docker-release.yml
+classic-autogpts-ci.yml
+classic-benchmark-ci.yml
+classic-benchmark_publish_package.yml
+classic-forge-ci.yml
+classic-frontend-ci.yml
+classic-python-checks.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+default_install_hook_types:
+  - pre-commit
+  - pre-push
+  - post-checkout
+
+default_stages: [pre-commit]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: check-added-large-files
+        args: ["--maxkb=500"]
+      - id: fix-byte-order-marker
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: check-symlinks
+      - id: debug-statements
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        name: Detect secrets
+        description: Detects high entropy strings that are likely to be passwords.
+        files: ^autogpt_platform/
+        exclude: pnpm-lock\.yaml$
+        stages: [pre-push]
+
+  - repo: local
+    # For proper type checking, all dependencies need to be up-to-date.
+    # It's also a good idea to check that poetry.lock is consistent with pyproject.toml.
+    hooks:
+      - id: poetry-install
+        name: Check & Install dependencies - AutoGPT Platform - Backend
+        alias: poetry-install-platform-backend
+        # include autogpt_libs source (since it's a path dependency)
+        entry: >
+          bash -c '
+          if [ -n "$PRE_COMMIT_FROM_REF" ]; then
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 38 lines
+# AutoGPT Contribution Guide
+If you are reading this, you are probably looking for the full **[contribution guide]**,
+which is part of our [wiki].
+
+[contribution guide]: https://github.com/Significant-Gravitas/AutoGPT/wiki/Contributing
+[wiki]: https://github.com/Significant-Gravitas/AutoGPT/wiki
+[roadmap]: https://github.com/Significant-Gravitas/AutoGPT/discussions/6971
+[kanban board]: https://github.com/orgs/Significant-Gravitas/projects/1
+
+## Contributing to the AutoGPT Platform Folder
+All contributions to [the autogpt_platform folder](https://github.com/Significant-Gravitas/AutoGPT/blob/master/autogpt_platform) will be under our [Contribution License Agreement](https://github.com/Significant-Gravitas/AutoGPT/blob/master/autogpt_platform/Contributor%20License%20Agreement%20(CLA).md). By making a pull request contributing to this folder, you agree to the terms of our CLA for your contribution. All contributions to other folders will be under the MIT license.
+
+## In short
+1. Avoid duplicate work, issues, PRs etc.
+2. We encourage you to collaborate with fellow community members on some of our bigger
+   [todo's][roadmap]!
+   * We highly recommend to post your idea and discuss it in the [dev channel].
+3. Create a draft PR when starting work on bigger changes.
+4. Adhere to the [Code Guidelines]
+5. Clearly explain your changes when submitting a PR.
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 97
+### Largest source files
+ 253849 total
+   6531 ./autogpt_platform/backend/backend/blocks/google/sheets.py
+   2896 ./autogpt_platform/backend/backend/blocks/google/docs.py
+   2540 ./autogpt_platform/backend/backend/blocks/reddit.py
+   2342 ./autogpt_platform/backend/backend/copilot/sdk/service.py
+   2220 ./autogpt_platform/backend/backend/blocks/llm.py
+   1979 ./autogpt_platform/backend/backend/copilot/sdk/file_ref_test.py
+   1863 ./autogpt_platform/backend/backend/api/features/library/db.py
+   1785 ./autogpt_platform/backend/backend/copilot/tools/agent_generator/fixer.py
+   1785 ./autogpt_platform/backend/backend/api/features/oauth_test.py
+   1759 ./autogpt_platform/backend/backend/data/graph.py
+
+=== END SIGNALS ===

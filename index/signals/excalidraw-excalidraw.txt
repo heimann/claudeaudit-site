@@ -1,0 +1,287 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/excalidraw-excalidraw
+
+## Agent Documentation
+FILE: CLAUDE.md (34 lines)
+# CLAUDE.md
+
+## Project Structure
+
+Excalidraw is a **monorepo** with a clear separation between the core library and the application:
+
+- **`packages/excalidraw/`** - Main React component library published to npm as `@excalidraw/excalidraw`
+- **`excalidraw-app/`** - Full-featured web application (excalidraw.com) that uses the library
+- **`packages/`** - Core packages: `@excalidraw/common`, `@excalidraw/element`, `@excalidraw/math`, `@excalidraw/utils`
+- **`examples/`** - Integration examples (NextJS, browser script)
+
+## Development Workflow
+
+1. **Package Development**: Work in `packages/*` for editor features
+2. **App Development**: Work in `excalidraw-app/` for app-specific features
+3. **Testing**: Always run `yarn test:update` before committing
+4. **Type Safety**: Use `yarn test:typecheck` to verify TypeScript
+
+## Development Commands
+
+```bash
+yarn test:typecheck  # TypeScript type checking
+yarn test:update     # Run all tests (with snapshot updates)
+yarn fix             # Auto-fix formatting and linting issues
+```
+
+## Architecture Notes
+
+### Package System
+
+- Uses Yarn workspaces for monorepo management
+- Internal packages use path aliases (see `vitest.config.mts`)
+- Build system uses esbuild for packages, Vite for the app
+- TypeScript throughout with strict configuration
+---END---
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (45 lines)
+# Project coding standards
+
+## Generic Communication Guidelines
+
+- Be succint and be aware that expansive generative AI answers are costly and slow
+- Avoid providing explanations, trying to teach unless asked for, your chat partner is an expert
+- Stop apologising if corrected, just provide the correct information or code
+- Prefer code unless asked for explanation
+- Stop summarizing what you've changed after modifications unless asked for
+
+## TypeScript Guidelines
+
+- Use TypeScript for all new code
+- Where possible, prefer implementations without allocation
+- When there is an option, opt for more performant solutions and trade RAM usage for less CPU cycles
+- Prefer immutable data (const, readonly)
+- Use optional chaining (?.) and nullish coalescing (??) operators
+
+## React Guidelines
+
+- Use functional components with hooks
+- Follow the React hooks rules (no conditional hooks)
+- Keep components small and focused
+- Use CSS modules for component styling
+
+## Naming Conventions
+
+- Use PascalCase for component names, interfaces, and type aliases
+- Use camelCase for variables, functions, and methods
+- Use ALL_CAPS for constants
+
+## Error Handling
+
+- Use try/catch blocks for async operations
+- Implement proper error boundaries in React components
+- Always log errors with contextual information
+
+## Testing
+
+- Always attempt to fix #problems
+- Always offer to run `yarn test:app` in the project root after modifications are complete and attempt fixing the issues reported
+
+## Types
+
+- Always include `packages/math/src/types.ts` in the context when your write math related code and always use the Point type instead of { x, y}
+---END---
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+CLAUDE.md
+CONTRIBUTING.md
+crowdin.yml
+dev-docs
+docker-compose.yml
+Dockerfile
+examples
+excalidraw-app
+firebase-project
+LICENSE
+package.json
+packages
+public
+README.md
+scripts
+setupTests.ts
+tsconfig.json
+vercel.json
+vitest.config.mts
+yarn.lock
+
+### README
+FILE: README.md
+<a href="https://excalidraw.com/" target="_blank" rel="noopener">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" alt="Excalidraw" srcset="https://excalidraw.nyc3.cdn.digitaloceanspaces.com/github/excalidraw_github_cover_2_dark.png" />
+    <img alt="Excalidraw" src="https://excalidraw.nyc3.cdn.digitaloceanspaces.com/github/excalidraw_github_cover_2.png" />
+  </picture>
+</a>
+
+<h4 align="center">
+  <a href="https://excalidraw.com">Excalidraw Editor</a> |
+  <a href="https://plus.excalidraw.com/blog">Blog</a> |
+  <a href="https://docs.excalidraw.com">Documentation</a> |
+  <a href="https://plus.excalidraw.com">Excalidraw+</a>
+</h4>
+
+<div align="center">
+  <h2>
+    An open source virtual hand-drawn style whiteboard. </br>
+    Collaborative and end-to-end encrypted. </br>
+  <br />
+  </h2>
+</div>
+
+<br />
+<p align="center">
+  <a href="https://github.com/excalidraw/excalidraw/blob/master/LICENSE">
+    <img alt="Excalidraw is released under the MIT license." src="https://img.shields.io/badge/license-MIT-blue.svg"  /></a>
+  <a href="https://www.npmjs.com/package/@excalidraw/excalidraw">
+    <img alt="npm downloads/month" src="https://img.shields.io/npm/dm/@excalidraw/excalidraw"  /></a>
+  <a href="https://docs.excalidraw.com/docs/introduction/contributing">
+    <img alt="PRs welcome!" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg?style=flat"  /></a>
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "private": true,
+  "name": "excalidraw-monorepo",
+  "packageManager": "yarn@1.22.22",
+  "workspaces": [
+    "excalidraw-app",
+    "packages/*",
+    "examples/*"
+  ],
+  "devDependencies": {
+    "@babel/preset-env": "7.26.9",
+    "@excalidraw/eslint-config": "1.0.3",
+    "@excalidraw/prettier-config": "1.0.2",
+    "@types/chai": "4.3.0",
+    "@types/jest": "27.4.0",
+    "@types/lodash.throttle": "4.1.7",
+    "@types/react": "19.0.10",
+    "@types/react-dom": "19.0.4",
+    "@types/socket.io-client": "3.0.0",
+    "@vitejs/plugin-react": "3.1.0",
+    "@vitest/coverage-v8": "3.0.7",
+    "@vitest/ui": "2.0.5",
+    "chai": "4.3.6",
+    "dotenv": "16.0.1",
+    "eslint-config-prettier": "8.5.0",
+    "eslint-config-react-app": "7.0.1",
+    "eslint-plugin-import": "2.31.0",
+    "eslint-plugin-prettier": "3.3.1",
+    "http-server": "14.1.1",
+    "husky": "7.0.4",
+    "jsdom": "22.1.0",
+    "lint-staged": "12.3.7",
+    "pepjs": "0.5.3",
+    "prettier": "2.6.2",
+    "rewire": "6.0.0",
+    "rimraf": "^5.0.0",
+    "typescript": "5.9.3",
+    "vite": "5.0.12",
+    "vite-plugin-checker": "0.7.2",
+    "vite-plugin-ejs": "1.7.0",
+---END---
+### Lock files
+yarn.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 129
+ci_workflow_count: 11
+autorelease-excalidraw.yml
+build-docker.yml
+cancel.yml
+lint.yml
+locales-coverage.yml
+publish-docker.yml
+semantic-pr-title.yml
+sentry-production.yml
+size-limit.yml
+test-coverage-pr.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+FILE: .husky/pre-commit
+#!/bin/sh
+# yarn lint-staged
+---END---
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.eslintrc.json: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 3 lines
+# Contributing
+
+Head over to the [docs](https://docs.excalidraw.com/docs/introduction/contributing)
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### tsconfig.json
+{
+  "compilerOptions": {
+    "rootDir": "./",
+    "target": "ESNext",
+    "lib": ["dom", "dom.iterable", "esnext"],
+    "types": ["vitest/globals", "@testing-library/jest-dom"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "baseUrl": ".",
+    "paths": {
+      "@excalidraw/common": ["./packages/common/src/index.ts"],
+      "@excalidraw/common/*": ["./packages/common/src/*"],
+      "@excalidraw/excalidraw": ["./packages/excalidraw/index.tsx"],
+      "@excalidraw/excalidraw/*": ["./packages/excalidraw/*"],
+      "@excalidraw/element": ["./packages/element/src/index.ts"],
+      "@excalidraw/element/*": ["./packages/element/src/*"],
+      "@excalidraw/math": ["./packages/math/src/index.ts"],
+      "@excalidraw/math/*": ["./packages/math/src/*"],
+      "@excalidraw/utils": ["./packages/utils/src/index.ts"],
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 7
+### Largest source files
+  84804 total
+   4051 ./packages/excalidraw/subset/woff2/woff2-bindings.ts
+   2940 ./packages/element/src/binding.ts
+   2507 ./packages/element/src/linearElementEditor.ts
+   2309 ./packages/element/src/elbowArrow.ts
+   2090 ./packages/excalidraw/renderer/interactiveScene.ts
+   2066 ./packages/element/src/delta.ts
+   1500 ./packages/element/src/resizeElements.ts
+   1414 ./packages/excalidraw/snapping.ts
+   1331 ./packages/common/src/utils.ts
+   1324 ./packages/excalidraw/fonts/Xiaolai/index.ts
+
+=== END SIGNALS ===

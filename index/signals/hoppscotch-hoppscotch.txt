@@ -1,0 +1,191 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/hoppscotch-hoppscotch
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+aio-multiport-setup.Caddyfile
+aio_run.mjs
+aio-subpath-access.Caddyfile
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+CODEOWNERS
+commitlint.config.js
+CONTRIBUTING.md
+devenv.lock
+devenv.nix
+devenv.yaml
+docker-compose.deploy.yml
+docker-compose.yml
+firebase.json
+firestore.indexes.json
+firestore.rules
+healthcheck.sh
+jsconfig.json
+LICENSE
+netlify.toml
+package.json
+packages
+pnpm-lock.yaml
+pnpm-workspace.yaml
+prod.Dockerfile
+README.md
+SECURITY.md
+tailwind.config.ts
+TRANSLATIONS.md
+
+### README
+FILE: README.md
+<div align="center">
+  <a href="https://hoppscotch.io">
+    <img
+      src="https://avatars.githubusercontent.com/u/56705483"
+      alt="Hoppscotch"
+      height="64"
+    />
+  </a>
+  <h3>
+    <b>
+      Hoppscotch
+    </b>
+  </h3>
+  <b>
+    Open Source API Development Ecosystem
+  </b>
+  <p>
+
+[![contributions welcome](https://img.shields.io/badge/contributions-welcome-brightgreen?logo=github)](CODE_OF_CONDUCT.md) [![Website](https://img.shields.io/website?url=https%3A%2F%2Fhoppscotch.io&logo=hoppscotch)](https://hoppscotch.io) [![Tests](https://github.com/hoppscotch/hoppscotch/actions/workflows/tests.yml/badge.svg)](https://github.com/hoppscotch/hoppscotch/actions) [![Tweet](https://img.shields.io/twitter/url?url=https%3A%2F%2Fhoppscotch.io%2F)](https://x.com/share?text=%F0%9F%91%BD%20Hoppscotch%20%E2%80%A2%20Open%20source%20API%20development%20ecosystem%20-%20Helps%20you%20create%20requests%20faster,%20saving%20precious%20time%20on%20development.&url=https://hoppscotch.io&hashtags=hoppscotch&via=hoppscotch_io)
+
+  </p>
+  <p>
+    <sub>
+      Built with ❤︎ by
+      <a href="https://github.com/hoppscotch/hoppscotch/graphs/contributors">
+        contributors
+      </a>
+    </sub>
+  </p>
+  <br />
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "hoppscotch-app",
+  "version": "3.0.1",
+  "description": "Open source API development ecosystem",
+  "author": "Hoppscotch (support@hoppscotch.io)",
+  "private": true,
+  "license": "MIT",
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "prepare": "husky",
+    "dev": "pnpm -r do-dev",
+    "gen-gql": "cross-env GQL_SCHEMA_EMIT_LOCATION='../../../gql-gen/backend-schema.gql' pnpm -r generate-gql-sdl",
+    "generate": "pnpm -r do-build-prod",
+    "start": "http-server packages/hoppscotch-selfhost-web/dist -p 3000",
+    "lint": "pnpm -r do-lint",
+    "typecheck": "pnpm -r do-typecheck",
+    "lintfix": "pnpm -r do-lintfix",
+    "pre-commit": "pnpm -r do-lint && pnpm -r do-typecheck",
+    "test": "pnpm -r do-test",
+    "generate-ui": "pnpm -r do-build-ui"
+  },
+  "workspaces": [
+    "./packages/*"
+  ],
+  "devDependencies": {
+    "@commitlint/cli": "20.5.0",
+    "@commitlint/config-conventional": "20.5.0",
+    "@hoppscotch/ui": "0.2.5",
+    "@types/node": "24.10.1",
+    "cross-env": "10.1.0",
+    "http-server": "14.1.1",
+    "husky": "9.1.7",
+    "lint-staged": "16.4.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@hono/node-server@>=1.0.0 <1.19.10": "1.19.10",
+      "@nestjs-modules/mailer>mjml": "5.0.0-alpha.4",
+      "apiconnect-wsdl": "2.0.36",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 172
+ci_workflow_count: 5
+build-hoppscotch-agent.yml
+build-hoppscotch-desktop.yml
+codeql-analysis.yml
+release-push-docker.yml
+tests.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+FILE: .husky/pre-commit
+npm run pre-commit---END---
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 14 lines
+# Contributing
+
+When contributing to this repository, please first discuss the change you wish to make via issue,
+email, or any other method with the owners of this repository before making a change.
+
+Please note we have a code of conduct, please follow it in all your interactions with the project.
+
+## Pull Request Process
+
+1. Ensure any install or build dependencies are removed before the end of the layer when doing a
+   build.
+2. Update the README.md with details of changes to the interface, this includes new environment
+   variables, exposed ports, useful file locations and container parameters.
+3. Make sure you do not expose environment variables or other sensitive information in your PR.
+---END---
+
+## Scalability
+package.json:68:      "@import-meta-env/unplugin",
+pnpm-lock.yaml:864:      '@import-meta-env/cli':
+pnpm-lock.yaml:866:        version: 0.7.4(@import-meta-env/unplugin@0.6.3)
+pnpm-lock.yaml:1417:      '@import-meta-env/unplugin':
+pnpm-lock.yaml:1719:      '@import-meta-env/cli':
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "dev": "pnpm -r do-dev",
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 200471 total
+   4099 ./packages/hoppscotch-js-sandbox/src/bootstrap-code/post-request.js
+   2382 ./packages/hoppscotch-backend/src/user-collection/user-collection.service.spec.ts
+   2297 ./packages/hoppscotch-js-sandbox/src/cage-modules/utils/chai-helpers.ts
+   2135 ./packages/hoppscotch-backend/src/team-collection/team-collection.service.spec.ts
+   2128 ./packages/hoppscotch-js-sandbox/src/cage-modules/fetch.ts
+   1975 ./packages/hoppscotch-backend/src/published-docs/published-docs.service.spec.ts
+   1943 ./packages/hoppscotch-common/src/newstore/collections.ts
+   1934 ./packages/hoppscotch-common/src/services/persistence/__tests__/index.spec.ts
+   1889 ./packages/hoppscotch-backend/src/mock-server/mock-server.service.spec.ts
+   1748 ./packages/hoppscotch-js-sandbox/src/__tests__/hopp-namespace/fetch.spec.ts
+
+=== END SIGNALS ===

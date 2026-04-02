@@ -1,0 +1,178 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/openai-whisper
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+approach.png
+CHANGELOG.md
+data
+language-breakdown.svg
+LICENSE
+MANIFEST.in
+model-card.md
+notebooks
+pyproject.toml
+README.md
+requirements.txt
+tests
+whisper
+
+### README
+FILE: README.md
+# Whisper
+
+[[Blog]](https://openai.com/blog/whisper)
+[[Paper]](https://arxiv.org/abs/2212.04356)
+[[Model card]](https://github.com/openai/whisper/blob/main/model-card.md)
+[[Colab example]](https://colab.research.google.com/github/openai/whisper/blob/master/notebooks/LibriSpeech.ipynb)
+
+Whisper is a general-purpose speech recognition model. It is trained on a large dataset of diverse audio and is also a multitasking model that can perform multilingual speech recognition, speech translation, and language identification.
+
+
+## Approach
+
+![Approach](https://raw.githubusercontent.com/openai/whisper/main/approach.png)
+
+A Transformer sequence-to-sequence model is trained on various speech processing tasks, including multilingual speech recognition, speech translation, spoken language identification, and voice activity detection. These tasks are jointly represented as a sequence of tokens to be predicted by the decoder, allowing a single model to replace many stages of a traditional speech-processing pipeline. The multitask training format uses a set of special tokens that serve as task specifiers or classification targets.
+
+
+## Setup
+
+We used Python 3.9.9 and [PyTorch](https://pytorch.org/) 1.10.1 to train and test our models, but the codebase is expected to be compatible with Python 3.8-3.11 and recent PyTorch versions. The codebase also depends on a few Python packages, most notably [OpenAI's tiktoken](https://github.com/openai/tiktoken) for their fast tokenizer implementation. You can download and install (or update to) the latest release of Whisper with the following command:
+
+    pip install -U openai-whisper
+
+Alternatively, the following command will pull and install the latest commit from this repository, along with its Python dependencies:
+
+    pip install git+https://github.com/openai/whisper.git 
+
+To update the package to the latest version of this repository, please run:
+
+    pip install --upgrade --no-deps --force-reinstall git+https://github.com/openai/whisper.git
+---END---
+
+## Dependencies
+FILE: pyproject.toml
+[build-system]
+build-backend = "setuptools.build_meta"
+
+requires = [ "setuptools>=61.2" ]
+
+[project]
+name = "openai-whisper"
+description = "Robust Speech Recognition via Large-Scale Weak Supervision"
+readme.content-type = "text/markdown"
+readme.file = "README.md"
+license = { text = "MIT" }
+authors = [ { name = "OpenAI" } ]
+requires-python = ">=3.8"
+classifiers = [
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+]
+dynamic = [ "version" ]
+dependencies = [
+  "more-itertools",
+  "numba",
+  "numpy",
+  "tiktoken",
+  "torch",
+  "tqdm",
+  "triton>=2; (platform_machine=='x86_64' and sys_platform=='linux') or sys_platform=='linux2'",
+]
+optional-dependencies.dev = [ "black", "flake8", "isort", "pytest", "scipy" ]
+urls = { Homepage = "https://github.com/openai/whisper" }
+scripts.whisper = "whisper.transcribe:cli"
+
+[tool.setuptools]
+py-modules = [ "whisper" ]
+include-package-data = true
+
+---END---
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 5
+ci_workflow_count: 2
+python-publish.yml
+test.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-json
+      - id: end-of-file-fixer
+        types: [file, python]
+      - id: trailing-whitespace
+        types: [file, python]
+      - id: mixed-line-ending
+      - id: check-added-large-files
+        args: [--maxkb=4096]
+  - repo: https://github.com/psf/black
+    rev: 25.1.0
+    hooks:
+      - id: black
+  - repo: https://github.com/pycqa/isort
+    rev: 6.0.0
+    hooks:
+      - id: isort
+        name: isort (python)
+        args: ["--profile", "black", "-l", "88", "--trailing-comma", "--multi-line", "3"]
+  - repo: https://github.com/pycqa/flake8.git
+    rev: 7.1.1
+    hooks:
+      - id: flake8
+        types: [python]
+        args: ["--max-line-length", "88", "--ignore", "E203,E501,W503,W504"]
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### mypy config
+no [tool.mypy] section
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  4267 total
+   826 ./whisper/decoding.py
+   623 ./whisper/transcribe.py
+   550 ./whisper/normalizers/english.py
+   395 ./whisper/tokenizer.py
+   388 ./whisper/timing.py
+   345 ./whisper/model.py
+   318 ./whisper/utils.py
+   161 ./whisper/__init__.py
+   157 ./whisper/audio.py
+   117 ./whisper/triton_ops.py
+
+=== END SIGNALS ===

@@ -1,0 +1,230 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/yt-dlp-yt-dlp
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+bundle
+Changelog.md
+CONTRIBUTING.md
+CONTRIBUTORS
+devscripts
+LICENSE
+Maintainers.md
+Makefile
+public.key
+pyproject.toml
+README.md
+supportedsites.md
+test
+THIRD_PARTY_LICENSES.txt
+yt_dlp
+yt-dlp.cmd
+yt-dlp.sh
+
+### README
+FILE: README.md
+<!-- MANPAGE: BEGIN EXCLUDED SECTION -->
+<div align="center">
+
+[![YT-DLP](https://raw.githubusercontent.com/yt-dlp/yt-dlp/master/.github/banner.svg)](#readme)
+
+[![Release version](https://img.shields.io/github/v/release/yt-dlp/yt-dlp?color=brightgreen&label=Download&style=for-the-badge)](#installation "Installation")
+[![PyPI](https://img.shields.io/badge/-PyPI-blue.svg?logo=pypi&labelColor=555555&style=for-the-badge)](https://pypi.org/project/yt-dlp "PyPI")
+[![Donate](https://img.shields.io/badge/_-Donate-red.svg?logo=githubsponsors&labelColor=555555&style=for-the-badge)](Maintainers.md#maintainers "Donate")
+[![Discord](https://img.shields.io/discord/807245652072857610?color=blue&labelColor=555555&label=&logo=discord&style=for-the-badge)](https://discord.gg/H5MNcFW63r "Discord")
+[![Supported Sites](https://img.shields.io/badge/-Supported_Sites-brightgreen.svg?style=for-the-badge)](supportedsites.md "Supported Sites")
+[![License: Unlicense](https://img.shields.io/badge/-Unlicense-blue.svg?style=for-the-badge)](LICENSE "License")
+[![CI Status](https://img.shields.io/github/actions/workflow/status/yt-dlp/yt-dlp/core.yml?branch=master&label=Tests&style=for-the-badge)](https://github.com/yt-dlp/yt-dlp/actions "CI Status")
+[![Commits](https://img.shields.io/github/commit-activity/m/yt-dlp/yt-dlp?label=commits&style=for-the-badge)](https://github.com/yt-dlp/yt-dlp/commits "Commit History")
+[![Last Commit](https://img.shields.io/github/last-commit/yt-dlp/yt-dlp/master?label=&style=for-the-badge&display_timestamp=committer)](https://github.com/yt-dlp/yt-dlp/pulse/monthly "Last activity")
+
+</div>
+<!-- MANPAGE: END EXCLUDED SECTION -->
+
+yt-dlp is a feature-rich command-line audio/video downloader with support for [thousands of sites](supportedsites.md). The project is a fork of [youtube-dl](https://github.com/ytdl-org/youtube-dl) based on the now inactive [youtube-dlc](https://github.com/blackjack4494/yt-dlc).
+
+<!-- MANPAGE: MOVE "USAGE AND OPTIONS" SECTION HERE -->
+
+<!-- MANPAGE: BEGIN EXCLUDED SECTION -->
+* [INSTALLATION](#installation)
+    * [Detailed instructions](https://github.com/yt-dlp/yt-dlp/wiki/Installation)
+    * [Release Files](#release-files)
+    * [Update](#update)
+    * [Dependencies](#dependencies)
+    * [Compile](#compile)
+* [USAGE AND OPTIONS](#usage-and-options)
+---END---
+
+## Dependencies
+FILE: pyproject.toml
+[build-system]
+requires = ["hatchling>=1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "yt-dlp"
+authors = [
+    {name = "pukkandan", email = "pukkandan.ytdlp@gmail.com"},
+]
+maintainers = [
+    {email = "maintainers@yt-dlp.org"},
+    {name = "Grub4K", email = "contact@grub4k.dev"},
+    {name = "bashonly", email = "bashonly@protonmail.com"},
+    {name = "coletdjnz", email = "coletdjnz@protonmail.com"},
+]
+description = "A feature-rich command-line audio/video downloader"
+readme = "README.md"
+requires-python = ">=3.10"
+keywords = [
+    "cli",
+    "downloader",
+    "youtube-dl",
+    "youtube-downloader",
+    "sponsorblock",
+    "yt-dlp",
+]
+license = "Unlicense"
+license-files = ["LICENSE"]
+classifiers = [
+    "Topic :: Multimedia :: Video",
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Console",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation",
+---END---
+### Lock files
+### Setup
+FILE: Makefile (first 30 lines)
+all: lazy-extractors yt-dlp doc pypi-files
+all-extra: lazy-extractors yt-dlp-extra doc pypi-files
+clean: clean-test clean-dist
+clean-all: clean clean-cache
+completions: completion-bash completion-fish completion-zsh
+doc: README.md CONTRIBUTING.md CONTRIBUTORS issuetemplates supportedsites
+ot: offlinetest
+tar: yt-dlp.tar.gz
+
+# Keep this list in sync with pyproject.toml includes/artifacts
+# intended use: when building a source distribution,
+# make pypi-files && python3 -m build -sn .
+pypi-files: AUTHORS Changelog.md LICENSE README.md README.txt supportedsites \
+            completions yt-dlp.1 pyproject.toml devscripts/* test/*
+
+.PHONY: all clean clean-all clean-test clean-dist clean-cache \
+        completions completion-bash completion-fish completion-zsh \
+        doc issuetemplates supportedsites ot offlinetest codetest test \
+        tar pypi-files lazy-extractors install uninstall \
+        all-extra yt-dlp-extra current-ejs-version
+
+.IGNORE: current-ejs-version
+.SILENT: current-ejs-version
+
+clean-test:
+	rm -rf tmp/ *.annotations.xml *.aria2 *.description *.dump *.frag \
+	*.frag.aria2 *.frag.urls *.info.json *.live_chat.json *.meta *.part* *.tmp *.temp *.unknown_video *.ytdl \
+	*.3gp *.ape *.ass *.avi *.desktop *.f4v *.flac *.flv *.gif *.jpeg *.jpg *.lrc *.m4a *.m4v *.mhtml *.mkv *.mov *.mp3 *.mp4 \
+	*.mpg *.mpga *.oga *.ogg *.opus *.png *.sbv *.srt *.ssa *.swf *.tt *.ttml *.url *.vtt *.wav *.webloc *.webm *.webp \
+	test/testdata/sigs/player-*.js test/testdata/thumbnails/empty.webp "test/testdata/thumbnails/foo %d bar/foo_%d."*
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 41
+ci_workflow_count: 11
+build.yml
+challenge-tests.yml
+codeql.yml
+core.yml
+issue-lockdown.yml
+quick-test.yml
+release-master.yml
+release-nightly.yml
+release.yml
+sanitize-comment.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+repos:
+- repo: local
+  hooks:
+  - id: linter
+    name: Apply linter fixes
+    entry: ruff check --fix .
+    language: system
+    types: [python]
+    require_serial: true
+  - id: format
+    name: Apply formatting fixes
+    entry: autopep8 --in-place .
+    language: system
+    types: [python]
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 789 lines
+# CONTRIBUTING TO YT-DLP
+
+- [OPENING AN ISSUE](#opening-an-issue)
+    - [Is the description of the issue itself sufficient?](#is-the-description-of-the-issue-itself-sufficient)
+    - [Are you using the latest version?](#are-you-using-the-latest-version)
+    - [Is the issue already documented?](#is-the-issue-already-documented)
+    - [Why are existing options not enough?](#why-are-existing-options-not-enough)
+    - [Have you read and understood the changes, between youtube-dl and yt-dlp](#have-you-read-and-understood-the-changes-between-youtube-dl-and-yt-dlp)
+    - [Is there enough context in your bug report?](#is-there-enough-context-in-your-bug-report)
+    - [Does the issue involve one problem, and one problem only?](#does-the-issue-involve-one-problem-and-one-problem-only)
+    - [Is anyone going to need the feature?](#is-anyone-going-to-need-the-feature)
+    - [Is your question about yt-dlp?](#is-your-question-about-yt-dlp)
+    - [Are you willing to share account details if needed?](#are-you-willing-to-share-account-details-if-needed)
+    - [Is the website primarily used for piracy](#is-the-website-primarily-used-for-piracy)
+- [AUTOMATED CONTRIBUTIONS (AI / LLM) POLICY](#automated-contributions-ai--llm-policy)
+- [DEVELOPER INSTRUCTIONS](#developer-instructions)
+    - [Adding new feature or making overarching changes](#adding-new-feature-or-making-overarching-changes)
+    - [Adding support for a new site](#adding-support-for-a-new-site)
+    - [yt-dlp coding conventions](#yt-dlp-coding-conventions)
+        - [Mandatory and optional metafields](#mandatory-and-optional-metafields)
+---END---
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### mypy config
+no [tool.mypy] section
+### Determinism
+sleep_pattern_count_in_tests: 10
+### Largest source files
+ 201360 total
+   4581 ./yt_dlp/extractor/youtube/_video.py
+   4512 ./yt_dlp/YoutubeDL.py
+   4190 ./yt_dlp/extractor/common.py
+   2642 ./yt_dlp/extractor/_extractors.py
+   2603 ./yt_dlp/extractor/bilibili.py
+   2408 ./yt_dlp/extractor/youtube/_tab.py
+   2327 ./yt_dlp/extractor/vimeo.py
+   1878 ./yt_dlp/extractor/adobepass.py
+   1838 ./yt_dlp/extractor/bbc.py
+   1753 ./yt_dlp/extractor/twitter.py
+
+=== END SIGNALS ===

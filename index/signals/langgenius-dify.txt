@@ -1,0 +1,1761 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/langgenius-dify
+
+## Agent Documentation
+FILE: CLAUDE.md (45 lines)
+# AGENTS.md
+
+## Project Overview
+
+Dify is an open-source platform for developing LLM applications with an intuitive interface combining agentic AI workflows, RAG pipelines, agent capabilities, and model management.
+
+The codebase is split into:
+
+- **Backend API** (`/api`): Python Flask application organized with Domain-Driven Design
+- **Frontend Web** (`/web`): Next.js application using TypeScript and React
+- **Docker deployment** (`/docker`): Containerized deployment configurations
+
+## Backend Workflow
+
+- Read `api/AGENTS.md` for details
+- Run backend CLI commands through `uv run --project api <command>`.
+- Integration tests are CI-only and are not expected to run in the local environment.
+
+## Frontend Workflow
+
+- Read `web/AGENTS.md` for details
+
+## Testing & Quality Practices
+
+- Follow TDD: red → green → refactor.
+- Use `pytest` for backend tests with Arrange-Act-Assert structure.
+- Enforce strong typing; avoid `Any` and prefer explicit type annotations.
+- Write self-documenting code; only add comments that explain intent.
+
+## Language Style
+
+- **Python**: Keep type hints on functions and attributes, and implement relevant special methods (e.g., `__repr__`, `__str__`). Prefer `TypedDict` over `dict` or `Mapping` for type safety and better code documentation.
+- **TypeScript**: Use the strict config, rely on ESLint (`pnpm lint:fix` preferred) plus `pnpm type-check:tsgo`, and avoid `any` types.
+
+## General Practices
+
+- Prefer editing existing files; add new documentation only when requested.
+- Inject dependencies through constructors and preserve clean architecture boundaries.
+- Handle errors with domain-specific exceptions at the correct layer.
+
+## Project Conventions
+
+- Backend architecture adheres to DDD and Clean Architecture principles.
+- Async work runs through Celery with Redis as the broker.
+- Frontend user-facing strings must use `web/i18n/en-US/`; avoid hardcoded text.
+---END---
+FILE: AGENTS.md (45 lines)
+# AGENTS.md
+
+## Project Overview
+
+Dify is an open-source platform for developing LLM applications with an intuitive interface combining agentic AI workflows, RAG pipelines, agent capabilities, and model management.
+
+The codebase is split into:
+
+- **Backend API** (`/api`): Python Flask application organized with Domain-Driven Design
+- **Frontend Web** (`/web`): Next.js application using TypeScript and React
+- **Docker deployment** (`/docker`): Containerized deployment configurations
+
+## Backend Workflow
+
+- Read `api/AGENTS.md` for details
+- Run backend CLI commands through `uv run --project api <command>`.
+- Integration tests are CI-only and are not expected to run in the local environment.
+
+## Frontend Workflow
+
+- Read `web/AGENTS.md` for details
+
+## Testing & Quality Practices
+
+- Follow TDD: red → green → refactor.
+- Use `pytest` for backend tests with Arrange-Act-Assert structure.
+- Enforce strong typing; avoid `Any` and prefer explicit type annotations.
+- Write self-documenting code; only add comments that explain intent.
+
+## Language Style
+
+- **Python**: Keep type hints on functions and attributes, and implement relevant special methods (e.g., `__repr__`, `__str__`). Prefer `TypedDict` over `dict` or `Mapping` for type safety and better code documentation.
+- **TypeScript**: Use the strict config, rely on ESLint (`pnpm lint:fix` preferred) plus `pnpm type-check:tsgo`, and avoid `any` types.
+
+## General Practices
+
+- Prefer editing existing files; add new documentation only when requested.
+- Inject dependencies through constructors and preserve clean architecture boundaries.
+- Handle errors with domain-specific exceptions at the correct layer.
+
+## Project Conventions
+
+- Backend architecture adheres to DDD and Clean Architecture principles.
+- Async work runs through Celery with Redis as the broker.
+- Frontend user-facing strings must use `web/i18n/en-US/`; avoid hardcoded text.
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json (15 lines)
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "npx -y block-no-verify@1.1.1"
+          }
+        ]
+      }
+    ]
+  }
+}
+---END---
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+FILE: api/AGENTS.md (202 lines)
+# API Agent Guide
+
+## Notes for Agent (must-check)
+
+Before changing any backend code under `api/`, you MUST read the surrounding docstrings and comments. These notes contain required context (invariants, edge cases, trade-offs) and are treated as part of the spec.
+
+Look for:
+
+- The module (file) docstring at the top of a source code file
+- Docstrings on classes and functions/methods
+- Paragraph/block comments for non-obvious logic
+
+### What to write where
+
+- Keep notes scoped: module notes cover module-wide context, class notes cover class-wide context, function/method notes cover behavioural contracts, and paragraph/block comments cover local “why”. Avoid duplicating the same content across scopes unless repetition prevents misuse.
+- **Module (file) docstring**: purpose, boundaries, key invariants, and “gotchas” that a new reader must know before editing.
+  - Include cross-links to the key collaborators (modules/services) when discovery is otherwise hard.
+  - Prefer stable facts (invariants, contracts) over ephemeral “today we…” notes.
+- **Class docstring**: responsibility, lifecycle, invariants, and how it should be used (or not used).
+  - If the class is intentionally stateful, note what state exists and what methods mutate it.
+  - If concurrency/async assumptions matter, state them explicitly.
+- **Function/method docstring**: behavioural contract.
+  - Document arguments, return shape, side effects (DB writes, external I/O, task dispatch), and raised domain exceptions.
+  - Add examples only when they prevent misuse.
+- **Paragraph/block comments**: explain *why* (trade-offs, historical constraints, surprising edge cases), not what the code already states.
+  - Keep comments adjacent to the logic they justify; delete or rewrite comments that no longer match reality.
+
+### Rules (must follow)
+
+In this section, “notes” means module/class/function docstrings plus any relevant paragraph/block comments.
+
+- **Before working**
+  - Read the notes in the area you’ll touch; treat them as part of the spec.
+  - If a docstring or comment conflicts with the current code, treat the **code as the single source of truth** and update the docstring or comment to match reality.
+  - If important intent/invariants/edge cases are missing, add them in the closest docstring or comment (module for overall scope, function for behaviour).
+- **During working**
+  - Keep the notes in sync as you discover constraints, make decisions, or change approach.
+  - If you move/rename responsibilities across modules/classes, update the affected docstrings and comments so readers can still find the “why” and the invariants.
+  - Record non-obvious edge cases, trade-offs, and the test/verification plan in the nearest docstring or comment that will stay correct.
+  - Keep the notes **coherent**: integrate new findings into the relevant docstrings and comments; avoid append-only “recent fix” / changelog-style additions.
+- **When finishing**
+  - Update the notes to reflect what changed, why, and any new edge cases/tests.
+  - Remove or rewrite any comments that could be mistaken as current guidance but no longer apply.
+  - Keep docstrings and comments concise and accurate; they are meant to prevent repeated rediscovery.
+
+## Coding Style
+
+This is the default standard for backend code in this repo. Follow it for new code and use it as the checklist when reviewing changes.
+
+### Linting & Formatting
+---END---
+FILE: e2e/AGENTS.md (167 lines)
+# E2E
+
+This package contains the repository-level end-to-end tests for Dify.
+
+This file is the canonical package guide for `e2e/`. Keep detailed workflow, architecture, debugging, and reporting documentation here. Keep `README.md` as a minimal pointer to this file so the two documents do not drift.
+
+The suite uses Cucumber for scenario definitions and Playwright as the browser execution layer.
+
+It tests:
+
+- backend API started from source
+- frontend served from the production artifact
+- middleware services started from Docker
+
+## Prerequisites
+
+- Node.js `^22.22.1`
+- `pnpm`
+- `uv`
+- Docker
+
+Run the following commands from the repository root.
+
+Install Playwright browsers once:
+
+```bash
+pnpm install
+pnpm -C e2e e2e:install
+pnpm -C e2e check
+```
+
+`pnpm install` is resolved through the repository workspace and uses the shared root lockfile plus `pnpm-workspace.yaml`.
+
+Use `pnpm check` as the default local verification step after editing E2E TypeScript, Cucumber support code, or feature glue. It runs formatting, linting, and type checks for this package.
+
+Common commands:
+
+```bash
+# authenticated-only regression (default excludes @fresh)
+# expects backend API, frontend artifact, and middleware stack to already be running
+pnpm -C e2e e2e
+
+# full reset + fresh install + authenticated scenarios
+# starts required middleware/dependencies for you
+pnpm -C e2e e2e:full
+
+# run a tagged subset
+pnpm -C e2e e2e -- --tags @smoke
+
+# headed browser
+---END---
+FILE: web/AGENTS.md (19 lines)
+## Frontend Workflow
+
+- Refer to the `./docs/test.md` and `./docs/lint.md` for detailed frontend workflow instructions.
+
+## Overlay Components (Mandatory)
+
+- `./docs/overlay-migration.md` is the source of truth for overlay-related work.
+- In new or modified code, use only overlay primitives from `@/app/components/base/ui/*`.
+- Do not introduce deprecated overlay imports from `@/app/components/base/*`; when touching legacy callers, prefer migrating them and keep the allowlist shrinking (never expanding).
+
+## Query & Mutation (Mandatory)
+
+- `frontend-query-mutation` is the source of truth for Dify frontend contracts, query and mutation call-site patterns, conditional queries, invalidation, and mutation error handling.
+
+## Automated Test Generation
+
+- Use `./docs/test.md` as the canonical instruction set for generating frontend automated tests.
+- When proposing or saving tests, re-read that document and follow every requirement.
+- All frontend tests MUST also comply with the `frontend-testing` skill. Treat the skill as a mandatory constraint, not optional guidance.
+---END---
+FILE: web/CLAUDE.md (19 lines)
+## Frontend Workflow
+
+- Refer to the `./docs/test.md` and `./docs/lint.md` for detailed frontend workflow instructions.
+
+## Overlay Components (Mandatory)
+
+- `./docs/overlay-migration.md` is the source of truth for overlay-related work.
+- In new or modified code, use only overlay primitives from `@/app/components/base/ui/*`.
+- Do not introduce deprecated overlay imports from `@/app/components/base/*`; when touching legacy callers, prefer migrating them and keep the allowlist shrinking (never expanding).
+
+## Query & Mutation (Mandatory)
+
+- `frontend-query-mutation` is the source of truth for Dify frontend contracts, query and mutation call-site patterns, conditional queries, invalidation, and mutation error handling.
+
+## Automated Test Generation
+
+- Use `./docs/test.md` as the canonical instruction set for generating frontend automated tests.
+- When proposing or saving tests, re-read that document and follow every requirement.
+- All frontend tests MUST also comply with the `frontend-testing` skill. Treat the skill as a mandatory constraint, not optional guidance.
+---END---
+
+### .claude/ contents
+
+### .agents/ contents
+FILE: .agents/skills/backend-code-review/references/architecture-rule.md (90 lines)
+# Rule Catalog — Architecture
+
+## Scope
+- Covers: controller/service/core-domain/libs/model layering, dependency direction, responsibility placement, observability-friendly flow.
+
+## Rules
+
+### Keep business logic out of controllers
+- Category: maintainability
+- Severity: critical
+- Description: Controllers should parse input, call services, and return serialized responses. Business decisions inside controllers make behavior hard to reuse and test.
+- Suggested fix: Move domain/business logic into the service or core/domain layer. Keep controller handlers thin and orchestration-focused.
+- Example:
+  - Bad:
+    ```python
+    @bp.post("/apps/<app_id>/publish")
+    def publish_app(app_id: str):
+        payload = request.get_json() or {}
+        if payload.get("force") and current_user.role != "admin":
+            raise ValueError("only admin can force publish")
+        app = App.query.get(app_id)
+        app.status = "published"
+        db.session.commit()
+        return {"result": "ok"}
+    ```
+  - Good:
+    ```python
+    @bp.post("/apps/<app_id>/publish")
+    def publish_app(app_id: str):
+        payload = PublishRequest.model_validate(request.get_json() or {})
+        app_service.publish_app(app_id=app_id, force=payload.force, actor_id=current_user.id)
+        return {"result": "ok"}
+    ```
+
+### Preserve layer dependency direction
+- Category: best practices
+- Severity: critical
+- Description: Controllers may depend on services, and services may depend on core/domain abstractions. Reversing this direction (for example, core importing controller/web modules) creates cycles and leaks transport concerns into domain code.
+- Suggested fix: Extract shared contracts into core/domain or service-level modules and make upper layers depend on lower, not the reverse.
+- Example:
+  - Bad:
+    ```python
+    # core/policy/publish_policy.py
+    from controllers.console.app import request_context
+
+    def can_publish() -> bool:
+        return request_context.current_user.is_admin
+    ```
+  - Good:
+    ```python
+---END---
+FILE: .agents/skills/backend-code-review/references/db-schema-rule.md (157 lines)
+# Rule Catalog — DB Schema Design
+
+## Scope
+- Covers: model/base inheritance, schema boundaries in model properties, tenant-aware schema design, index redundancy checks, dialect portability in models, and cross-database compatibility in migrations.
+- Does NOT cover: session lifecycle, transaction boundaries, and query execution patterns (handled by `sqlalchemy-rule.md`).
+
+## Rules
+
+### Do not query other tables inside `@property`
+- Category: [maintainability, performance]
+- Severity: critical
+- Description: A model `@property` must not open sessions or query other tables. This hides dependencies across models, tightly couples schema objects to data access, and can cause N+1 query explosions when iterating collections.
+- Suggested fix:
+  - Keep model properties pure and local to already-loaded fields.
+  - Move cross-table data fetching to service/repository methods.
+  - For list/batch reads, fetch required related data explicitly (join/preload/bulk query) before rendering derived values.
+- Example:
+  - Bad:
+    ```python
+    class Conversation(TypeBase):
+        __tablename__ = "conversations"
+
+        @property
+        def app_name(self) -> str:
+            with Session(db.engine, expire_on_commit=False) as session:
+                app = session.execute(select(App).where(App.id == self.app_id)).scalar_one()
+                return app.name
+    ```
+  - Good:
+    ```python
+    class Conversation(TypeBase):
+        __tablename__ = "conversations"
+
+        @property
+        def display_title(self) -> str:
+            return self.name or "Untitled"
+
+
+    # Service/repository layer performs explicit batch fetch for related App rows.
+    ```
+
+### Prefer including `tenant_id` in model definitions
+- Category: maintainability
+- Severity: suggestion
+- Description: In multi-tenant domains, include `tenant_id` in schema definitions whenever the entity belongs to tenant-owned data. This improves data isolation safety and keeps future partitioning/sharding strategies practical as data volume grows.
+- Suggested fix:
+  - Add a `tenant_id` column and ensure related unique/index constraints include tenant dimension when applicable.
+  - Propagate `tenant_id` through service/repository contracts to keep access paths tenant-aware.
+  - Exception: if a table is explicitly designed as non-tenant-scoped global metadata, document that design decision clearly.
+- Example:
+---END---
+FILE: .agents/skills/backend-code-review/references/repositories-rule.md (61 lines)
+# Rule Catalog - Repositories Abstraction
+
+## Scope
+- Covers: when to reuse existing repository abstractions, when to introduce new repositories, and how to preserve dependency direction between service/core and infrastructure implementations.
+- Does NOT cover: SQLAlchemy session lifecycle and query-shape specifics (handled by `sqlalchemy-rule.md`), and table schema/migration design (handled by `db-schema-rule.md`).
+
+## Rules
+
+### Introduce repositories abstraction
+- Category: maintainability
+- Severity: suggestion
+- Description: If a table/model already has a repository abstraction, all reads/writes/queries for that table should use the existing repository. If no repository exists, introduce one only when complexity justifies it, such as large/high-volume tables, repeated complex query logic, or likely storage-strategy variation.
+- Suggested fix:
+  - First check  `api/repositories`, `api/core/repositories`, and `api/extensions/*/repositories/` to verify whether the table/model already has a repository abstraction. If it exists, route all operations through it and add missing repository methods instead of bypassing it with ad-hoc SQLAlchemy access.
+  - If no repository exists, add one only when complexity warrants it (for example, repeated complex queries, large data domains, or multiple storage strategies), while preserving dependency direction (service/core depends on abstraction; infra provides implementation).
+- Example:
+  - Bad:
+    ```python
+    # Existing repository is ignored and service uses ad-hoc table queries.
+    class AppService:
+        def archive_app(self, app_id: str, tenant_id: str) -> None:
+            app = self.session.execute(
+                select(App).where(App.id == app_id, App.tenant_id == tenant_id)
+            ).scalar_one()
+            app.archived = True
+            self.session.commit()
+    ```
+  - Good:
+    ```python
+    # Case A: Existing repository must be reused for all table operations.
+    class AppService:
+        def archive_app(self, app_id: str, tenant_id: str) -> None:
+            app = self.app_repo.get_by_id(app_id=app_id, tenant_id=tenant_id)
+            app.archived = True
+            self.app_repo.save(app)
+
+    # If the query is missing, extend the existing abstraction.
+    active_apps = self.app_repo.list_active_for_tenant(tenant_id=tenant_id)
+    ```
+  - Bad:
+    ```python
+    # No repository exists, but large-domain query logic is scattered in service code.
+    class ConversationService:
+        def list_recent_for_app(self, app_id: str, tenant_id: str, limit: int) -> list[Conversation]:
+            ...
+            # many filters/joins/pagination variants duplicated across services
+    ```
+  - Good:
+    ```python
+    # Case B: Introduce repository for large/complex domains or storage variation.
+---END---
+FILE: .agents/skills/backend-code-review/references/sqlalchemy-rule.md (138 lines)
+# Rule Catalog — SQLAlchemy Patterns
+
+## Scope
+- Covers: SQLAlchemy session and transaction lifecycle, query construction, tenant scoping, raw SQL boundaries, and write-path concurrency safeguards.
+- Does NOT cover: table/model schema and migration design details (handled by `db-schema-rule.md`).
+
+## Rules
+
+### Use Session context manager with explicit transaction control behavior
+- Category: best practices
+- Severity: critical
+- Description: Session and transaction lifecycle must be explicit and bounded on write paths. Missing commits can silently drop intended updates, while ad-hoc or long-lived transactions increase contention, lock duration, and deadlock risk.
+- Suggested fix:
+  - Use **explicit `session.commit()`** after completing a related write unit.
+  - Or use **`session.begin()` context manager** for automatic commit/rollback on a scoped block.
+  - Keep transaction windows short: avoid network I/O, heavy computation, or unrelated work inside the transaction.
+- Example:
+  - Bad:
+    ```python
+    # Missing commit: write may never be persisted.
+    with Session(db.engine, expire_on_commit=False) as session:
+        run = session.get(WorkflowRun, run_id)
+        run.status = "cancelled"
+
+    # Long transaction: external I/O inside a DB transaction.
+    with Session(db.engine, expire_on_commit=False) as session, session.begin():
+        run = session.get(WorkflowRun, run_id)
+        run.status = "cancelled"
+        call_external_api()
+    ```
+  - Good:
+    ```python
+    # Option 1: explicit commit.
+    with Session(db.engine, expire_on_commit=False) as session:
+        run = session.get(WorkflowRun, run_id)
+        run.status = "cancelled"
+        session.commit()
+
+    # Option 2: scoped transaction with automatic commit/rollback.
+    with Session(db.engine, expire_on_commit=False) as session, session.begin():
+        run = session.get(WorkflowRun, run_id)
+        run.status = "cancelled"
+
+    # Keep non-DB work outside transaction scope.
+    call_external_api()
+    ```
+
+### Enforce tenant_id scoping on shared-resource queries
+- Category: security
+- Severity: critical
+---END---
+FILE: .agents/skills/backend-code-review/SKILL.md (167 lines)
+---
+name: backend-code-review
+description: Review backend code for quality, security, maintainability, and best practices based on established checklist rules. Use when the user requests a review, analysis, or improvement of backend files (e.g., `.py`) under the `api/` directory. Do NOT use for frontend files (e.g., `.tsx`, `.ts`, `.js`). Supports pending-change review, code snippets review, and file-focused review.
+---
+
+# Backend Code Review
+
+## When to use this skill
+
+Use this skill whenever the user asks to **review, analyze, or improve** backend code (e.g., `.py`) under the `api/` directory. Supports the following review modes:
+
+- **Pending-change review**: when the user asks to review current changes (inspect staged/working-tree files slated for commit to get the changes).
+- **Code snippets review**: when the user pastes code snippets (e.g., a function/class/module excerpt) into the chat and asks for a review.
+- **File-focused review**: when the user points to specific files and asks for a review of those files (one file or a small, explicit set of files, e.g., `api/...`, `api/app.py`).
+
+Do NOT use this skill when:
+
+- The request is about frontend code or UI (e.g., `.tsx`, `.ts`, `.js`, `web/`).
+- The user is not asking for a review/analysis/improvement of backend code.
+- The scope is not under `api/` (unless the user explicitly asks to review backend-related changes outside `api/`).
+
+## How to use this skill
+
+Follow these steps when using this skill:
+
+1. **Identify the review mode** (pending-change vs snippet vs file-focused) based on the user’s input. Keep the scope tight: review only what the user provided or explicitly referenced.
+2. Follow the rules defined in **Checklist** to perform the review. If no Checklist rule matches, apply **General Review Rules** as a fallback to perform the best-effort review.
+3. Compose the final output strictly follow the **Required Output Format**.
+
+Notes when using this skill:
+- Always include actionable fixes or suggestions (including possible code snippets).
+- Use best-effort `File:Line` references when a file path and line numbers are available; otherwise, use the most specific identifier you can.
+
+## Checklist
+
+- db schema design: if the review scope includes code/files under `api/models/` or `api/migrations/`, follow [references/db-schema-rule.md](references/db-schema-rule.md) to perform the review
+- architecture: if the review scope involves controller/service/core-domain/libs/model layering, dependency direction, or moving responsibilities across modules, follow [references/architecture-rule.md](references/architecture-rule.md) to perform the review
+- repositories abstraction: if the review scope contains table/model operations (e.g., `select(...)`, `session.execute(...)`, joins, CRUD) and is not under `api/repositories`, `api/core/repositories`, or `api/extensions/*/repositories/`, follow [references/repositories-rule.md](references/repositories-rule.md) to perform the review
+- sqlalchemy patterns: if the review scope involves SQLAlchemy session/query usage, db transaction/crud usage, or raw SQL usage, follow [references/sqlalchemy-rule.md](references/sqlalchemy-rule.md) to perform the review
+
+## General Review Rules
+
+### 1. Security Review
+
+Check for:
+- SQL injection vulnerabilities
+- Server-Side Request Forgery (SSRF)
+- Command injection
+- Insecure deserialization
+- Hardcoded secrets/credentials
+---END---
+FILE: .agents/skills/component-refactoring/references/complexity-patterns.md (493 lines)
+# Complexity Reduction Patterns
+
+This document provides patterns for reducing cognitive complexity in Dify React components.
+
+## Understanding Complexity
+
+### SonarJS Cognitive Complexity
+
+The `pnpm analyze-component` tool uses SonarJS cognitive complexity metrics:
+
+- **Total Complexity**: Sum of all functions' complexity in the file
+- **Max Complexity**: Highest single function complexity
+
+### What Increases Complexity
+
+| Pattern | Complexity Impact |
+|---------|-------------------|
+| `if/else` | +1 per branch |
+| Nested conditions | +1 per nesting level |
+| `switch/case` | +1 per case |
+| `for/while/do` | +1 per loop |
+| `&&`/`||` chains | +1 per operator |
+| Nested callbacks | +1 per nesting level |
+| `try/catch` | +1 per catch |
+| Ternary expressions | +1 per nesting |
+
+## Pattern 1: Replace Conditionals with Lookup Tables
+
+**Before** (complexity: ~15):
+
+```typescript
+const Template = useMemo(() => {
+  if (appDetail?.mode === AppModeEnum.CHAT) {
+    switch (locale) {
+      case LanguagesSupported[1]:
+        return <TemplateChatZh appDetail={appDetail} />
+      case LanguagesSupported[7]:
+        return <TemplateChatJa appDetail={appDetail} />
+      default:
+        return <TemplateChatEn appDetail={appDetail} />
+    }
+  }
+  if (appDetail?.mode === AppModeEnum.ADVANCED_CHAT) {
+    switch (locale) {
+      case LanguagesSupported[1]:
+        return <TemplateAdvancedChatZh appDetail={appDetail} />
+      case LanguagesSupported[7]:
+        return <TemplateAdvancedChatJa appDetail={appDetail} />
+      default:
+        return <TemplateAdvancedChatEn appDetail={appDetail} />
+---END---
+FILE: .agents/skills/component-refactoring/references/component-splitting.md (477 lines)
+# Component Splitting Patterns
+
+This document provides detailed guidance on splitting large components into smaller, focused components in Dify.
+
+## When to Split Components
+
+Split a component when you identify:
+
+1. **Multiple UI sections** - Distinct visual areas with minimal coupling that can be composed independently
+1. **Conditional rendering blocks** - Large `{condition && <JSX />}` blocks
+1. **Repeated patterns** - Similar UI structures used multiple times
+1. **300+ lines** - Component exceeds manageable size
+1. **Modal clusters** - Multiple modals rendered in one component
+
+## Splitting Strategies
+
+### Strategy 1: Section-Based Splitting
+
+Identify visual sections and extract each as a component.
+
+```typescript
+// ❌ Before: Monolithic component (500+ lines)
+const ConfigurationPage = () => {
+  return (
+    <div>
+      {/* Header Section - 50 lines */}
+      <div className="header">
+        <h1>{t('configuration.title')}</h1>
+        <div className="actions">
+          {isAdvancedMode && <Badge>Advanced</Badge>}
+          <ModelParameterModal ... />
+          <AppPublisher ... />
+        </div>
+      </div>
+      
+      {/* Config Section - 200 lines */}
+      <div className="config">
+        <Config />
+      </div>
+      
+      {/* Debug Section - 150 lines */}
+      <div className="debug">
+        <Debug ... />
+      </div>
+      
+      {/* Modals Section - 100 lines */}
+      {showSelectDataSet && <SelectDataSet ... />}
+      {showHistoryModal && <EditHistoryModal ... />}
+      {showUseGPT4Confirm && <Confirm ... />}
+    </div>
+---END---
+FILE: .agents/skills/component-refactoring/references/hook-extraction.md (283 lines)
+# Hook Extraction Patterns
+
+This document provides detailed guidance on extracting custom hooks from complex components in Dify.
+
+## When to Extract Hooks
+
+Extract a custom hook when you identify:
+
+1. **Coupled state groups** - Multiple `useState` hooks that are always used together
+1. **Complex effects** - `useEffect` with multiple dependencies or cleanup logic
+1. **Business logic** - Data transformations, validations, or calculations
+1. **Reusable patterns** - Logic that appears in multiple components
+
+## Extraction Process
+
+### Step 1: Identify State Groups
+
+Look for state variables that are logically related:
+
+```typescript
+// ❌ These belong together - extract to hook
+const [modelConfig, setModelConfig] = useState<ModelConfig>(...)
+const [completionParams, setCompletionParams] = useState<FormValue>({})
+const [modelModeType, setModelModeType] = useState<ModelModeType>(...)
+
+// These are model-related state that should be in useModelConfig()
+```
+
+### Step 2: Identify Related Effects
+
+Find effects that modify the grouped state:
+
+```typescript
+// ❌ These effects belong with the state above
+useEffect(() => {
+  if (hasFetchedDetail && !modelModeType) {
+    const mode = currModel?.model_properties.mode
+    if (mode) {
+      const newModelConfig = produce(modelConfig, (draft) => {
+        draft.mode = mode
+      })
+      setModelConfig(newModelConfig)
+    }
+  }
+}, [textGenerationModelList, hasFetchedDetail, modelModeType, currModel])
+```
+
+### Step 3: Create the Hook
+
+```typescript
+---END---
+FILE: .agents/skills/component-refactoring/SKILL.md (442 lines)
+---
+name: component-refactoring
+description: Refactor high-complexity React components in Dify frontend. Use when `pnpm analyze-component --json` shows complexity > 50 or lineCount > 300, when the user asks for code splitting, hook extraction, or complexity reduction, or when `pnpm analyze-component` warns to refactor before testing; avoid for simple/well-structured components, third-party wrappers, or when the user explicitly wants testing without refactoring.
+---
+
+# Dify Component Refactoring Skill
+
+Refactor high-complexity React components in the Dify frontend codebase with the patterns and workflow below.
+
+> **Complexity Threshold**: Components with complexity > 50 (measured by `pnpm analyze-component`) should be refactored before testing.
+
+## Quick Reference
+
+### Commands (run from `web/`)
+
+Use paths relative to `web/` (e.g., `app/components/...`).
+Use `refactor-component` for refactoring prompts and `analyze-component` for testing prompts and metrics.
+
+```bash
+cd web
+
+# Generate refactoring prompt
+pnpm refactor-component <path>
+
+# Output refactoring analysis as JSON
+pnpm refactor-component <path> --json
+
+# Generate testing prompt (after refactoring)
+pnpm analyze-component <path>
+
+# Output testing analysis as JSON
+pnpm analyze-component <path> --json
+```
+
+### Complexity Analysis
+
+```bash
+# Analyze component complexity
+pnpm analyze-component <path> --json
+
+# Key metrics to check:
+# - complexity: normalized score 0-100 (target < 50)
+# - maxComplexity: highest single function complexity
+# - lineCount: total lines (target < 300)
+```
+
+### Complexity Score Interpretation
+
+| Score | Level | Action |
+|-------|-------|--------|
+---END---
+FILE: .agents/skills/frontend-code-review/references/business-logic.md (15 lines)
+# Rule Catalog — Business Logic
+
+## Can't use workflowStore in Node components
+
+IsUrgent: True
+
+### Description
+
+File path pattern of node components: `web/app/components/workflow/nodes/[nodeName]/node.tsx`
+
+Node components are also used when creating a RAG Pipe from a template, but in that context there is no workflowStore Provider, which results in a blank screen. [This Issue](https://github.com/langgenius/dify/issues/29168) was caused by exactly this reason.
+
+### Suggested Fix
+
+Use `import { useNodes } from 'reactflow'` instead of `import useNodes from '@/app/components/workflow/store/workflow/use-nodes'`.
+---END---
+FILE: .agents/skills/frontend-code-review/references/code-quality.md (44 lines)
+# Rule Catalog — Code Quality
+
+## Conditional class names use utility function
+
+IsUrgent: True
+Category: Code Quality
+
+### Description
+
+Ensure conditional CSS is handled via the shared `classNames` instead of custom ternaries, string concatenation, or template strings. Centralizing class logic keeps components consistent and easier to maintain.
+
+### Suggested Fix
+
+```ts
+import { cn } from '@/utils/classnames'
+const classNames = cn(isActive ? 'text-primary-600' : 'text-gray-500')
+```
+
+## Tailwind-first styling
+
+IsUrgent: True
+Category: Code Quality
+
+### Description
+
+Favor Tailwind CSS utility classes instead of adding new `.module.css` files unless a Tailwind combination cannot achieve the required styling. Keeping styles in Tailwind improves consistency and reduces maintenance overhead.
+
+Update this file when adding, editing, or removing Code Quality rules so the catalog remains accurate.
+
+## Classname ordering for easy overrides
+
+### Description
+
+When writing components, always place the incoming `className` prop after the component’s own class values so that downstream consumers can override or extend the styling. This keeps your component’s defaults but still lets external callers change or remove specific styles.
+
+Example:
+
+```tsx
+import { cn } from '@/utils/classnames'
+
+const Button = ({ className }) => {
+  return <div className={cn('bg-primary-600', className)}></div>
+}
+```
+---END---
+FILE: .agents/skills/frontend-code-review/references/performance.md (45 lines)
+# Rule Catalog — Performance
+
+## React Flow data usage
+
+IsUrgent: True
+Category: Performance
+
+### Description
+
+When rendering React Flow, prefer `useNodes`/`useEdges` for UI consumption and rely on `useStoreApi` inside callbacks that mutate or read node/edge state. Avoid manually pulling Flow data outside of these hooks.
+
+## Complex prop memoization
+
+IsUrgent: True
+Category: Performance
+
+### Description
+
+Wrap complex prop values (objects, arrays, maps) in `useMemo` prior to passing them into child components to guarantee stable references and prevent unnecessary renders.
+
+Update this file when adding, editing, or removing Performance rules so the catalog remains accurate.
+
+Wrong:
+
+```tsx
+<HeavyComp
+    config={{
+        provider: ...,
+        detail: ...
+    }}
+/>
+```
+
+Right:
+
+```tsx
+const config = useMemo(() => ({
+    provider: ...,
+    detail: ...
+}), [provider, detail]);
+
+<HeavyComp
+    config={config}
+/>
+```
+---END---
+FILE: .agents/skills/frontend-code-review/SKILL.md (73 lines)
+---
+name: frontend-code-review
+description: "Trigger when the user requests a review of frontend files (e.g., `.tsx`, `.ts`, `.js`). Support both pending-change reviews and focused file reviews while applying the checklist rules."
+---
+
+# Frontend Code Review
+
+## Intent
+Use this skill whenever the user asks to review frontend code (especially `.tsx`, `.ts`, or `.js` files). Support two review modes:
+
+1. **Pending-change review** – inspect staged/working-tree files slated for commit and flag checklist violations before submission.
+2. **File-targeted review** – review the specific file(s) the user names and report the relevant checklist findings.
+
+Stick to the checklist below for every applicable file and mode.
+
+## Checklist
+See [references/code-quality.md](references/code-quality.md), [references/performance.md](references/performance.md), [references/business-logic.md](references/business-logic.md) for the living checklist split by category—treat it as the canonical set of rules to follow.
+
+Flag each rule violation with urgency metadata so future reviewers can prioritize fixes.
+
+## Review Process
+1. Open the relevant component/module. Gather lines that relate to class names, React Flow hooks, prop memoization, and styling.
+2. For each rule in the review point, note where the code deviates and capture a representative snippet.
+3. Compose the review section per the template below. Group violations first by **Urgent** flag, then by category order (Code Quality, Performance, Business Logic).
+
+## Required output
+When invoked, the response must exactly follow one of the two templates:
+
+### Template A (any findings)
+```
+# Code review
+Found <N> urgent issues need to be fixed:
+
+## 1 <brief description of bug>
+FilePath: <path> line <line>
+<relevant code snippet or pointer>
+
+
+### Suggested fix
+<brief description of suggested fix>
+
+---
+... (repeat for each urgent issue) ...
+
+Found <M> suggestions for improvement:
+
+## 1 <brief description of suggestion>
+FilePath: <path> line <line>
+<relevant code snippet or pointer>
+
+---END---
+FILE: .agents/skills/frontend-query-mutation/agents/openai.yaml (4 lines)
+interface:
+  display_name: "Frontend Query & Mutation"
+  short_description: "Dify TanStack Query and oRPC patterns"
+  default_prompt: "Use this skill when implementing or reviewing Dify frontend contracts, query and mutation call sites, conditional queries, invalidation, or legacy query/mutation migrations."
+---END---
+FILE: .agents/skills/frontend-query-mutation/references/contract-patterns.md (98 lines)
+# Contract Patterns
+
+## Table of Contents
+
+- Intent
+- Minimal structure
+- Core workflow
+- Query usage decision rule
+- Mutation usage decision rule
+- Anti-patterns
+- Contract rules
+- Type export
+
+## Intent
+
+- Keep contract as the single source of truth in `web/contract/*`.
+- Default query usage to call-site `useQuery(consoleQuery|marketplaceQuery.xxx.queryOptions(...))` when endpoint behavior maps 1:1 to the contract.
+- Keep abstractions minimal and preserve TypeScript inference.
+
+## Minimal Structure
+
+```text
+web/contract/
+├── base.ts
+├── router.ts
+├── marketplace.ts
+└── console/
+    ├── billing.ts
+    └── ...other domains
+web/service/client.ts
+```
+
+## Core Workflow
+
+1. Define contract in `web/contract/console/{domain}.ts` or `web/contract/marketplace.ts`.
+   - Use `base.route({...}).output(type<...>())` as the baseline.
+   - Add `.input(type<...>())` only when the request has `params`, `query`, or `body`.
+   - For `GET` without input, omit `.input(...)`; do not use `.input(type<unknown>())`.
+2. Register contract in `web/contract/router.ts`.
+   - Import directly from domain files and nest by API prefix.
+3. Consume from UI call sites via oRPC query utilities.
+
+```typescript
+import { useQuery } from '@tanstack/react-query'
+import { consoleQuery } from '@/service/client'
+
+const invoiceQuery = useQuery(consoleQuery.billing.invoices.queryOptions({
+  staleTime: 5 * 60 * 1000,
+  throwOnError: true,
+  select: invoice => invoice.url,
+---END---
+FILE: .agents/skills/frontend-query-mutation/references/runtime-rules.md (133 lines)
+# Runtime Rules
+
+## Table of Contents
+
+- Conditional queries
+- Cache invalidation
+- Key API guide
+- `mutate` vs `mutateAsync`
+- Legacy migration
+
+## Conditional Queries
+
+Prefer contract-shaped `queryOptions(...)`.
+When required input is missing, prefer `input: skipToken` instead of placeholder params or non-null assertions.
+Use `enabled` only for extra business gating after the input itself is already valid.
+
+```typescript
+import { skipToken, useQuery } from '@tanstack/react-query'
+
+// Disable the query by skipping input construction.
+function useAccessMode(appId: string | undefined) {
+  return useQuery(consoleQuery.accessControl.appAccessMode.queryOptions({
+    input: appId
+      ? { params: { appId } }
+      : skipToken,
+  }))
+}
+
+// Avoid runtime-only guards that bypass type checking.
+function useBadAccessMode(appId: string | undefined) {
+  return useQuery(consoleQuery.accessControl.appAccessMode.queryOptions({
+    input: { params: { appId: appId! } },
+    enabled: !!appId,
+  }))
+}
+```
+
+## Cache Invalidation
+
+Bind invalidation in the service-layer mutation definition.
+Components may add UI feedback in call-site callbacks, but they should not decide which queries to invalidate.
+
+Use:
+
+- `.key()` for namespace or prefix invalidation
+- `.queryKey(...)` only for exact cache reads or writes such as `getQueryData` and `setQueryData`
+- `queryClient.invalidateQueries(...)` in mutation `onSuccess`
+
+Do not use deprecated `useInvalid` from `use-base.ts`.
+
+---END---
+FILE: .agents/skills/frontend-query-mutation/SKILL.md (44 lines)
+---
+name: frontend-query-mutation
+description: Guide for implementing Dify frontend query and mutation patterns with TanStack Query and oRPC. Trigger when creating or updating contracts in web/contract, wiring router composition, consuming consoleQuery or marketplaceQuery in components or services, deciding whether to call queryOptions() directly or extract a helper or use-* hook, handling conditional queries, cache invalidation, mutation error handling, or migrating legacy service calls to contract-first query and mutation helpers.
+---
+
+# Frontend Query & Mutation
+
+## Intent
+
+- Keep contract as the single source of truth in `web/contract/*`.
+- Prefer contract-shaped `queryOptions()` and `mutationOptions()`.
+- Keep invalidation and mutation flow knowledge in the service layer.
+- Keep abstractions minimal to preserve TypeScript inference.
+
+## Workflow
+
+1. Identify the change surface.
+   - Read `references/contract-patterns.md` for contract files, router composition, client helpers, and query or mutation call-site shape.
+   - Read `references/runtime-rules.md` for conditional queries, invalidation, error handling, and legacy migrations.
+   - Read both references when a task spans contract shape and runtime behavior.
+2. Implement the smallest abstraction that fits the task.
+   - Default to direct `useQuery(...)` or `useMutation(...)` calls with oRPC helpers at the call site.
+   - Extract a small shared query helper only when multiple call sites share the same extra options.
+   - Create `web/service/use-{domain}.ts` only for orchestration or shared domain behavior.
+3. Preserve Dify conventions.
+   - Keep contract inputs in `{ params, query?, body? }` shape.
+   - Bind invalidation in the service-layer mutation definition.
+   - Prefer `mutate(...)`; use `mutateAsync(...)` only when Promise semantics are required.
+
+## Files Commonly Touched
+
+- `web/contract/console/*.ts`
+- `web/contract/marketplace.ts`
+- `web/contract/router.ts`
+- `web/service/client.ts`
+- `web/service/use-*.ts`
+- component and hook call sites using `consoleQuery` or `marketplaceQuery`
+
+## References
+
+- Use `references/contract-patterns.md` for contract shape, router registration, query and mutation helpers, and anti-patterns that degrade inference.
+- Use `references/runtime-rules.md` for conditional queries, invalidation, `mutate` versus `mutateAsync`, and legacy migration rules.
+
+Treat this skill as the single query and mutation entry point for Dify frontend work. Keep detailed rules in the reference files instead of duplicating them in project docs.
+---END---
+FILE: .agents/skills/frontend-testing/assets/component-test.template.tsx (293 lines)
+/**
+ * Test Template for React Components
+ *
+ * WHY THIS STRUCTURE?
+ * - Organized sections make tests easy to navigate and maintain
+ * - Mocks at top ensure consistent test isolation
+ * - Factory functions reduce duplication and improve readability
+ * - describe blocks group related scenarios for better debugging
+ *
+ * INSTRUCTIONS:
+ * 1. Replace `ComponentName` with your component name
+ * 2. Update import path
+ * 3. Add/remove test sections based on component features (use analyze-component)
+ * 4. Follow AAA pattern: Arrange → Act → Assert
+ *
+ * RUN FIRST: pnpm analyze-component <path> to identify required test scenarios
+ */
+
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+// import ComponentName from './index'
+
+// ============================================================================
+// Mocks
+// ============================================================================
+// WHY: Mocks must be hoisted to top of file (Vitest requirement).
+// They run BEFORE imports, so keep them before component imports.
+
+// i18n (automatically mocked)
+// WHY: Global mock in web/vitest.setup.ts is auto-loaded by Vitest setup
+// The global mock provides: useTranslation, Trans, useMixedTranslation, useGetLanguage
+// No explicit mock needed for most tests
+//
+// Override only if custom translations are required:
+// import { createReactI18nextMock } from '@/test/i18n-mock'
+// vi.mock('react-i18next', () => createReactI18nextMock({
+//   'my.custom.key': 'Custom Translation',
+//   'button.save': 'Save',
+// }))
+
+// Router (if component uses useRouter, usePathname, useSearchParams)
+// WHY: Isolates tests from Next.js routing, enables testing navigation behavior
+// const mockPush = vi.fn()
+// vi.mock('@/next/navigation', () => ({
+//   useRouter: () => ({ push: mockPush }),
+//   usePathname: () => '/test-path',
+// }))
+
+// API services (if component fetches data)
+// WHY: Prevents real network calls, enables testing all states (loading/success/error)
+---END---
+FILE: .agents/skills/frontend-testing/assets/hook-test.template.ts (207 lines)
+/**
+ * Test Template for Custom Hooks
+ *
+ * Instructions:
+ * 1. Replace `useHookName` with your hook name
+ * 2. Update import path
+ * 3. Add/remove test sections based on hook features
+ */
+
+import { renderHook, act, waitFor } from '@testing-library/react'
+// import { useHookName } from './use-hook-name'
+
+// ============================================================================
+// Mocks
+// ============================================================================
+
+// API services (if hook fetches data)
+// vi.mock('@/service/api')
+// import * as api from '@/service/api'
+// const mockedApi = vi.mocked(api)
+
+// ============================================================================
+// Test Helpers
+// ============================================================================
+
+// Wrapper for hooks that need context
+// const createWrapper = (contextValue = {}) => {
+//   return ({ children }: { children: React.ReactNode }) => (
+//     <SomeContext.Provider value={contextValue}>
+//       {children}
+//     </SomeContext.Provider>
+//   )
+// }
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+describe('useHookName', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  // --------------------------------------------------------------------------
+  // Initial State
+  // --------------------------------------------------------------------------
+  describe('Initial State', () => {
+    it('should return initial state', () => {
+      // const { result } = renderHook(() => useHookName())
+      //
+---END---
+FILE: .agents/skills/frontend-testing/assets/utility-test.template.ts (154 lines)
+/**
+ * Test Template for Utility Functions
+ *
+ * Instructions:
+ * 1. Replace `utilityFunction` with your function name
+ * 2. Update import path
+ * 3. Use test.each for data-driven tests
+ */
+
+// import { utilityFunction } from './utility'
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+describe('utilityFunction', () => {
+  // --------------------------------------------------------------------------
+  // Basic Functionality
+  // --------------------------------------------------------------------------
+  describe('Basic Functionality', () => {
+    it('should return expected result for valid input', () => {
+      // expect(utilityFunction('input')).toBe('expected-output')
+    })
+
+    it('should handle multiple arguments', () => {
+      // expect(utilityFunction('a', 'b', 'c')).toBe('abc')
+    })
+  })
+
+  // --------------------------------------------------------------------------
+  // Data-Driven Tests
+  // --------------------------------------------------------------------------
+  describe('Input/Output Mapping', () => {
+    test.each([
+      // [input, expected]
+      ['input1', 'output1'],
+      ['input2', 'output2'],
+      ['input3', 'output3'],
+    ])('should return %s for input %s', (input, expected) => {
+      // expect(utilityFunction(input)).toBe(expected)
+    })
+  })
+
+  // --------------------------------------------------------------------------
+  // Edge Cases
+  // --------------------------------------------------------------------------
+  describe('Edge Cases', () => {
+    it('should handle empty string', () => {
+      // expect(utilityFunction('')).toBe('')
+    })
+---END---
+FILE: .agents/skills/frontend-testing/references/async-testing.md (345 lines)
+# Async Testing Guide
+
+## Core Async Patterns
+
+### 1. waitFor - Wait for Condition
+
+```typescript
+import { render, screen, waitFor } from '@testing-library/react'
+
+it('should load and display data', async () => {
+  render(<DataComponent />)
+  
+  // Wait for element to appear
+  await waitFor(() => {
+    expect(screen.getByText('Loaded Data')).toBeInTheDocument()
+  })
+})
+
+it('should hide loading spinner after load', async () => {
+  render(<DataComponent />)
+  
+  // Wait for element to disappear
+  await waitFor(() => {
+    expect(screen.queryByText('Loading...')).not.toBeInTheDocument()
+  })
+})
+```
+
+### 2. findBy\* - Async Queries
+
+```typescript
+it('should show user name after fetch', async () => {
+  render(<UserProfile />)
+  
+  // findBy returns a promise, auto-waits up to 1000ms
+  const userName = await screen.findByText('John Doe')
+  expect(userName).toBeInTheDocument()
+  
+  // findByRole with options
+  const button = await screen.findByRole('button', { name: /submit/i })
+  expect(button).toBeEnabled()
+})
+```
+
+### 3. userEvent for Async Interactions
+
+```typescript
+import userEvent from '@testing-library/user-event'
+
+it('should submit form', async () => {
+---END---
+FILE: .agents/skills/frontend-testing/references/checklist.md (208 lines)
+# Test Generation Checklist
+
+Use this checklist when generating or reviewing tests for Dify frontend components.
+
+## Pre-Generation
+
+- [ ] Read the component source code completely
+- [ ] Identify component type (component, hook, utility, page)
+- [ ] Run `pnpm analyze-component <path>` if available
+- [ ] Note complexity score and features detected
+- [ ] Check for existing tests in the same directory
+- [ ] **Identify ALL files in the directory** that need testing (not just index)
+
+## Testing Strategy
+
+### ⚠️ Incremental Workflow (CRITICAL for Multi-File)
+
+- [ ] **NEVER generate all tests at once** - process one file at a time
+- [ ] Order files by complexity: utilities → hooks → simple → complex → integration
+- [ ] Create a todo list to track progress before starting
+- [ ] For EACH file: write → run test → verify pass → then next
+- [ ] **DO NOT proceed** to next file until current one passes
+
+### Path-Level Coverage
+
+- [ ] **Test ALL files** in the assigned directory/path
+- [ ] List all components, hooks, utilities that need coverage
+- [ ] Decide: single spec file (integration) or multiple spec files (unit)
+
+### Complexity Assessment
+
+- [ ] Run `pnpm analyze-component <path>` for complexity score
+- [ ] **Complexity > 50**: Consider refactoring before testing
+- [ ] **500+ lines**: Consider splitting before testing
+- [ ] **30-50 complexity**: Use multiple describe blocks, organized structure
+
+### Integration vs Mocking
+
+- [ ] **DO NOT mock base components** (`Loading`, `Button`, `Tooltip`, etc.)
+- [ ] Import real project components instead of mocking
+- [ ] Only mock: API calls, complex context providers, third-party libs with side effects
+- [ ] Prefer integration testing when using single spec file
+
+## Required Test Sections
+
+### All Components MUST Have
+
+- [ ] **Rendering tests** - Component renders without crashing
+- [ ] **Props tests** - Required props, optional props, default values
+- [ ] **Edge cases** - null, undefined, empty values, boundaries
+---END---
+FILE: .agents/skills/frontend-testing/references/common-patterns.md (449 lines)
+# Common Testing Patterns
+
+## Query Priority
+
+Use queries in this order (most to least preferred):
+
+```typescript
+// 1. getByRole - Most recommended (accessibility)
+screen.getByRole('button', { name: /submit/i })
+screen.getByRole('textbox', { name: /email/i })
+screen.getByRole('heading', { level: 1 })
+
+// 2. getByLabelText - Form fields
+screen.getByLabelText('Email address')
+screen.getByLabelText(/password/i)
+
+// 3. getByPlaceholderText - When no label
+screen.getByPlaceholderText('Search...')
+
+// 4. getByText - Non-interactive elements
+screen.getByText('Welcome to Dify')
+screen.getByText(/loading/i)
+
+// 5. getByDisplayValue - Current input value
+screen.getByDisplayValue('current value')
+
+// 6. getByAltText - Images
+screen.getByAltText('Company logo')
+
+// 7. getByTitle - Tooltip elements
+screen.getByTitle('Close')
+
+// 8. getByTestId - Last resort only!
+screen.getByTestId('custom-element')
+```
+
+## Event Handling Patterns
+
+### Click Events
+
+```typescript
+// Basic click
+fireEvent.click(screen.getByRole('button'))
+
+// With userEvent (preferred for realistic interaction)
+const user = userEvent.setup()
+await user.click(screen.getByRole('button'))
+
+// Double click
+await user.dblClick(screen.getByRole('button'))
+---END---
+FILE: .agents/skills/frontend-testing/references/domain-components.md (523 lines)
+# Domain-Specific Component Testing
+
+This guide covers testing patterns for Dify's domain-specific components.
+
+## Workflow Components (`workflow/`)
+
+Workflow components handle node configuration, data flow, and graph operations.
+
+### Key Test Areas
+
+1. **Node Configuration**
+1. **Data Validation**
+1. **Variable Passing**
+1. **Edge Connections**
+1. **Error Handling**
+
+### Example: Node Configuration Panel
+
+```typescript
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import NodeConfigPanel from './node-config-panel'
+import { createMockNode, createMockWorkflowContext } from '@/__mocks__/workflow'
+
+// Mock workflow context
+vi.mock('@/app/components/workflow/hooks', () => ({
+  useWorkflowStore: () => mockWorkflowStore,
+  useNodesInteractions: () => mockNodesInteractions,
+}))
+
+let mockWorkflowStore = {
+  nodes: [],
+  edges: [],
+  updateNode: vi.fn(),
+}
+
+let mockNodesInteractions = {
+  handleNodeSelect: vi.fn(),
+  handleNodeDelete: vi.fn(),
+}
+
+describe('NodeConfigPanel', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+    mockWorkflowStore = {
+      nodes: [],
+      edges: [],
+      updateNode: vi.fn(),
+    }
+  })
+---END---
+FILE: .agents/skills/frontend-testing/references/mocking.md (537 lines)
+# Mocking Guide for Dify Frontend Tests
+
+## ⚠️ Important: What NOT to Mock
+
+### DO NOT Mock Base Components
+
+**Never mock components from `@/app/components/base/`** such as:
+
+- `Loading`, `Spinner`
+- `Button`, `Input`, `Select`
+- `Tooltip`, `Modal`, `Dropdown`
+- `Icon`, `Badge`, `Tag`
+
+**Why?**
+
+- Base components will have their own dedicated tests
+- Mocking them creates false positives (tests pass but real integration fails)
+- Using real components tests actual integration behavior
+
+```typescript
+// ❌ WRONG: Don't mock base components
+vi.mock('@/app/components/base/loading', () => () => <div>Loading</div>)
+vi.mock('@/app/components/base/button', () => ({ children }: any) => <button>{children}</button>)
+
+// ✅ CORRECT: Import and use real base components
+import Loading from '@/app/components/base/loading'
+import Button from '@/app/components/base/button'
+// They will render normally in tests
+```
+
+### What TO Mock
+
+Only mock these categories:
+
+1. **API services** (`@/service/*`) - Network calls
+1. **Complex context providers** - When setup is too difficult
+1. **Third-party libraries with side effects** - `next/navigation`, external SDKs
+1. **i18n** - Always mock to return keys
+
+### Zustand Stores - DO NOT Mock Manually
+
+**Zustand is globally mocked** in `web/vitest.setup.ts`. Use real stores with `setState()`:
+
+```typescript
+// ✅ CORRECT: Use real store, set test state
+import { useAppStore } from '@/app/components/app/store'
+
+useAppStore.setState({ appDetail: { id: 'test', name: 'Test' } })
+render(<MyComponent />)
+
+---END---
+FILE: .agents/skills/frontend-testing/references/workflow.md (269 lines)
+# Testing Workflow Guide
+
+This guide defines the workflow for generating tests, especially for complex components or directories with multiple files.
+
+## Scope Clarification
+
+This guide addresses **multi-file workflow** (how to process multiple test files). For coverage requirements within a single test file, see `web/docs/test.md` § Coverage Goals.
+
+| Scope | Rule |
+|-------|------|
+| **Single file** | Complete coverage in one generation (100% function, >95% branch) |
+| **Multi-file directory** | Process one file at a time, verify each before proceeding |
+
+## ⚠️ Critical Rule: Incremental Approach for Multi-File Testing
+
+When testing a **directory with multiple files**, **NEVER generate all test files at once.** Use an incremental, verify-as-you-go approach.
+
+### Why Incremental?
+
+| Batch Approach (❌) | Incremental Approach (✅) |
+|---------------------|---------------------------|
+| Generate 5+ tests at once | Generate 1 test at a time |
+| Run tests only at the end | Run test immediately after each file |
+| Multiple failures compound | Single point of failure, easy to debug |
+| Hard to identify root cause | Clear cause-effect relationship |
+| Mock issues affect many files | Mock issues caught early |
+| Messy git history | Clean, atomic commits possible |
+
+## Single File Workflow
+
+When testing a **single component, hook, or utility**:
+
+```
+1. Read source code completely
+2. Run `pnpm analyze-component <path>` (if available)
+3. Check complexity score and features detected
+4. Write the test file
+5. Run test: `pnpm test <file>.spec.tsx`
+6. Fix any failures
+7. Verify coverage meets goals (100% function, >95% branch)
+```
+
+## Directory/Multi-File Workflow (MUST FOLLOW)
+
+When testing a **directory or multiple files**, follow this strict workflow:
+
+### Step 1: Analyze and Plan
+
+1. **List all files** that need tests in the directory
+1. **Categorize by complexity**:
+---END---
+FILE: .agents/skills/frontend-testing/SKILL.md (336 lines)
+---
+name: frontend-testing
+description: Generate Vitest + React Testing Library tests for Dify frontend components, hooks, and utilities. Triggers on testing, spec files, coverage, Vitest, RTL, unit tests, integration tests, or write/review test requests.
+---
+
+# Dify Frontend Testing Skill
+
+This skill enables Claude to generate high-quality, comprehensive frontend tests for the Dify project following established conventions and best practices.
+
+> **⚠️ Authoritative Source**: This skill is derived from `web/docs/test.md`. Use Vitest mock/timer APIs (`vi.*`).
+
+## When to Apply This Skill
+
+Apply this skill when the user:
+
+- Asks to **write tests** for a component, hook, or utility
+- Asks to **review existing tests** for completeness
+- Mentions **Vitest**, **React Testing Library**, **RTL**, or **spec files**
+- Requests **test coverage** improvement
+- Uses `pnpm analyze-component` output as context
+- Mentions **testing**, **unit tests**, or **integration tests** for frontend code
+- Wants to understand **testing patterns** in the Dify codebase
+
+**Do NOT apply** when:
+
+- User is asking about backend/API tests (Python/pytest)
+- User is asking about E2E tests (Playwright/Cypress)
+- User is only asking conceptual questions without code context
+
+## Quick Reference
+
+### Tech Stack
+
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Vitest | 4.0.16 | Test runner |
+| React Testing Library | 16.0 | Component testing |
+| jsdom | - | Test environment |
+| nock | 14.0 | HTTP mocking |
+| TypeScript | 5.x | Type safety |
+
+### Key Commands
+
+```bash
+# Run all tests
+pnpm test
+
+# Watch mode
+pnpm test:watch
+
+---END---
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+api
+AUTHORS
+CLAUDE.md
+codecov.yml
+CONTRIBUTING.md
+dev
+docker
+docs
+e2e
+images
+LICENSE
+Makefile
+package.json
+pnpm-lock.yaml
+pnpm-workspace.yaml
+README.md
+scripts
+sdks
+taze.config.js
+vite.config.ts
+web
+
+### README
+FILE: README.md
+![cover-v5-optimized](./images/GitHub_README_if.png)
+
+<p align="center">
+  <a href="https://cloud.dify.ai">Dify Cloud</a> ·
+  <a href="https://docs.dify.ai/getting-started/install-self-hosted">Self-hosting</a> ·
+  <a href="https://docs.dify.ai">Documentation</a> ·
+  <a href="https://dify.ai/pricing">Dify edition overview</a>
+</p>
+
+<p align="center">
+    <a href="https://dify.ai" target="_blank">
+        <img alt="Static Badge" src="https://img.shields.io/badge/Product-F04438"></a>
+    <a href="https://dify.ai/pricing" target="_blank">
+        <img alt="Static Badge" src="https://img.shields.io/badge/free-pricing?logo=free&color=%20%23155EEF&label=pricing&labelColor=%20%23528bff"></a>
+    <a href="https://discord.gg/FngNHpbcY7" target="_blank">
+        <img src="https://img.shields.io/discord/1082486657678311454?logo=discord&labelColor=%20%235462eb&logoColor=%20%23f5f5f5&color=%20%235462eb"
+            alt="chat on Discord"></a>
+    <a href="https://reddit.com/r/difyai" target="_blank">  
+        <img src="https://img.shields.io/reddit/subreddit-subscribers/difyai?style=plastic&logo=reddit&label=r%2Fdifyai&labelColor=white"
+            alt="join Reddit"></a>
+    <a href="https://twitter.com/intent/follow?screen_name=dify_ai" target="_blank">
+        <img src="https://img.shields.io/twitter/follow/dify_ai?logo=X&color=%20%23f5f5f5"
+            alt="follow on X(Twitter)"></a>
+    <a href="https://www.linkedin.com/company/langgenius/" target="_blank">
+        <img src="https://custom-icon-badges.demolab.com/badge/LinkedIn-0A66C2?logo=linkedin-white&logoColor=fff"
+            alt="follow on LinkedIn"></a>
+    <a href="https://hub.docker.com/u/langgenius" target="_blank">
+        <img alt="Docker Pulls" src="https://img.shields.io/docker/pulls/langgenius/dify-web?labelColor=%20%23FDB062&color=%20%23f79009"></a>
+    <a href="https://github.com/langgenius/dify/graphs/commit-activity" target="_blank">
+        <img alt="Commits last month" src="https://img.shields.io/github/commit-activity/m/langgenius/dify?labelColor=%20%2332b583&color=%20%2312b76a"></a>
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "dify",
+  "private": true,
+  "scripts": {
+    "prepare": "vp config"
+  },
+  "devDependencies": {
+    "taze": "catalog:",
+    "vite-plus": "catalog:"
+  },
+  "engines": {
+    "node": "^22.22.1"
+  },
+  "packageManager": "pnpm@10.33.0"
+}
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+# Variables
+DOCKER_REGISTRY=langgenius
+WEB_IMAGE=$(DOCKER_REGISTRY)/dify-web
+API_IMAGE=$(DOCKER_REGISTRY)/dify-api
+VERSION=latest
+
+# Default target - show help
+.DEFAULT_GOAL := help
+
+# Backend Development Environment Setup
+.PHONY: dev-setup prepare-docker prepare-web prepare-api
+
+# Dev setup target
+dev-setup: prepare-docker prepare-web prepare-api
+	@echo "✅ Backend development environment setup complete!"
+
+# Step 1: Prepare Docker middleware
+prepare-docker:
+	@echo "🐳 Setting up Docker middleware..."
+	@cp -n docker/middleware.env.example docker/middleware.env 2>/dev/null || echo "Docker middleware.env already exists"
+	@cd docker && docker compose -f docker-compose.middleware.yaml --env-file middleware.env -p dify-middlewares-dev up -d
+	@echo "✅ Docker middleware started"
+
+# Step 2: Prepare web environment
+prepare-web:
+	@echo "🌐 Setting up web environment..."
+	@cp -n web/.env.example web/.env.local 2>/dev/null || echo "Web .env.local already exists"
+	@pnpm install
+	@echo "✅ Web environment prepared (not started)"
+
+---END---
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+.nvmrc: 22
+
+## Tests
+test_file_count: 2873
+ci_workflow_count: 24
+anti-slop.yml
+api-tests.yml
+autofix.yml
+build-push.yml
+db-migration-test.yml
+deploy-agent-dev.yml
+deploy-dev.yml
+deploy-enterprise.yml
+deploy-hitl.yml
+docker-build.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 104 lines
+# CONTRIBUTING
+
+So you're looking to contribute to Dify - that's awesome, we can't wait to see what you do. As a startup with limited headcount and funding, we have grand ambitions to design the most intuitive workflow for building and managing LLM applications. Any help from the community counts, truly.
+
+We need to be nimble and ship fast given where we are, but we also want to make sure that contributors like you get as smooth an experience at contributing as possible. We've assembled this contribution guide for that purpose, aiming at getting you familiarized with the codebase & how we work with contributors, so you could quickly jump to the fun part.
+
+This guide, like Dify itself, is a constant work in progress. We highly appreciate your understanding if at times it lags behind the actual project, and welcome any feedback for us to improve.
+
+In terms of licensing, please take a minute to read our short [License and Contributor Agreement](./LICENSE). The community also adheres to the [code of conduct](https://github.com/langgenius/.github/blob/main/CODE_OF_CONDUCT.md).
+
+## Before you jump in
+
+Looking for something to tackle? Browse our [good first issues](https://github.com/langgenius/dify/issues?q=is%3Aissue%20state%3Aopen%20label%3A%22good%20first%20issue%22) and pick one to get started!
+
+Got a cool new model runtime or tool to add? Open a PR in our [plugin repo](https://github.com/langgenius/dify-plugins) and show us what you've built.
+
+Need to update an existing model runtime, tool, or squash some bugs? Head over to our [official plugin repo](https://github.com/langgenius/dify-official-plugins) and make your magic happen!
+
+Join the fun, contribute, and let's build something awesome together! 💡✨
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### Determinism
+sleep_pattern_count_in_tests: 98
+### Largest source files
+ 162194 total
+   2559 ./api/models/model.py
+   2074 ./api/models/workflow.py
+   1918 ./api/core/entities/provider_configuration.py
+   1873 ./api/core/rag/retrieval/dataset_retrieval.py
+   1690 ./api/models/dataset.py
+   1529 ./api/core/ops/ops_trace_manager.py
+   1435 ./api/controllers/console/datasets/datasets_document.py
+   1372 ./api/core/rag/datasource/keyword/jieba/stopwords.py
+   1357 ./api/controllers/console/app/workflow.py
+   1342 ./api/core/mcp/types.py
+
+=== END SIGNALS ===

@@ -1,0 +1,124 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/hacksider-Deep-Live-Cam
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+CONTRIBUTING.md
+LICENSE
+locales
+media
+models
+modules
+mypi.ini
+README.md
+requirements.txt
+run-cuda.bat
+run-directml.bat
+run.py
+tkinter_fix.py
+
+### README
+FILE: README.md
+<h1 align="center">Deep-Live-Cam 2.1</h1>
+
+<p align="center">
+  Real-time face swap and video deepfake with a single click and only a single image.
+</p>
+
+<p align="center">
+<a href="https://trendshift.io/repositories/11395" target="_blank"><img src="https://trendshift.io/api/badge/repositories/11395" alt="hacksider%2FDeep-Live-Cam | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
+</p>
+
+<p align="center">
+  <img src="media/demo.gif" alt="Demo GIF" width="800">
+</p>
+
+##  Disclaimer
+
+This deepfake software is designed to be a productive tool for the AI-generated media industry. It can assist artists in animating custom characters, creating engaging content, and even using models for clothing design.
+
+We are aware of the potential for unethical applications and are committed to preventative measures. A built-in check prevents the program from processing inappropriate media (nudity, graphic content, sensitive material like war footage, etc.). We will continue to develop this project responsibly, adhering to the law and ethics. We may shut down the project or add watermarks if legally required.
+
+- Ethical Use: Users are expected to use this software responsibly and legally. If using a real person's face, obtain their consent and clearly label any output as a deepfake when sharing online.
+
+- Content Restrictions: The software includes built-in checks to prevent processing inappropriate media, such as nudity, graphic content, or sensitive material.
+
+- Legal Compliance: We adhere to all relevant laws and ethical guidelines. If legally required, we may shut down the project or add watermarks to the output.
+
+- User Responsibility: We are not responsible for end-user actions. Users must ensure their use of the software aligns with ethical standards and legal requirements.
+
+By using this software, you agree to these terms and commit to using it in a manner that respects the rights and dignity of others.
+
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 0
+ci: DOES NOT EXIST
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 38 lines
+# Collaboration Guidelines and Codebase Quality Standards
+
+To ensure smooth collaboration and maintain the high quality of our codebase, please adhere to the following guidelines:
+
+## Branching Strategy
+
+*   **`premain`**:
+    *   Always push your changes to the `premain` branch initially.
+    *   This safeguards the `main` branch from unintentional disruptions.
+    *   All tests will be performed on the `premain` branch.
+    *   Changes will only be merged into `main` after several hours or days of rigorous testing.
+*   **`experimental`**:
+    *   For large or potentially disruptive changes, use the `experimental` branch.
+    *   This allows for thorough discussion and review before considering a merge into `main`.
+
+## Pre-Pull Request Checklist
+
+Before creating a Pull Request (PR), ensure you have completed the following tests:
+
+### Functionality
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  5776 total
+  1536 ./modules/ui.py
+  1191 ./modules/processors/frame/face_swapper.py
+   576 ./modules/processors/frame/face_masking.py
+   372 ./modules/processors/frame/face_enhancer.py
+   316 ./modules/utilities.py
+   305 ./modules/core.py
+   286 ./modules/gpu_processing.py
+   211 ./modules/face_analyser.py
+   145 ./modules/processors/frame/_onnx_enhancer.py
+   125 ./modules/processors/frame/face_enhancer_gpen512.py
+
+=== END SIGNALS ===

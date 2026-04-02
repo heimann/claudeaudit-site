@@ -1,0 +1,116 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/sherlock-project-sherlock
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+devel
+Dockerfile
+docs
+LICENSE
+pyproject.toml
+pytest.ini
+sherlock_project
+tests
+tox.ini
+
+### README
+
+## Dependencies
+FILE: pyproject.toml
+[build-system]
+requires = [ "poetry-core>=1.2.0" ]
+build-backend = "poetry.core.masonry.api"
+# poetry-core 1.8 not available in .fc39. Can upgrade to 1.8.0 at .fc39 EOL
+
+[tool.poetry-version-plugin]
+source = "init"
+
+[tool.poetry]
+name = "sherlock-project"
+version = "0.16.0"
+description = "Hunt down social media accounts by username across social networks"
+license = "MIT"
+authors = [
+    "Siddharth Dushantha <siddharth.dushantha@gmail.com>"
+]
+maintainers = [
+    "Paul Pfeister <code@pfeister.dev>",
+    "Matheus Felipe <matheusfelipeog@protonmail.com>",
+    "Sondre Karlsen Dyrnes <sondre@villdyr.no>"
+]
+readme = "docs/pyproject/README.md"
+packages = [ { include = "sherlock_project"} ]
+keywords = [ "osint", "reconnaissance", "information gathering" ]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Information Technology",
+    "Natural Language :: English",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security"
+]
+homepage = "https://sherlockproject.xyz/"
+repository = "https://github.com/sherlock-project/sherlock"
+
+---END---
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 5
+ci_workflow_count: 4
+exclusions.yml
+regression.yml
+update-site-list.yml
+validate_modified_targets.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### mypy config
+no [tool.mypy] section
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 2150 total
+  942 ./sherlock_project/sherlock.py
+  286 ./sherlock_project/notify.py
+  265 ./sherlock_project/sites.py
+  105 ./tests/test_probes.py
+  100 ./tests/test_validate_targets.py
+   89 ./sherlock_project/result.py
+   72 ./devel/summarize_site_validation.py
+   51 ./tests/conftest.py
+   45 ./devel/site-list.py
+   43 ./tests/test_ux.py
+
+=== END SIGNALS ===

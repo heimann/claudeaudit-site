@@ -1,0 +1,249 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/gin-gonic-gin
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+auth.go
+auth_test.go
+BENCHMARKS.md
+benchmarks_test.go
+binding
+CHANGELOG.md
+codec
+codecov.yml
+CODE_OF_CONDUCT.md
+context_appengine.go
+context_file_test.go
+context.go
+context_test.go
+CONTRIBUTING.md
+debug.go
+debug_test.go
+deprecated.go
+deprecated_test.go
+doc.go
+docs
+errors.go
+errors_test.go
+examples
+fs.go
+fs_test.go
+gin.go
+gin_integration_test.go
+ginS
+gin_test.go
+githubapi_test.go
+go.mod
+go.sum
+internal
+LICENSE
+logger.go
+logger_test.go
+Makefile
+middleware_test.go
+mode.go
+mode_test.go
+path.go
+path_test.go
+README.md
+recovery.go
+recovery_test.go
+render
+response_writer.go
+response_writer_test.go
+routergroup.go
+routergroup_test.go
+routes_test.go
+testdata
+test_helpers.go
+tree.go
+tree_test.go
+utils.go
+utils_test.go
+version.go
+
+### README
+FILE: README.md
+# Gin Web Framework
+
+<img align="right" width="159px" src="https://raw.githubusercontent.com/gin-gonic/logo/master/color.png">
+
+[![Build Status](https://github.com/gin-gonic/gin/actions/workflows/gin.yml/badge.svg?branch=master)](https://github.com/gin-gonic/gin/actions/workflows/gin.yml)
+[![Trivy Security Scan](https://github.com/gin-gonic/gin/actions/workflows/trivy-scan.yml/badge.svg)](https://github.com/gin-gonic/gin/actions/workflows/trivy-scan.yml)
+[![codecov](https://codecov.io/gh/gin-gonic/gin/branch/master/graph/badge.svg)](https://codecov.io/gh/gin-gonic/gin)
+[![Go Report Card](https://goreportcard.com/badge/github.com/gin-gonic/gin)](https://goreportcard.com/report/github.com/gin-gonic/gin)
+[![Go Reference](https://pkg.go.dev/badge/github.com/gin-gonic/gin?status.svg)](https://pkg.go.dev/github.com/gin-gonic/gin?tab=doc)
+[![Sourcegraph](https://sourcegraph.com/github.com/gin-gonic/gin/-/badge.svg)](https://sourcegraph.com/github.com/gin-gonic/gin?badge)
+[![Open Source Helpers](https://www.codetriage.com/gin-gonic/gin/badges/users.svg)](https://www.codetriage.com/gin-gonic/gin)
+[![Release](https://img.shields.io/github/release/gin-gonic/gin.svg?style=flat-square)](https://github.com/gin-gonic/gin/releases)
+
+## 📰 Gin 1.12.0 is now available!
+
+We're excited to announce the release of **[Gin 1.12.0](https://gin-gonic.com/en/blog/news/gin-1-12-0-release-announcement/)**! This release brings new features, performance improvements, and important bug fixes. Check out the [release announcement](https://gin-gonic.com/en/blog/news/gin-1-12-0-release-announcement/) on our official blog for the full details.
+
+---
+
+Gin is a high-performance HTTP web framework written in [Go](https://go.dev/). It provides a Martini-like API but with significantly better performance—up to 40 times faster—thanks to [httprouter](https://github.com/julienschmidt/httprouter). Gin is designed for building REST APIs, web applications, and microservices where speed and developer productivity are essential.
+
+**Why choose Gin?**
+
+Gin combines the simplicity of Express.js-style routing with Go's performance characteristics, making it ideal for:
+
+- Building high-throughput REST APIs
+- Developing microservices that need to handle many concurrent requests
+- Creating web applications that require fast response times
+- Prototyping web services quickly with minimal boilerplate
+
+---END---
+
+## Dependencies
+FILE: go.mod
+module github.com/gin-gonic/gin
+
+go 1.25.0
+
+require (
+	github.com/bytedance/sonic v1.15.0
+	github.com/gin-contrib/sse v1.1.0
+	github.com/go-playground/validator/v10 v10.30.1
+	github.com/goccy/go-json v0.10.6
+	github.com/goccy/go-yaml v1.19.2
+	github.com/json-iterator/go v1.1.12
+	github.com/mattn/go-isatty v0.0.20
+	github.com/modern-go/reflect2 v1.0.2
+	github.com/pelletier/go-toml/v2 v2.2.4
+	github.com/quic-go/quic-go v0.59.0
+	github.com/stretchr/testify v1.11.1
+	github.com/ugorji/go/codec v1.3.1
+	go.mongodb.org/mongo-driver/v2 v2.5.0
+	golang.org/x/net v0.52.0
+	google.golang.org/protobuf v1.36.11
+)
+
+require gopkg.in/yaml.v3 v3.0.1 // indirect
+
+require (
+	github.com/bytedance/gopkg v0.1.3 // indirect
+	github.com/bytedance/sonic/loader v0.5.0 // indirect
+	github.com/cloudwego/base64x v0.1.6 // indirect
+	github.com/davecgh/go-spew v1.1.1 // indirect
+	github.com/gabriel-vasile/mimetype v1.4.13 // indirect
+	github.com/go-playground/locales v0.14.1 // indirect
+	github.com/go-playground/universal-translator v0.18.1 // indirect
+	github.com/klauspost/cpuid/v2 v2.3.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
+	github.com/leodido/go-urn v1.4.0 // indirect
+	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
+	github.com/pmezard/go-difflib v1.0.0 // indirect
+	github.com/quic-go/qpack v0.6.0 // indirect
+	github.com/twitchyliquid64/golang-asm v0.15.1 // indirect
+	go.uber.org/mock v0.6.0 // indirect
+---END---
+### Lock files
+go.sum: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+GO ?= go
+GOFMT ?= gofmt "-s"
+GO_VERSION=$(shell $(GO) version | cut -c 14- | cut -d' ' -f1 | cut -d'.' -f2)
+PACKAGES ?= $(shell $(GO) list ./...)
+VETPACKAGES ?= $(shell $(GO) list ./... | grep -v /examples/)
+GOFILES := $(shell find . -name "*.go")
+TESTFOLDER := $(shell $(GO) list ./... | grep -E 'gin$$|ginS$$|binding$$|render$$' | grep -v examples)
+TESTTAGS ?= ""
+
+.PHONY: test
+# Run tests to verify code functionality.
+test:
+	echo "mode: count" > coverage.out
+	for d in $(TESTFOLDER); do \
+		if [ -n "$(TESTTAGS)" ]; then \
+			$(GO) test $(TESTTAGS) -v -covermode=count -coverprofile=profile.out $$d > tmp.out; \
+		else \
+			$(GO) test -v -covermode=count -coverprofile=profile.out $$d > tmp.out; \
+		fi; \
+		cat tmp.out; \
+		if grep -q "^--- FAIL" tmp.out; then \
+			rm tmp.out; \
+			exit 1; \
+		elif grep -q "build failed" tmp.out; then \
+			rm tmp.out; \
+			exit 1; \
+		elif grep -q "setup failed" tmp.out; then \
+			rm tmp.out; \
+			exit 1; \
+		fi; \
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 42
+ci_workflow_count: 4
+codeql.yml
+gin.yml
+goreleaser.yml
+trivy-scan.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.golangci.yml: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 41 lines
+# Contributing
+
+We welcome both issue reports and pull requests! Please follow these guidelines to help maintainers respond effectively.
+
+## Issues
+
+- **Before opening a new issue:**
+  - Use the search tool to check for existing issues or feature requests.
+  - Review existing issues and provide feedback or react to them.
+  - Use English for all communications — it is the language all maintainers read and write.
+  - For questions, configuration or deployment problems, please use the [Discussions Forum](https://github.com/gin-gonic/gin/discussions).
+  - For bug reports involving sensitive security issues, email <appleboy.tw@gmail.com> instead of posting publicly.
+
+- **Reporting a bug:**
+  - Please provide a clear description of your issue, and a minimal reproducible code example if possible.
+  - Include the Gin version (or commit reference), Go version, and operating system.
+  - Indicate whether you can reproduce the bug and describe steps to do so.
+  - Attach relevant logs per [Logging Documentation](https://docs.gitea.com/administration/logging-config#collecting-logs-for-help).
+
+- **Feature requests:**
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 23817 total
+  3810 ./context_test.go
+  1489 ./context.go
+  1434 ./binding/binding_test.go
+  1158 ./gin_test.go
+  1146 ./binding/form_mapping_test.go
+  1113 ./tree_test.go
+   950 ./tree.go
+   832 ./gin.go
+   807 ./render/render_test.go
+   791 ./routes_test.go
+
+=== END SIGNALS ===

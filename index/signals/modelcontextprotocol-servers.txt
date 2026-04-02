@@ -1,0 +1,226 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/modelcontextprotocol-servers
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+FILE: src/everything/AGENTS.md (52 lines)
+# MCP "Everything" Server - Development Guidelines
+
+## Build, Test & Run Commands
+
+- Build: `npm run build` - Compiles TypeScript to JavaScript
+- Watch mode: `npm run watch` - Watches for changes and rebuilds automatically
+- Run STDIO server: `npm run start:stdio` - Starts the MCP server using stdio transport
+- Run SSE server: `npm run start:sse` - Starts the MCP server with SSE transport
+- Run StreamableHttp server: `npm run start:stremableHttp` - Starts the MCP server with StreamableHttp transport
+- Prepare release: `npm run prepare` - Builds the project for publishing
+
+## Code Style Guidelines
+
+- Use ES modules with `.js` extension in import paths
+- Strictly type all functions and variables with TypeScript
+- Follow zod schema patterns for tool input validation
+- Prefer async/await over callbacks and Promise chains
+- Place all imports at top of file, grouped by external then internal
+- Use descriptive variable names that clearly indicate purpose
+- Implement proper cleanup for timers and resources in server shutdown
+- Handle errors with try/catch blocks and provide clear error messages
+- Use consistent indentation (2 spaces) and trailing commas in multi-line objects
+- Match existing code style, import order, and module layout in the respective folder.
+- Use camelCase for variables/functions,
+- Use PascalCase for types/classes,
+- Use UPPER_CASE for constants
+- Use kebab-case for file names and registered tools, prompts, and resources.
+- Use verbs for tool names, e.g., `get-annotated-message` instead of `annotated-message`
+
+## Extending the Server
+
+The Everything Server is designed to be extended at well-defined points.
+See [Extension Points](docs/extension.md) and [Project Structure](docs/structure.md).
+The server factory is `src/everything/server/index.ts` and registers all features during startup as well as handling post-connection setup.
+
+### High-level
+
+- Tools live under `src/everything/tools/` and are registered via `registerTools(server)`.
+- Resources live under `src/everything/resources/` and are registered via `registerResources(server)`.
+- Prompts live under `src/everything/prompts/` and are registered via `registerPrompts(server)`.
+- Subscriptions and simulated update routines are under `src/everything/resources/subscriptions.ts`.
+- Logging helpers are under `src/everything/server/logging.ts`.
+- Transport managers are under `src/everything/transports/`.
+
+### When adding a new feature
+
+- Follow the existing file/module pattern in its folder (naming, exports, and registration function).
+- Export a `registerX(server)` function that registers new items with the MCP SDK in the same style as existing ones.
+- Wire your new module into the central index (e.g., update `tools/index.ts`, `resources/index.ts`, or `prompts/index.ts`).
+- Ensure schemas (for tools) are accurate JSON Schema and include helpful descriptions and examples.
+---END---
+
+## Repository Structure
+### Top-level layout
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+LICENSE
+package.json
+package-lock.json
+README.md
+scripts
+SECURITY.md
+src
+tsconfig.json
+
+### README
+FILE: README.md
+# Model Context Protocol servers
+
+This repository is a collection of *reference implementations* for the [Model Context Protocol](https://modelcontextprotocol.io/) (MCP), as well as references to community-built servers and additional resources.
+
+> [!IMPORTANT]
+> If you are looking for a list of MCP servers, you can browse published servers on [the MCP Registry](https://registry.modelcontextprotocol.io/). The repository served by this README is dedicated to housing just the small number of reference servers maintained by the MCP steering group.
+
+> [!WARNING]
+> The servers in this repository are intended as **reference implementations** to demonstrate MCP features and SDK usage. They are meant to serve as educational examples for developers building their own MCP servers, not as production-ready solutions. Developers should evaluate their own security requirements and implement appropriate safeguards based on their specific threat model and use case.
+
+The servers in this repository showcase the versatility and extensibility of MCP, demonstrating how it can be used to give Large Language Models (LLMs) secure, controlled access to tools and data sources.
+Typically, each MCP server is implemented with an MCP SDK:
+
+- [C# MCP SDK](https://github.com/modelcontextprotocol/csharp-sdk)
+- [Go MCP SDK](https://github.com/modelcontextprotocol/go-sdk)
+- [Java MCP SDK](https://github.com/modelcontextprotocol/java-sdk)
+- [Kotlin MCP SDK](https://github.com/modelcontextprotocol/kotlin-sdk)
+- [PHP MCP SDK](https://github.com/modelcontextprotocol/php-sdk)
+- [Python MCP SDK](https://github.com/modelcontextprotocol/python-sdk)
+- [Ruby MCP SDK](https://github.com/modelcontextprotocol/ruby-sdk)
+- [Rust MCP SDK](https://github.com/modelcontextprotocol/rust-sdk)
+- [Swift MCP SDK](https://github.com/modelcontextprotocol/swift-sdk)
+- [TypeScript MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk)
+
+## 🌟 Reference Servers
+
+These servers aim to demonstrate MCP features and the official SDKs.
+
+- **[Everything](src/everything)** - Reference / test server with prompts, resources, and tools.
+- **[Fetch](src/fetch)** - Web content fetching and conversion for efficient LLM usage.
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "@modelcontextprotocol/servers",
+  "private": true,
+  "version": "0.6.2",
+  "description": "Model Context Protocol servers",
+  "license": "SEE LICENSE IN LICENSE",
+  "author": "Model Context Protocol a Series of LF Projects, LLC.",
+  "homepage": "https://modelcontextprotocol.io",
+  "bugs": "https://github.com/modelcontextprotocol/servers/issues",
+  "type": "module",
+  "workspaces": [
+    "src/*"
+  ],
+  "files": [],
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "watch": "npm run watch --workspaces",
+    "publish-all": "npm publish --workspaces --access public",
+    "link-all": "npm link --workspaces"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/server-everything": "*",
+    "@modelcontextprotocol/server-memory": "*",
+    "@modelcontextprotocol/server-filesystem": "*",
+    "@modelcontextprotocol/server-sequential-thinking": "*"
+  }
+}
+---END---
+### Lock files
+package-lock.json: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 17
+ci_workflow_count: 5
+claude.yml
+python.yml
+readme-pr-check.yml
+release.yml
+typescript.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 39 lines
+# Contributing to MCP Servers
+
+Thanks for your interest in contributing! Here's how you can help make this repo better.
+
+We accept changes through [the standard GitHub flow model](https://docs.github.com/en/get-started/using-github/github-flow).
+
+## Server Listings
+
+We are **no longer accepting PRs** to add server links to the README. Please publish your server to the [MCP Server Registry](https://github.com/modelcontextprotocol/registry) instead. Follow the [quickstart guide](https://github.com/modelcontextprotocol/registry/blob/main/docs/modelcontextprotocol-io/quickstart.mdx).
+
+You can browse published servers using the simple UI at [https://registry.modelcontextprotocol.io/](https://registry.modelcontextprotocol.io/).
+
+## Server Implementations
+
+We welcome:
+- **Bug fixes** — Help us squash those pesky bugs.
+- **Usability improvements** — Making servers easier to use for humans and agents.
+- **Enhancements that demonstrate MCP protocol features** — We encourage contributions that help reference servers better illustrate underutilized aspects of the MCP protocol beyond just Tools, such as Resources, Prompts, or Roots. For example, adding Roots support to filesystem-server helps showcase this important but lesser-known feature.
+
+We're more selective about:
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "watch": "npm run watch --workspaces",
+### tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules"]
+}
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 1
+### Largest source files
+ 12727 total
+  1000 ./src/filesystem/__tests__/path-validation.test.ts
+   820 ./src/everything/__tests__/tools.test.ts
+   767 ./src/filesystem/index.ts
+   725 ./src/filesystem/__tests__/lib.test.ts
+   528 ./src/time/test/time_server_test.py
+   518 ./src/memory/__tests__/knowledge-graph.test.ts
+   487 ./src/memory/index.ts
+   415 ./src/filesystem/lib.ts
+   382 ./src/filesystem/__tests__/path-utils.test.ts
+   345 ./src/everything/tools/simulate-research-query.ts
+
+=== END SIGNALS ===

@@ -1,0 +1,265 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/google-gemini-gemini-cli
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+CONTRIBUTING.md
+Dockerfile
+docs
+esbuild.config.js
+eslint.config.js
+evals
+GEMINI.md
+integration-tests
+LICENSE
+Makefile
+package.json
+package-lock.json
+packages
+README.md
+ROADMAP.md
+schemas
+scripts
+sea
+SECURITY.md
+third_party
+tsconfig.json
+
+### README
+FILE: README.md
+# Gemini CLI
+
+[![Gemini CLI CI](https://github.com/google-gemini/gemini-cli/actions/workflows/ci.yml/badge.svg)](https://github.com/google-gemini/gemini-cli/actions/workflows/ci.yml)
+[![Gemini CLI E2E (Chained)](https://github.com/google-gemini/gemini-cli/actions/workflows/chained_e2e.yml/badge.svg)](https://github.com/google-gemini/gemini-cli/actions/workflows/chained_e2e.yml)
+[![Version](https://img.shields.io/npm/v/@google/gemini-cli)](https://www.npmjs.com/package/@google/gemini-cli)
+[![License](https://img.shields.io/github/license/google-gemini/gemini-cli)](https://github.com/google-gemini/gemini-cli/blob/main/LICENSE)
+[![View Code Wiki](https://assets.codewiki.google/readme-badge/static.svg)](https://codewiki.google/github.com/google-gemini/gemini-cli?utm_source=badge&utm_medium=github&utm_campaign=github.com/google-gemini/gemini-cli)
+
+![Gemini CLI Screenshot](/docs/assets/gemini-screenshot.png)
+
+Gemini CLI is an open-source AI agent that brings the power of Gemini directly
+into your terminal. It provides lightweight access to Gemini, giving you the
+most direct path from your prompt to our model.
+
+Learn all about Gemini CLI in our [documentation](https://geminicli.com/docs/).
+
+## 🚀 Why Gemini CLI?
+
+- **🎯 Free tier**: 60 requests/min and 1,000 requests/day with personal Google
+  account.
+- **🧠 Powerful Gemini 3 models**: Access to improved reasoning and 1M token
+  context window.
+- **🔧 Built-in tools**: Google Search grounding, file operations, shell
+  commands, web fetching.
+- **🔌 Extensible**: MCP (Model Context Protocol) support for custom
+  integrations.
+- **💻 Terminal-first**: Designed for developers who live in the command line.
+- **🛡️ Open source**: Apache 2.0 licensed.
+
+## 📦 Installation
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "@google/gemini-cli",
+  "version": "0.36.0-nightly.20260317.2f90b4653",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "private": "true",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/google-gemini/gemini-cli.git"
+  },
+  "config": {
+    "sandboxImageUri": "us-docker.pkg.dev/gemini-code-dev/gemini-cli/sandbox:0.36.0-nightly.20260317.2f90b4653"
+  },
+  "scripts": {
+    "start": "cross-env NODE_ENV=development node scripts/start.js",
+    "start:a2a-server": "CODER_AGENT_PORT=41242 npm run start --workspace @google/gemini-cli-a2a-server",
+    "debug": "cross-env DEBUG=1 node --inspect-brk scripts/start.js",
+    "deflake": "node scripts/deflake.js",
+    "deflake:test:integration:sandbox:none": "npm run deflake -- --command=\"npm run test:integration:sandbox:none -- --retry=0\"",
+    "deflake:test:integration:sandbox:docker": "npm run deflake -- --command=\"npm run test:integration:sandbox:docker -- --retry=0\"",
+    "auth:npm": "npx google-artifactregistry-auth",
+    "auth:docker": "gcloud auth configure-docker us-west1-docker.pkg.dev",
+    "auth": "npm run auth:npm && npm run auth:docker",
+    "generate": "node scripts/generate-git-commit-info.js",
+    "predocs:settings": "npm run build --workspace @google/gemini-cli-core",
+    "schema:settings": "tsx ./scripts/generate-settings-schema.ts",
+    "docs:settings": "tsx ./scripts/generate-settings-doc.ts",
+    "docs:keybindings": "tsx ./scripts/generate-keybindings-doc.ts",
+    "build": "node scripts/build.js",
+    "build-and-start": "npm run build && npm run start --",
+    "build:vscode": "node scripts/build_vscode_companion.js",
+    "build:all": "npm run build && npm run build:sandbox && npm run build:vscode",
+    "build:packages": "npm run build --workspaces",
+    "build:sandbox": "node scripts/build_sandbox.js",
+    "build:binary": "node scripts/build_binary.js",
+---END---
+### Lock files
+package-lock.json: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+# Makefile for gemini-cli
+
+.PHONY: help install build build-sandbox build-all test lint format preflight clean start debug release run-npx create-alias
+
+help:
+	@echo "Makefile for gemini-cli"
+	@echo ""
+	@echo "Usage:"
+	@echo "  make install          - Install npm dependencies"
+	@echo "  make build            - Build the main project"
+	@echo "  make build-all        - Build the main project and sandbox"
+	@echo "  make test             - Run the test suite"
+	@echo "  make lint             - Lint the code"
+	@echo "  make format           - Format the code"
+	@echo "  make preflight        - Run formatting, linting, and tests"
+	@echo "  make clean            - Remove generated files"
+	@echo "  make start            - Start the Gemini CLI"
+	@echo "  make debug            - Start the Gemini CLI in debug mode"
+	@echo ""
+	@echo "  make run-npx          - Run the CLI using npx (for testing the published package)"
+	@echo "  make create-alias     - Create a 'gemini' alias for your shell"
+
+install:
+	npm install
+
+build:
+	npm run build
+
+
+build-all:
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+.nvmrc: 20
+
+## Tests
+test_file_count: 959
+ci_workflow_count: 41
+chained_e2e.yml
+ci.yml
+community-report.yml
+deflake.yml
+docs-page-action.yml
+docs-rebuild.yml
+eval-pr.yml
+evals-nightly.yml
+eval.yml
+gemini-automated-issue-dedup.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+FILE: .husky/pre-commit
+npm run pre-commit || {
+  echo ''
+  echo '===================================================='
+  echo 'pre-commit checks failed. in case of emergency, run:'
+  echo ''
+  echo 'git commit --no-verify'
+  echo '===================================================='
+  exit 1
+}
+---END---
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.js: EXISTS
+.prettierrc.json: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 569 lines
+# How to contribute
+
+We would love to accept your patches and contributions to this project. This
+document includes:
+
+- **[Before you begin](#before-you-begin):** Essential steps to take before
+  becoming a Gemini CLI contributor.
+- **[Code contribution process](#code-contribution-process):** How to contribute
+  code to Gemini CLI.
+- **[Development setup and workflow](#development-setup-and-workflow):** How to
+  set up your development environment and workflow.
+- **[Documentation contribution process](#documentation-contribution-process):**
+  How to contribute documentation to Gemini CLI.
+
+We're looking forward to seeing your contributions!
+
+## Before you begin
+
+### Sign our Contributor License Agreement
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: CLI tool (has bin in package.json)
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### tsconfig.json
+{
+  "compilerOptions": {
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "noImplicitAny": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noImplicitThis": true,
+    "forceConsistentCasingInFileNames": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUnusedLocals": true,
+    "strictBindCallApply": true,
+    "strictFunctionTypes": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": true,
+    "resolveJsonModule": true,
+    "sourceMap": true,
+    "composite": true,
+    "incremental": true,
+    "declaration": true,
+    "allowSyntheticDefaultImports": true,
+    "verbatimModuleSyntax": true,
+    "lib": ["ES2023"],
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+    "target": "es2022",
+    "types": ["node", "vitest/globals"],
+    "jsx": "react-jsx"
+  }
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 228
+### Largest source files
+ 310823 total
+   3868 ./packages/core/src/agents/local-executor.test.ts
+   3779 ./packages/core/src/policy/policy-engine.test.ts
+   3739 ./packages/core/src/config/config.ts
+   3684 ./packages/core/src/core/client.test.ts
+   3473 ./packages/core/src/config/config.test.ts
+   2786 ./packages/core/src/tools/mcp-client.test.ts
+   2619 ./packages/core/src/core/geminiChat.test.ts
+   2617 ./packages/core/src/telemetry/loggers.test.ts
+   2445 ./packages/core/src/telemetry/types.ts
+   2371 ./packages/core/src/tools/mcp-client.ts
+
+=== END SIGNALS ===

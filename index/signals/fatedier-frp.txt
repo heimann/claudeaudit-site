@@ -1,0 +1,272 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/fatedier-frp
+
+## Agent Documentation
+FILE: CLAUDE.md (39 lines)
+# AGENTS.md
+
+## Development Commands
+
+### Build
+- `make build` - Build both frps and frpc binaries
+- `make frps` - Build server binary only
+- `make frpc` - Build client binary only
+- `make all` - Build everything with formatting
+
+### Testing
+- `make test` - Run unit tests
+- `make e2e` - Run end-to-end tests
+- `make e2e-trace` - Run e2e tests with trace logging
+- `make alltest` - Run all tests including vet, unit tests, and e2e
+
+### Code Quality
+- `make fmt` - Run go fmt
+- `make fmt-more` - Run gofumpt for more strict formatting
+- `make gci` - Run gci import organizer
+- `make vet` - Run go vet
+- `golangci-lint run` - Run comprehensive linting (configured in .golangci.yml)
+
+### Assets
+- `make web` - Build web dashboards (frps and frpc)
+
+### Cleanup
+- `make clean` - Remove built binaries and temporary files
+
+## Testing
+
+- E2E tests using Ginkgo/Gomega framework
+- Mock servers in `/test/e2e/mock/`
+- Run: `make e2e` or `make alltest`
+
+## Agent Runbooks
+
+Operational procedures for agents are in `doc/agents/`:
+- `doc/agents/release.md` - Release process
+---END---
+FILE: AGENTS.md (39 lines)
+# AGENTS.md
+
+## Development Commands
+
+### Build
+- `make build` - Build both frps and frpc binaries
+- `make frps` - Build server binary only
+- `make frpc` - Build client binary only
+- `make all` - Build everything with formatting
+
+### Testing
+- `make test` - Run unit tests
+- `make e2e` - Run end-to-end tests
+- `make e2e-trace` - Run e2e tests with trace logging
+- `make alltest` - Run all tests including vet, unit tests, and e2e
+
+### Code Quality
+- `make fmt` - Run go fmt
+- `make fmt-more` - Run gofumpt for more strict formatting
+- `make gci` - Run gci import organizer
+- `make vet` - Run go vet
+- `golangci-lint run` - Run comprehensive linting (configured in .golangci.yml)
+
+### Assets
+- `make web` - Build web dashboards (frps and frpc)
+
+### Cleanup
+- `make clean` - Remove built binaries and temporary files
+
+## Testing
+
+- E2E tests using Ginkgo/Gomega framework
+- Mock servers in `/test/e2e/mock/`
+- Run: `make e2e` or `make alltest`
+
+## Agent Runbooks
+
+Operational procedures for agents are in `doc/agents/`:
+- `doc/agents/release.md` - Release process
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+assets
+CLAUDE.md
+client
+cmd
+conf
+doc
+dockerfiles
+go.mod
+go.sum
+hack
+LICENSE
+Makefile
+Makefile.cross-compiles
+package.sh
+pkg
+README.md
+README_zh.md
+Release.md
+server
+test
+web
+
+### README
+FILE: README.md
+# frp
+
+[![Build Status](https://circleci.com/gh/fatedier/frp.svg?style=shield)](https://circleci.com/gh/fatedier/frp)
+[![GitHub release](https://img.shields.io/github/tag/fatedier/frp.svg?label=release)](https://github.com/fatedier/frp/releases)
+[![Go Report Card](https://goreportcard.com/badge/github.com/fatedier/frp)](https://goreportcard.com/report/github.com/fatedier/frp)
+[![GitHub Releases Stats](https://img.shields.io/github/downloads/fatedier/frp/total.svg?logo=github)](https://somsubhra.github.io/github-release-stats/?username=fatedier&repository=frp)
+
+[README](README.md) | [中文文档](README_zh.md)
+
+## Sponsors
+
+frp is an open source project with its ongoing development made possible entirely by the support of our awesome sponsors. If you'd like to join them, please consider [sponsoring frp's development](https://github.com/sponsors/fatedier).
+
+<h3 align="center">Gold Sponsors</h3>
+<!--gold sponsors start-->
+<p align="center">
+  <a href="https://github.com/beclab/Olares" target="_blank">
+    <img width="420px" src="https://raw.githubusercontent.com/fatedier/frp/dev/doc/pic/sponsor_olares.jpeg">
+	<br>
+	<b>The sovereign cloud that puts you in control</b>
+	<br>
+	<sub>An open source, self-hosted alternative to public clouds, built for data ownership and privacy</sub>
+  </a>
+</p>
+
+<div align="center">
+
+## Recall.ai - API for meeting recordings
+
+If you're looking for a meeting recording API, consider checking out [Recall.ai](https://www.recall.ai/?utm_source=github&utm_medium=sponsorship&utm_campaign=fatedier-frp),
+---END---
+
+## Dependencies
+FILE: go.mod
+module github.com/fatedier/frp
+
+go 1.25.0
+
+require (
+	github.com/armon/go-socks5 v0.0.0-20160902184237-e75332964ef5
+	github.com/coreos/go-oidc/v3 v3.14.1
+	github.com/fatedier/golib v0.6.0
+	github.com/google/uuid v1.6.0
+	github.com/gorilla/mux v1.8.1
+	github.com/gorilla/websocket v1.5.0
+	github.com/hashicorp/yamux v0.1.1
+	github.com/onsi/ginkgo/v2 v2.23.4
+	github.com/onsi/gomega v1.36.3
+	github.com/pelletier/go-toml/v2 v2.2.0
+	github.com/pion/stun/v3 v3.1.1
+	github.com/pires/go-proxyproto v0.7.0
+	github.com/prometheus/client_golang v1.19.1
+	github.com/quic-go/quic-go v0.55.0
+	github.com/rodaine/table v1.2.0
+	github.com/samber/lo v1.47.0
+	github.com/songgao/water v0.0.0-20200317203138-2b4b6d7c09d8
+	github.com/spf13/cobra v1.8.0
+	github.com/spf13/pflag v1.0.5
+	github.com/stretchr/testify v1.11.1
+	github.com/tidwall/gjson v1.17.1
+	github.com/vishvananda/netlink v1.3.0
+	github.com/xtaci/kcp-go/v5 v5.6.13
+	golang.org/x/crypto v0.49.0
+	golang.org/x/net v0.52.0
+	golang.org/x/oauth2 v0.28.0
+	golang.org/x/sync v0.20.0
+	golang.org/x/time v0.10.0
+	golang.zx2c4.com/wireguard v0.0.0-20231211153847-12269c276173
+	gopkg.in/ini.v1 v1.67.0
+	k8s.io/apimachinery v0.28.8
+	k8s.io/client-go v0.28.8
+)
+
+require (
+---END---
+### Lock files
+go.sum: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+export PATH := $(PATH):`go env GOPATH`/bin
+export GO111MODULE=on
+LDFLAGS := -s -w
+NOWEB_TAG = $(shell [ ! -d web/frps/dist ] || [ ! -d web/frpc/dist ] && echo ',noweb')
+
+.PHONY: web frps-web frpc-web frps frpc
+
+all: env fmt web build
+
+build: frps frpc
+
+env:
+	@go version
+
+web: frps-web frpc-web
+
+frps-web:
+	$(MAKE) -C web/frps build
+
+frpc-web:
+	$(MAKE) -C web/frpc build
+
+fmt:
+	go fmt ./...
+
+fmt-more:
+	gofumpt -l -w .
+
+gci:
+	gci write -s standard -s default -s "prefix(github.com/fatedier/frp/)" ./
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 30
+ci_workflow_count: 4
+build-and-push-image.yml
+golangci-lint.yml
+goreleaser.yml
+stale.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.golangci.yml: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  45740 total
+    699 ./server/service.go
+    662 ./client/http/controller_test.go
+    605 ./pkg/config/load_test.go
+    583 ./client/service.go
+    542 ./server/control.go
+    534 ./pkg/config/v1/proxy.go
+    531 ./test/e2e/v1/basic/basic.go
+    523 ./test/e2e/legacy/basic/basic.go
+    509 ./pkg/config/load.go
+    466 ./test/e2e/v1/basic/http.go
+
+=== END SIGNALS ===

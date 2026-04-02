@@ -1,0 +1,187 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/flutter-flutter
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+analysis_options.yaml
+AUTHORS
+bin
+buildtools
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+CODEOWNERS
+CONTRIBUTING.md
+dartdoc_options.yaml
+DEPS
+dev
+docs
+engine
+examples
+flutter_console.bat
+LICENSE
+packages
+PATENT_GRANT
+pubspec.lock
+pubspec.yaml
+README.md
+TESTOWNERS
+third_party
+
+### README
+FILE: README.md
+<a href="https://flutter.dev/">
+  <h1 align="center">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://storage.googleapis.com/cms-storage-bucket/6e19fee6b47b36ca613f.png">
+      <img alt="Flutter" src="https://storage.googleapis.com/cms-storage-bucket/c823e53b3a1a7b0d36a9.png">
+    </picture>
+  </h1>
+</a>
+
+[![Flutter CI Status](https://flutter-dashboard.appspot.com/api/public/build-status-badge?repo=flutter)](https://flutter-dashboard.appspot.com/#/build?repo=flutter)
+[![Discord badge][]][Discord instructions]
+[![Twitter handle][]][Twitter badge]
+[![BlueSky badge][]][BlueSky handle]
+[![codecov](https://codecov.io/gh/flutter/flutter/branch/master/graph/badge.svg?token=11yDrJU2M2)](https://codecov.io/gh/flutter/flutter)
+[![LFX Health Score](https://insights.linuxfoundation.org/api/badge/health-score?project=flutter)](https://insights.linuxfoundation.org/project/flutter)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/5631/badge)](https://bestpractices.coreinfrastructure.org/projects/5631)
+[![SLSA 1](https://slsa.dev/images/gh-badge-level1.svg)](https://slsa.dev)
+
+Flutter is Google's SDK for crafting beautiful, fast user experiences for
+mobile, web, and desktop from a single codebase. Flutter works with existing
+code, is used by developers and organizations around the world, and is free and
+open source.
+
+## Documentation
+
+* [Install Flutter](https://docs.flutter.dev/get-started)
+* [Flutter documentation](https://docs.flutter.dev)
+* [Development wiki](./docs/README.md)
+* [Contributing to Flutter](https://github.com/flutter/flutter/blob/main/CONTRIBUTING.md)
+
+---END---
+
+## Dependencies
+FILE: pubspec.yaml
+name: _flutter_packages
+
+environment:
+  sdk: ^3.10.0-0
+
+workspace:
+  - dev/a11y_assessments
+  - dev/automated_tests
+  - dev/benchmarks/complex_layout
+  - dev/benchmarks/imitation_game_flutter
+  - dev/benchmarks/macrobenchmarks
+  - dev/benchmarks/microbenchmarks
+  - dev/benchmarks/multiple_flutters/module
+  - dev/benchmarks/platform_channels_benchmarks
+  - dev/benchmarks/platform_views_layout
+  - dev/benchmarks/platform_views_layout_hybrid_composition
+  - dev/benchmarks/test_apps/stocks
+  - dev/bots
+  - dev/customer_testing
+  - dev/devicelab
+  - dev/forbidden_from_release_tests
+  - dev/integration_tests/android_engine_test
+  - dev/integration_tests/android_semantics_testing
+  - dev/integration_tests/android_verified_input
+  - dev/integration_tests/android_views
+  - dev/integration_tests/channels
+  - dev/integration_tests/deferred_components_test
+  - dev/integration_tests/display_cutout_rotation
+  - dev/integration_tests/external_textures
+  - dev/integration_tests/flavors
+  - dev/integration_tests/flutter_gallery
+  # - dev/integration_tests/hook_user_defines  # Intentionally not part of the workspace to test user-defines in its pubspec.
+  - dev/integration_tests/hybrid_android_views
+  - dev/integration_tests/ios_add2app_life_cycle/flutterapp
+  - dev/integration_tests/ios_app_with_extensions
+  - dev/integration_tests/ios_platform_view_tests
+  - dev/integration_tests/keyboard_hot_restart
+  - dev/integration_tests/link_hook
+  - dev/integration_tests/new_gallery
+  - dev/integration_tests/platform_interaction
+---END---
+### Lock files
+pubspec.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 2914
+ci_workflow_count: 14
+cicd.yml
+content-aware-hash.yml
+coverage.yml
+cut-release-branch.yml
+easy-cp.yml
+labeler.yml
+lock.yaml
+merge-changelog.yml
+mirror.yml
+no-response.yaml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 239 lines
+<!-- when editing this file also update https://github.com/flutter/.github/blob/main/CONTRIBUTING.md -->
+
+Contributing to Flutter
+=======================
+
+_tl;dr: join [Discord](./docs/contributing/Chat.md), be [courteous](CODE_OF_CONDUCT.md), follow the steps below to set up a development environment; if you stick around and contribute, you can [join the team](./docs/contributing/Contributor-access.md) and get commit access._
+
+Welcome
+-------
+
+We invite you to join the Flutter team, which is made up of volunteers and sponsored folk alike!
+There are many ways to contribute, including writing code, filing issues on GitHub, helping people
+on our mailing lists, our chat channels, or on Stack Overflow, helping to triage, reproduce, or
+fix bugs that people have filed, adding to our documentation,
+doing outreach about Flutter, or helping out in any other way.
+
+We grant commit access (which includes full rights to the issue
+database, such as being able to edit labels) to people who have gained
+our trust and demonstrated a commitment to Flutter. For more details
+see the [Contributor access](./docs/contributing/Contributor-access.md)
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 16
+### Largest source files
+  505998 total
+   47918 ./packages/flutter_tools/lib/src/localizations/language_subtag_registry.dart
+   46986 ./packages/flutter_localizations/lib/src/l10n/generated_material_localizations.dart
+   17845 ./packages/flutter_localizations/lib/src/l10n/generated_cupertino_localizations.dart
+   15403 ./packages/flutter_localizations/lib/src/l10n/generated_date_localizations.dart
+    7175 ./packages/flutter/lib/src/semantics/semantics.dart
+    5889 ./packages/flutter_localizations/lib/src/l10n/generated_widgets_localizations.dart
+    5239 ./packages/flutter_tools/test/commands.shard/permeable/create_test.dart
+    4461 ./packages/flutter_tools/test/general.shard/migrations/swift_package_manager_integration_migration_test.dart
+    4139 ./packages/flutter_tools/test/general.shard/ios/core_devices_test.dart
+    4002 ./packages/flutter_tools/test/integration.shard/test_data/deferred_components_project.dart
+
+=== END SIGNALS ===

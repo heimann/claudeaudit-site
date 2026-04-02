@@ -1,0 +1,494 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/infiniflow-ragflow
+
+## Agent Documentation
+FILE: CLAUDE.md (116 lines)
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+RAGFlow is an open-source RAG (Retrieval-Augmented Generation) engine based on deep document understanding. It's a full-stack application with:
+- Python backend (Flask-based API server)
+- React/TypeScript frontend (built with UmiJS)
+- Microservices architecture with Docker deployment
+- Multiple data stores (MySQL, Elasticsearch/Infinity, Redis, MinIO)
+
+## Architecture
+
+### Backend (`/api/`)
+- **Main Server**: `api/ragflow_server.py` - Flask application entry point
+- **Apps**: Modular Flask blueprints in `api/apps/` for different functionalities:
+  - `kb_app.py` - Knowledge base management
+  - `dialog_app.py` - Chat/conversation handling
+  - `document_app.py` - Document processing
+  - `canvas_app.py` - Agent workflow canvas
+  - `file_app.py` - File upload/management
+- **Services**: Business logic in `api/db/services/`
+- **Models**: Database models in `api/db/db_models.py`
+
+### Core Processing (`/rag/`)
+- **Document Processing**: `deepdoc/` - PDF parsing, OCR, layout analysis
+- **LLM Integration**: `rag/llm/` - Model abstractions for chat, embedding, reranking
+- **RAG Pipeline**: `rag/flow/` - Chunking, parsing, tokenization
+- **Graph RAG**: `rag/graphrag/` - Knowledge graph construction and querying
+
+### Agent System (`/agent/`)
+- **Components**: Modular workflow components (LLM, retrieval, categorize, etc.)
+- **Templates**: Pre-built agent workflows in `agent/templates/`
+- **Tools**: External API integrations (Tavily, Wikipedia, SQL execution, etc.)
+
+### Frontend (`/web/`)
+- React/TypeScript with UmiJS framework
+- Ant Design + shadcn/ui components
+- State management with Zustand
+- Tailwind CSS for styling
+
+## Common Development Commands
+
+### Backend Development
+```bash
+# Install Python dependencies
+uv sync --python 3.12 --all-extras
+uv run download_deps.py
+pre-commit install
+
+# Start dependent services
+docker compose -f docker/docker-compose-base.yml up -d
+
+# Run backend (requires services to be running)
+source .venv/bin/activate
+export PYTHONPATH=$(pwd)
+bash docker/launch_backend_service.sh
+
+# Run tests
+uv run pytest
+
+# Linting
+ruff check
+ruff format
+```
+
+### Frontend Development
+```bash
+cd web
+npm install
+npm run dev        # Development server
+npm run build      # Production build
+npm run lint       # ESLint
+npm run test       # Jest tests
+```
+
+### Docker Development
+```bash
+# Full stack with Docker
+cd docker
+docker compose -f docker-compose.yml up -d
+
+# Check server status
+docker logs -f ragflow-server
+
+# Rebuild images
+docker build --platform linux/amd64 -f Dockerfile -t infiniflow/ragflow:nightly .
+```
+
+## Key Configuration Files
+
+- `docker/.env` - Environment variables for Docker deployment
+- `docker/service_conf.yaml.template` - Backend service configuration
+- `pyproject.toml` - Python dependencies and project configuration
+- `web/package.json` - Frontend dependencies and scripts
+
+## Testing
+
+- **Python**: pytest with markers (p1/p2/p3 priority levels)
+---END---
+FILE: AGENTS.md (110 lines)
+# RAGFlow Project Instructions for GitHub Copilot
+
+This file provides context, build instructions, and coding standards for the RAGFlow project.
+It is structured to follow GitHub Copilot's [customization guidelines](https://docs.github.com/en/copilot/concepts/prompting/response-customization).
+
+## 1. Project Overview
+RAGFlow is an open-source RAG (Retrieval-Augmented Generation) engine based on deep document understanding. It is a full-stack application with a Python backend and a React/TypeScript frontend.
+
+- **Backend**: Python 3.10+ (Flask/Quart)
+- **Frontend**: TypeScript, React, UmiJS
+- **Architecture**: Microservices based on Docker.
+  - `api/`: Backend API server.
+  - `rag/`: Core RAG logic (indexing, retrieval).
+  - `deepdoc/`: Document parsing and OCR.
+  - `web/`: Frontend application.
+
+## 2. Directory Structure
+- `api/`: Backend API server (Flask/Quart).
+  - `apps/`: API Blueprints (Knowledge Base, Chat, etc.).
+  - `db/`: Database models and services.
+- `rag/`: Core RAG logic.
+  - `llm/`: LLM, Embedding, and Rerank model abstractions.
+- `deepdoc/`: Document parsing and OCR modules.
+- `agent/`: Agentic reasoning components.
+- `web/`: Frontend application (React + UmiJS).
+- `docker/`: Docker deployment configurations.
+- `sdk/`: Python SDK.
+- `test/`: Backend tests.
+
+## 3. Build Instructions
+
+### Backend (Python)
+The project uses **uv** for dependency management.
+
+1. **Setup Environment**:
+   ```bash
+   uv sync --python 3.12 --all-extras
+   uv run download_deps.py
+   ```
+
+2. **Run Server**:
+   - **Pre-requisite**: Start dependent services (MySQL, ES/Infinity, Redis, MinIO).
+     ```bash
+     docker compose -f docker/docker-compose-base.yml up -d
+     ```
+   - **Launch**:
+     ```bash
+     source .venv/bin/activate
+     export PYTHONPATH=$(pwd)
+     bash docker/launch_backend_service.sh
+     ```
+
+### Frontend (TypeScript/React)
+Located in `web/`.
+
+1. **Install Dependencies**:
+   ```bash
+   cd web
+   npm install
+   ```
+
+2. **Run Dev Server**:
+   ```bash
+   npm run dev
+   ```
+   Runs on port 8000 by default.
+
+### Docker Deployment
+To run the full stack using Docker:
+```bash
+cd docker
+docker compose -f docker-compose.yml up -d
+```
+
+## 4. Testing Instructions
+
+### Backend Tests
+- **Run All Tests**:
+  ```bash
+  uv run pytest
+  ```
+- **Run Specific Test**:
+  ```bash
+  uv run pytest test/test_api.py
+  ```
+
+### Frontend Tests
+- **Run Tests**:
+  ```bash
+  cd web
+  npm run test
+  ```
+
+## 5. Coding Standards & Guidelines
+- **Python Formatting**: Use `ruff` for linting and formatting.
+  ```bash
+  ruff check
+  ruff format
+  ```
+- **Frontend Linting**:
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (22 lines)
+# Project instructions for Copilot
+
+## How to run (minimum)
+- Install:
+  - python -m venv .venv && source .venv/bin/activate
+  - pip install -r requirements.txt
+- Run:
+  - (fill) e.g. uvicorn app.main:app --reload
+- Verify:
+  - (fill) curl http://127.0.0.1:8000/health
+
+## Project layout (what matters)
+- app/: API entrypoints + routers
+- services/: business logic
+- configs/: config loading (.env)
+- docs/: documents
+- tests/: pytest
+
+## Conventions
+- Prefer small, incremental changes.
+- Add logging for new flows.
+- Add/adjust tests for behavior changes.
+---END---
+
+### Subdirectory agent docs
+
+### .agents/ contents
+FILE: .agents/rules/named.md (192 lines)
+# Go Naming Best Practices
+
+## 1. Package Naming
+
+- **All lowercase, no underscores**: `package user`, not `package userService` or `package user_service`
+- **Short and meaningful**: `package http`, `package json`, `package dao`
+- **Avoid plurals**: `package user` not `package users`
+- **Avoid generic names**: Avoid `package util`, `package common`, `package base`
+
+```go
+// Recommended
+package user
+package handler
+package service
+
+// Not recommended
+package UserService
+package user_service
+package utils
+```
+
+## 2. File Naming
+
+- **All lowercase, underscore separated**: `user_handler.go`, `user_service.go`
+- **Test files**: `user_handler_test.go`
+- **Platform-specific**: `user_linux.go`, `user_windows.go`
+
+```
+user/
+├── user_handler.go
+├── user_service.go
+├── user_dao.go
+└── user_test.go
+```
+
+## 3. Directory Naming
+
+- **All lowercase, no underscores or hyphens**: `internal/`, `pkg/`, `cmd/`
+- **Short and descriptive**: `handler/`, `service/`, `dao/`
+
+```
+project/
+├── cmd/                    # Main entry point
+│   └── server_main.go
+├── internal/               # Private code
+│   ├── handler/
+│   ├── service/
+│   ├── dao/
+│   ├── model/
+│   └── middleware/
+---END---
+FILE: .agents/skills/go-naming/SKILL.md (6 lines)
+---
+name: go-naming
+description: Go naming conventions and best practices. Use this skill when working with Go code and need to name packages, files, directories, structs, interfaces, functions, variables, or constants. Provides comprehensive naming guidelines following Go community standards.
+---
+
+Strictly follow the naming conventions in [rules/named.md](rules/named.md)
+---END---
+
+## Repository Structure
+### Top-level layout
+admin
+agent
+AGENTS.md
+api
+bin
+build.sh
+check_comment_ascii.py
+CLAUDE.md
+cmd
+codecov.yml
+common
+conf
+deepdoc
+docker
+Dockerfile
+Dockerfile.deps
+Dockerfile.scratch.oc9
+Dockerfile_tei
+docs
+download_deps.py
+example
+go.mod
+go.sum
+helm
+internal
+LICENSE
+mcp
+memory
+pyproject.toml
+rag
+README_ar.md
+README_fr.md
+README_id.md
+README_ja.md
+README_ko.md
+README.md
+README_pt_br.md
+README_tr.md
+README_tzh.md
+README_zh.md
+run_go_tests.sh
+run_tests.py
+sdk
+SECURITY.md
+show_env.sh
+test
+tools
+uv.lock
+web
+
+### README
+FILE: README.md
+<div align="center">
+<a href="https://cloud.ragflow.io/">
+<img src="web/src/assets/logo-with-text.svg" width="520" alt="ragflow logo">
+</a>
+</div>
+
+<p align="center">
+  <a href="./README.md"><img alt="README in English" src="https://img.shields.io/badge/English-DBEDFA"></a>
+  <a href="./README_zh.md"><img alt="简体中文版自述文件" src="https://img.shields.io/badge/简体中文-DFE0E5"></a>
+  <a href="./README_tzh.md"><img alt="繁體版中文自述文件" src="https://img.shields.io/badge/繁體中文-DFE0E5"></a>
+  <a href="./README_ja.md"><img alt="日本語のREADME" src="https://img.shields.io/badge/日本語-DFE0E5"></a>
+  <a href="./README_ko.md"><img alt="한국어" src="https://img.shields.io/badge/한국어-DFE0E5"></a>
+  <a href="./README_id.md"><img alt="Bahasa Indonesia" src="https://img.shields.io/badge/Bahasa Indonesia-DFE0E5"></a>
+  <a href="./README_pt_br.md"><img alt="Português(Brasil)" src="https://img.shields.io/badge/Português(Brasil)-DFE0E5"></a>
+  <a href="./README_fr.md"><img alt="README en Français" src="https://img.shields.io/badge/Français-DFE0E5"></a>
+  <a href="./README_ar.md"><img alt="README in Arabic" src="https://img.shields.io/badge/Arabic-DFE0E5"></a>
+  <a href="./README_tr.md"><img alt="Türkçe README" src="https://img.shields.io/badge/Türkçe-DFE0E5"></a>
+</p>
+
+<p align="center">
+    <a href="https://x.com/intent/follow?screen_name=infiniflowai" target="_blank">
+        <img src="https://img.shields.io/twitter/follow/infiniflow?logo=X&color=%20%23f5f5f5" alt="follow on X(Twitter)">
+    </a>
+    <a href="https://cloud.ragflow.io" target="_blank">
+        <img alt="Static Badge" src="https://img.shields.io/badge/Online-Demo-4e6b99">
+    </a>
+    <a href="https://hub.docker.com/r/infiniflow/ragflow" target="_blank">
+        <img src="https://img.shields.io/docker/pulls/infiniflow/ragflow?label=Docker%20Pulls&color=0db7ed&logo=docker&logoColor=white&style=flat-square" alt="docker pull infiniflow/ragflow:v0.24.0">
+    </a>
+    <a href="https://github.com/infiniflow/ragflow/releases/latest">
+---END---
+
+## Dependencies
+FILE: pyproject.toml
+[project]
+name = "ragflow"
+version = "0.24.0"
+description = "[RAGFlow](https://ragflow.io/) is an open-source RAG (Retrieval-Augmented Generation) engine based on deep document understanding. It offers a streamlined RAG workflow for businesses of any scale, combining LLM (Large Language Models) to provide truthful question-answering capabilities, backed by well-founded citations from various complex formatted data."
+authors = [{ name = "Zhichang Yu", email = "yuzhichang@gmail.com" }]
+license-files = ["LICENSE"]
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "aiosmtplib>=5.0.0",
+    "akshare>=1.15.78,<2.0.0",
+    "anthropic==0.34.1",
+    "arxiv==2.1.3",
+    "atlassian-python-api==4.0.7",
+    "azure-identity==1.17.1",
+    "azure-storage-file-datalake==12.16.0",
+    "beartype>=0.20.0,<1.0.0",
+    "bio==1.7.1",
+    "boxsdk>=10.1.0",
+    "captcha>=0.7.1",
+    "chardet>=5.2.0,<6.0.0",
+    "cn2an==0.5.22",
+    "cohere==5.6.2",
+    "Crawl4AI>=0.4.0,<1.0.0",
+    "dashscope==1.25.11",
+    "deepl==1.18.0",
+    "demjson3==3.0.6",
+    "discord-py==2.3.2",
+    "dropbox==12.0.2",
+    "duckduckgo-search>=7.2.0,<8.0.0",
+    "editdistance==0.8.1",
+    "elasticsearch-dsl==8.12.0",
+    "exceptiongroup>=1.3.0,<2.0.0",
+    "feedparser>=6.0.11,<7.0.0",
+    "extract-msg>=0.39.0",
+    "ffmpeg-python>=0.2.0",
+    "flasgger>=0.9.7.1,<0.10.0",
+    "flask-cors==6.0.2",
+    "flask-login==0.6.3",
+    "flask-mail>=0.10.0",
+---END---
+### Lock files
+go.sum: EXISTS
+uv.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 201
+ci_workflow_count: 2
+release.yml
+tests.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: check-yaml
+      - id: check-json
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: mixed-line-ending
+      - id: check-symlinks
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.11.6
+    hooks:
+      - id: ruff
+        args: [ --fix ]
+      - id: ruff-format
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### mypy config
+no [tool.mypy] section
+### Determinism
+sleep_pattern_count_in_tests: 49
+### Largest source files
+ 244280 total
+   2800 ./web/src/locales/ru.ts
+   2779 ./web/src/locales/en.ts
+   2742 ./rag/app/resume.py
+   2678 ./web/src/locales/tr.ts
+   2644 ./web/src/locales/de.ts
+   2604 ./web/src/locales/bg.ts
+   2531 ./web/src/locales/ar.ts
+   2274 ./web/src/locales/zh.ts
+   2180 ./web/src/pages/agent/options.ts
+   2106 ./common/data_source/confluence_connector.py
+
+=== END SIGNALS ===

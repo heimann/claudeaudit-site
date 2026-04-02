@@ -1,0 +1,199 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/immich-app-immich
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+cli
+CODE_OF_CONDUCT.md
+CODEOWNERS
+CONTRIBUTING.md
+deployment
+design
+docker
+docs
+e2e
+e2e-auth-server
+fastlane
+i18n
+install.sh
+LICENSE
+machine-learning
+Makefile
+misc
+mise.toml
+mobile
+open-api
+package.json
+plugins
+pnpm-lock.yaml
+pnpm-workspace.yaml
+readme_i18n
+README.md
+renovate.json
+SECURITY.md
+server
+web
+
+### README
+FILE: README.md
+<p align="center"> 
+  <br/>
+  <a href="https://opensource.org/license/agpl-v3"><img src="https://img.shields.io/badge/License-AGPL_v3-blue.svg?color=3F51B5&style=for-the-badge&label=License&logoColor=000000&labelColor=ececec" alt="License: AGPLv3"></a>
+  <a href="https://discord.immich.app">
+    <img src="https://img.shields.io/discord/979116623879368755.svg?label=Discord&logo=Discord&style=for-the-badge&logoColor=000000&labelColor=ececec" alt="Discord"/>
+  </a>
+  <br/>
+  <br/>
+</p>
+
+<p align="center">
+<img src="design/immich-logo-stacked-light.svg" width="300" title="Login With Custom URL">
+</p>
+<h3 align="center">High performance self-hosted photo and video management solution</h3>
+<br/>
+<a href="https://immich.app">
+<img src="design/immich-screenshots.png" title="Main Screenshot">
+</a>
+<br/>
+
+<p align="center">
+  <a href="readme_i18n/README_ca_ES.md">Català</a>
+  <a href="readme_i18n/README_es_ES.md">Español</a>
+  <a href="readme_i18n/README_fr_FR.md">Français</a>
+  <a href="readme_i18n/README_it_IT.md">Italiano</a>
+  <a href="readme_i18n/README_ja_JP.md">日本語</a>
+  <a href="readme_i18n/README_ko_KR.md">한국어</a>
+  <a href="readme_i18n/README_de_DE.md">Deutsch</a>
+  <a href="readme_i18n/README_nl_NL.md">Nederlands</a>
+  <a href="readme_i18n/README_tr_TR.md">Türkçe</a>
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "immich-monorepo",
+  "version": "2.6.3",
+  "description": "Monorepo for Immich",
+  "private": true,
+  "packageManager": "pnpm@10.32.1+sha512.a706938f0e89ac1456b6563eab4edf1d1faf3368d1191fc5c59790e96dc918e4456ab2e67d613de1043d2e8c81f87303e6b40d4ffeca9df15ef1ad567348f2be",
+  "engines": {
+    "pnpm": ">=10.0.0"
+  }
+}
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+dev:
+	@trap 'make dev-down' EXIT; COMPOSE_BAKE=true docker compose -f ./docker/docker-compose.dev.yml up --remove-orphans
+
+dev-down:
+	docker compose -f ./docker/docker-compose.dev.yml down --remove-orphans
+
+dev-update:
+	@trap 'make dev-down' EXIT; COMPOSE_BAKE=true docker compose -f ./docker/docker-compose.dev.yml up --build -V --remove-orphans
+
+dev-scale:
+	@trap 'make dev-down' EXIT; COMPOSE_BAKE=true docker compose -f ./docker/docker-compose.dev.yml up --build -V --scale immich-server=3 --remove-orphans
+
+dev-docs:
+	npm --prefix docs run start
+
+.PHONY: e2e
+e2e:
+	@trap 'make e2e-down' EXIT; COMPOSE_BAKE=true docker compose -f ./e2e/docker-compose.yml up --remove-orphans
+
+e2e-dev:
+	@trap 'make e2e-down' EXIT; COMPOSE_BAKE=true docker compose -f ./e2e/docker-compose.dev.yml up --remove-orphans
+
+e2e-update:
+	@trap 'make e2e-down' EXIT; COMPOSE_BAKE=true docker compose -f ./e2e/docker-compose.yml up --build -V --remove-orphans
+
+e2e-down:
+	docker compose -f ./e2e/docker-compose.yml down --remove-orphans
+
+prod:
+	@trap 'make prod-down' EXIT; COMPOSE_BAKE=true docker compose -f ./docker/docker-compose.prod.yml up --build -V --remove-orphans
+---END---
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 253
+ci_workflow_count: 23
+auto-close.yml
+build-mobile.yml
+cache-cleanup.yml
+check-openapi.yml
+cli.yml
+close-duplicates.yml
+codeql-analysis.yml
+docker.yml
+docs-build.yml
+docs-deploy.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 45 lines
+# Contributing to Immich
+
+We appreciate every contribution, and we're happy about every new contributor. So please feel invited to help make Immich a better product!
+
+## Getting started
+
+To get you started quickly we have detailed guides for the dev setup on our [website](https://docs.immich.app/developer/setup). If you prefer, you can also use [Devcontainers](https://docs.immich.app/developer/devcontainers).
+There are also additional resources about Immich's architecture, database migrations, the use of OpenAPI, and more in our [developer documentation](https://docs.immich.app/developer/architecture).
+
+## General
+
+Please try to keep pull requests as focused as possible. A PR should do exactly one thing and not bleed into other, unrelated areas. The smaller a PR, the fewer changes are likely needed, and the quicker it will likely be merged. For larger/more impactful PRs, please reach out to us first to discuss your plans. The best way to do this is through our [Discord](https://discord.immich.app). We have a dedicated `#contributing` channel there. Additionally, please fill out the entire template when opening a PR.
+
+## Finding work
+
+If you are looking for something to work on, there are discussions and issues with a `good-first-issue` label on them. These are always a good starting point. If none of them sound interesting or fit your skill set, feel free to reach out on our Discord. We're happy to help you find something to work on!
+
+We usually do not assign issues to new contributors, since it happens often that a PR is never even opened. Again, reach out on Discord if you fear putting a lot of time into fixing an issue, but ending up with a duplicate PR.
+
+## Use of generative AI
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 147626 total
+   4056 ./server/src/services/media.service.spec.ts
+   1940 ./server/src/services/metadata.service.spec.ts
+   1839 ./mobile/openapi/lib/api/assets_api.dart
+   1302 ./server/src/services/library.service.spec.ts
+   1298 ./machine-learning/test_main.py
+   1278 ./server/src/services/album.service.spec.ts
+   1265 ./server/src/services/person.service.spec.ts
+   1226 ./server/src/repositories/asset.repository.ts
+   1200 ./server/src/schema/migrations/1752267649968-StandardizeNames.ts
+   1073 ./server/src/services/auth.service.spec.ts
+
+=== END SIGNALS ===

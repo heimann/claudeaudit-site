@@ -1,0 +1,3225 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/affaan-m-everything-claude-code
+
+## Agent Documentation
+FILE: CLAUDE.md (72 lines)
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+This is a **Claude Code plugin** - a collection of production-ready agents, skills, hooks, commands, rules, and MCP configurations. The project provides battle-tested workflows for software development using Claude Code.
+
+## Running Tests
+
+```bash
+# Run all tests
+node tests/run-all.js
+
+# Run individual test files
+node tests/lib/utils.test.js
+node tests/lib/package-manager.test.js
+node tests/hooks/hooks.test.js
+```
+
+## Architecture
+
+The project is organized into several core components:
+
+- **agents/** - Specialized subagents for delegation (planner, code-reviewer, tdd-guide, etc.)
+- **skills/** - Workflow definitions and domain knowledge (coding standards, patterns, testing)
+- **commands/** - Slash commands invoked by users (/tdd, /plan, /e2e, etc.)
+- **hooks/** - Trigger-based automations (session persistence, pre/post-tool hooks)
+- **rules/** - Always-follow guidelines (security, coding style, testing requirements)
+- **mcp-configs/** - MCP server configurations for external integrations
+- **scripts/** - Cross-platform Node.js utilities for hooks and setup
+- **tests/** - Test suite for scripts and utilities
+
+## Key Commands
+
+- `/tdd` - Test-driven development workflow
+- `/plan` - Implementation planning
+- `/e2e` - Generate and run E2E tests
+- `/code-review` - Quality review
+- `/build-fix` - Fix build errors
+- `/learn` - Extract patterns from sessions
+- `/skill-create` - Generate skills from git history
+
+## Development Notes
+
+- Package manager detection: npm, pnpm, yarn, bun (configurable via `CLAUDE_PACKAGE_MANAGER` env var or project config)
+- Cross-platform: Windows, macOS, Linux support via Node.js scripts
+- Agent format: Markdown with YAML frontmatter (name, description, tools, model)
+- Skill format: Markdown with clear sections for when to use, how it works, examples
+- Skill placement: Curated in skills/; generated/imported under ~/.claude/skills/. See docs/SKILL-PLACEMENT-POLICY.md
+- Hook format: JSON with matcher conditions and command/notification hooks
+
+## Contributing
+
+Follow the formats in CONTRIBUTING.md:
+- Agents: Markdown with frontmatter (name, description, tools, model)
+- Skills: Clear sections (When to Use, How It Works, Examples)
+- Commands: Markdown with description frontmatter
+- Hooks: JSON with matcher and hooks array
+
+File naming: lowercase with hyphens (e.g., `python-reviewer.md`, `tdd-workflow.md`)
+
+## Skills
+
+Use the following skills when working on related files:
+
+| File(s) | Skill |
+|---------|-------|
+| `README.md` | `/readme` |
+| `.github/workflows/*.yml` | `/ci-workflow` |
+
+When spawning subagents, always pass conventions from the respective skill into the agent's prompt.
+---END---
+FILE: AGENTS.md (166 lines)
+# Everything Claude Code (ECC) — Agent Instructions
+
+This is a **production-ready AI coding plugin** providing 36 specialized agents, 147 skills, 68 commands, and automated hook workflows for software development.
+
+**Version:** 1.9.0
+
+## Core Principles
+
+1. **Agent-First** — Delegate to specialized agents for domain tasks
+2. **Test-Driven** — Write tests before implementation, 80%+ coverage required
+3. **Security-First** — Never compromise on security; validate all inputs
+4. **Immutability** — Always create new objects, never mutate existing ones
+5. **Plan Before Execute** — Plan complex features before writing code
+
+## Available Agents
+
+| Agent | Purpose | When to Use |
+|-------|---------|-------------|
+| planner | Implementation planning | Complex features, refactoring |
+| architect | System design and scalability | Architectural decisions |
+| tdd-guide | Test-driven development | New features, bug fixes |
+| code-reviewer | Code quality and maintainability | After writing/modifying code |
+| security-reviewer | Vulnerability detection | Before commits, sensitive code |
+| build-error-resolver | Fix build/type errors | When build fails |
+| e2e-runner | End-to-end Playwright testing | Critical user flows |
+| refactor-cleaner | Dead code cleanup | Code maintenance |
+| doc-updater | Documentation and codemaps | Updating docs |
+| cpp-reviewer | C++ code review | C++ projects |
+| cpp-build-resolver | C++ build errors | C++ build failures |
+| docs-lookup | Documentation lookup via Context7 | API/docs questions |
+| go-reviewer | Go code review | Go projects |
+| go-build-resolver | Go build errors | Go build failures |
+| kotlin-reviewer | Kotlin code review | Kotlin/Android/KMP projects |
+| kotlin-build-resolver | Kotlin/Gradle build errors | Kotlin build failures |
+| database-reviewer | PostgreSQL/Supabase specialist | Schema design, query optimization |
+| python-reviewer | Python code review | Python projects |
+| java-reviewer | Java and Spring Boot code review | Java/Spring Boot projects |
+| java-build-resolver | Java/Maven/Gradle build errors | Java build failures |
+| loop-operator | Autonomous loop execution | Run loops safely, monitor stalls, intervene |
+| harness-optimizer | Harness config tuning | Reliability, cost, throughput |
+| rust-reviewer | Rust code review | Rust projects |
+| rust-build-resolver | Rust build errors | Rust build failures |
+| pytorch-build-resolver | PyTorch runtime/CUDA/training errors | PyTorch build/training failures |
+| typescript-reviewer | TypeScript/JavaScript code review | TypeScript/JavaScript projects |
+
+## Agent Orchestration
+
+Use agents proactively without user prompt:
+- Complex feature requests → **planner**
+- Code just written/modified → **code-reviewer**
+- Bug fix or new feature → **tdd-guide**
+- Architectural decision → **architect**
+- Security-sensitive code → **security-reviewer**
+- Autonomous loops / loop monitoring → **loop-operator**
+- Harness config reliability and cost → **harness-optimizer**
+
+Use parallel execution for independent operations — launch multiple agents simultaneously.
+
+## Security Guidelines
+
+**Before ANY commit:**
+- No hardcoded secrets (API keys, passwords, tokens)
+- All user inputs validated
+- SQL injection prevention (parameterized queries)
+- XSS prevention (sanitized HTML)
+- CSRF protection enabled
+- Authentication/authorization verified
+- Rate limiting on all endpoints
+- Error messages don't leak sensitive data
+
+**Secret management:** NEVER hardcode secrets. Use environment variables or a secret manager. Validate required secrets at startup. Rotate any exposed secrets immediately.
+
+**If security issue found:** STOP → use security-reviewer agent → fix CRITICAL issues → rotate exposed secrets → review codebase for similar issues.
+
+## Coding Style
+
+**Immutability (CRITICAL):** Always create new objects, never mutate. Return new copies with changes applied.
+
+**File organization:** Many small files over few large ones. 200-400 lines typical, 800 max. Organize by feature/domain, not by type. High cohesion, low coupling.
+
+**Error handling:** Handle errors at every level. Provide user-friendly messages in UI code. Log detailed context server-side. Never silently swallow errors.
+
+**Input validation:** Validate all user input at system boundaries. Use schema-based validation. Fail fast with clear messages. Never trust external data.
+
+**Code quality checklist:**
+- Functions small (<50 lines), files focused (<800 lines)
+- No deep nesting (>4 levels)
+- Proper error handling, no hardcoded values
+- Readable, well-named identifiers
+
+## Testing Requirements
+
+**Minimum coverage: 80%**
+
+Test types (all required):
+1. **Unit tests** — Individual functions, utilities, components
+2. **Integration tests** — API endpoints, database operations
+3. **E2E tests** — Critical user flows
+
+**TDD workflow (mandatory):**
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+FILE: .codex/AGENTS.md (96 lines)
+# ECC for Codex CLI
+
+This supplements the root `AGENTS.md` with Codex-specific guidance.
+
+## Model Recommendations
+
+| Task Type | Recommended Model |
+|-----------|------------------|
+| Routine coding, tests, formatting | GPT 5.4 |
+| Complex features, architecture | GPT 5.4 |
+| Debugging, refactoring | GPT 5.4 |
+| Security review | GPT 5.4 |
+
+## Skills Discovery
+
+Skills are auto-loaded from `.agents/skills/`. Each skill contains:
+- `SKILL.md` — Detailed instructions and workflow
+- `agents/openai.yaml` — Codex interface metadata
+
+Available skills:
+- tdd-workflow — Test-driven development with 80%+ coverage
+- security-review — Comprehensive security checklist
+- coding-standards — Universal coding standards
+- frontend-patterns — React/Next.js patterns
+- frontend-slides — Viewport-safe HTML presentations and PPTX-to-web conversion
+- article-writing — Long-form writing from notes and voice references
+- content-engine — Platform-native social content and repurposing
+- market-research — Source-attributed market and competitor research
+- investor-materials — Decks, memos, models, and one-pagers
+- investor-outreach — Personalized investor outreach and follow-ups
+- backend-patterns — API design, database, caching
+- e2e-testing — Playwright E2E tests
+- eval-harness — Eval-driven development
+- strategic-compact — Context management
+- api-design — REST API design patterns
+- verification-loop — Build, test, lint, typecheck, security
+- deep-research — Multi-source research with firecrawl and exa MCPs
+- exa-search — Neural search via Exa MCP for web, code, and companies
+- claude-api — Anthropic Claude API patterns and SDKs
+- x-api — X/Twitter API integration for posting, threads, and analytics
+- crosspost — Multi-platform content distribution
+- fal-ai-media — AI image/video/audio generation via fal.ai
+- dmux-workflows — Multi-agent orchestration with dmux
+
+## MCP Servers
+
+Treat the project-local `.codex/config.toml` as the default Codex baseline for ECC. The current ECC baseline enables GitHub, Context7, Exa, Memory, Playwright, and Sequential Thinking; add heavier extras in `~/.codex/config.toml` only when a task actually needs them.
+
+ECC's canonical Codex section name is `[mcp_servers.context7]`. The launcher package remains `@upstash/context7-mcp`; only the TOML section name is normalized for consistency with `codex mcp list` and the reference config.
+
+---END---
+FILE: docs/ja-JP/examples/CLAUDE.md (100 lines)
+# プロジェクトレベル CLAUDE.md の例
+
+これはプロジェクトレベルの CLAUDE.md ファイルの例です。プロジェクトルートに配置してください。
+
+## プロジェクト概要
+
+[プロジェクトの簡単な説明 - 何をするか、技術スタック]
+
+## 重要なルール
+
+### 1. コード構成
+
+- 少数の大きなファイルよりも多数の小さなファイル
+- 高凝集、低結合
+- 通常200-400行、ファイルごとに最大800行
+- 型ではなく、機能/ドメインごとに整理
+
+### 2. コードスタイル
+
+- コード、コメント、ドキュメントに絵文字を使用しない
+- 常に不変性を保つ - オブジェクトや配列を変更しない
+- 本番コードに console.log を使用しない
+- try/catchで適切なエラーハンドリング
+- Zodなどで入力検証
+
+### 3. テスト
+
+- TDD: 最初にテストを書く
+- 最低80%のカバレッジ
+- ユーティリティのユニットテスト
+- APIの統合テスト
+- 重要なフローのE2Eテスト
+
+### 4. セキュリティ
+
+- ハードコードされた機密情報を使用しない
+- 機密データには環境変数を使用
+- すべてのユーザー入力を検証
+- パラメータ化クエリのみ使用
+- CSRF保護を有効化
+
+## ファイル構造
+
+```
+src/
+|-- app/              # Next.js App Router
+|-- components/       # 再利用可能なUIコンポーネント
+|-- hooks/            # カスタムReactフック
+|-- lib/              # ユーティリティライブラリ
+|-- types/            # TypeScript定義
+---END---
+FILE: docs/ko-KR/examples/CLAUDE.md (100 lines)
+# 프로젝트 CLAUDE.md 예제
+
+프로젝트 수준의 CLAUDE.md 파일 예제입니다. 프로젝트 루트에 배치하세요.
+
+## 프로젝트 개요
+
+[프로젝트에 대한 간단한 설명 - 기능, 기술 스택]
+
+## 핵심 규칙
+
+### 1. 코드 구성
+
+- 큰 파일 소수보다 작은 파일 다수를 선호
+- 높은 응집도, 낮은 결합도
+- 일반적으로 200-400줄, 파일당 최대 800줄
+- 타입별이 아닌 기능/도메인별로 구성
+
+### 2. 코드 스타일
+
+- 코드, 주석, 문서에 이모지 사용 금지
+- 항상 불변성 유지 - 객체나 배열을 직접 변경하지 않음
+- 프로덕션 코드에 console.log 사용 금지
+- try/catch를 사용한 적절한 에러 처리
+- Zod 또는 유사 라이브러리를 사용한 입력 유효성 검사
+
+### 3. 테스트
+
+- TDD: 테스트를 먼저 작성
+- 최소 80% 커버리지
+- 유틸리티에 대한 단위 테스트
+- API에 대한 통합 테스트
+- 핵심 흐름에 대한 E2E 테스트
+
+### 4. 보안
+
+- 하드코딩된 시크릿 금지
+- 민감한 데이터는 환경 변수 사용
+- 모든 사용자 입력 유효성 검사
+- 매개변수화된 쿼리만 사용
+- CSRF 보호 활성화
+
+## 파일 구조
+
+```
+src/
+|-- app/              # Next.js app router
+|-- components/       # 재사용 가능한 UI 컴포넌트
+|-- hooks/            # 커스텀 React hooks
+|-- lib/              # 유틸리티 라이브러리
+|-- types/            # TypeScript 타입 정의
+---END---
+FILE: docs/pt-BR/examples/CLAUDE.md (100 lines)
+# Exemplo de CLAUDE.md de Projeto
+
+Este é um exemplo de arquivo CLAUDE.md no nível de projeto. Coloque-o na raiz do seu projeto.
+
+## Visão Geral do Projeto
+
+[Descrição breve do seu projeto - o que ele faz, stack tecnológica]
+
+## Regras Críticas
+
+### 1. Organização de Código
+
+- Muitos arquivos pequenos em vez de poucos arquivos grandes
+- Alta coesão, baixo acoplamento
+- 200-400 linhas típico, 800 máximo por arquivo
+- Organize por feature/domínio, não por tipo
+
+### 2. Estilo de Código
+
+- Sem emojis em código, comentários ou documentação
+- Imutabilidade sempre - nunca mutar objetos ou arrays
+- Sem console.log em código de produção
+- Tratamento de erro adequado com try/catch
+- Validação de entrada com Zod ou similar
+
+### 3. Testes
+
+- TDD: escreva testes primeiro
+- Cobertura mínima de 80%
+- Testes unitários para utilitários
+- Testes de integração para APIs
+- Testes E2E para fluxos críticos
+
+### 4. Segurança
+
+- Sem segredos hardcoded
+- Variáveis de ambiente para dados sensíveis
+- Validar toda entrada de usuário
+- Apenas queries parametrizadas
+- Proteção CSRF habilitada
+
+## Estrutura de Arquivos
+
+```
+src/
+|-- app/              # Next.js app router
+|-- components/       # Reusable UI components
+|-- hooks/            # Custom React hooks
+|-- lib/              # Utility libraries
+|-- types/            # TypeScript definitions
+---END---
+FILE: docs/tr/AGENTS.md (160 lines)
+# Everything Claude Code (ECC) — Agent Talimatları
+
+Bu, yazılım geliştirme için 28 özel agent, 116 skill, 59 command ve otomatik hook iş akışları sağlayan **üretime hazır bir AI kodlama eklentisidir**.
+
+**Sürüm:** 1.9.0
+
+## Temel İlkeler
+
+1. **Agent-Öncelikli** — Alan görevleri için özel agentlara delege edin
+2. **Test-Odaklı** — Uygulamadan önce testler yazın, %80+ kapsama gereklidir
+3. **Güvenlik-Öncelikli** — Güvenlikten asla taviz vermeyin; tüm girdileri doğrulayın
+4. **Değişmezlik** — Her zaman yeni nesneler oluşturun, mevcut olanları asla değiştirmeyin
+5. **Çalıştırmadan Önce Planlayın** — Karmaşık özellikleri kod yazmadan önce planlayın
+
+## Mevcut Agentlar
+
+| Agent | Amaç | Ne Zaman Kullanılır |
+|-------|---------|-------------|
+| planner | Uygulama planlaması | Karmaşık özellikler, yeniden düzenleme |
+| architect | Sistem tasarımı ve ölçeklenebilirlik | Mimari kararlar |
+| tdd-guide | Test-odaklı geliştirme | Yeni özellikler, hata düzeltmeleri |
+| code-reviewer | Kod kalitesi ve sürdürülebilirlik | Kod yazma/değiştirme sonrası |
+| security-reviewer | Güvenlik açığı tespiti | Commitlerden önce, hassas kod |
+| build-error-resolver | Build/tip hatalarını düzeltme | Build başarısız olduğunda |
+| e2e-runner | Uçtan uca Playwright testi | Kritik kullanıcı akışları |
+| refactor-cleaner | Ölü kod temizleme | Kod bakımı |
+| doc-updater | Dokümantasyon ve codemaps | Dokümanları güncelleme |
+| docs-lookup | Dokümantasyon ve API referans araştırması | Kütüphane/API dokümantasyon soruları |
+| cpp-reviewer | C++ kod incelemesi | C++ projeleri |
+| cpp-build-resolver | C++ build hataları | C++ build başarısızlıkları |
+| go-reviewer | Go kod incelemesi | Go projeleri |
+| go-build-resolver | Go build hataları | Go build başarısızlıkları |
+| kotlin-reviewer | Kotlin kod incelemesi | Kotlin/Android/KMP projeleri |
+| kotlin-build-resolver | Kotlin/Gradle build hataları | Kotlin build başarısızlıkları |
+| database-reviewer | PostgreSQL/Supabase uzmanı | Şema tasarımı, sorgu optimizasyonu |
+| python-reviewer | Python kod incelemesi | Python projeleri |
+| java-reviewer | Java ve Spring Boot kod incelemesi | Java/Spring Boot projeleri |
+| java-build-resolver | Java/Maven/Gradle build hataları | Java build başarısızlıkları |
+| chief-of-staff | İletişim önceliklendirme ve taslaklar | Çok kanallı email, Slack, LINE, Messenger |
+| loop-operator | Otonom döngü yürütme | Döngüleri güvenli çalıştırma, takılmaları izleme, müdahale |
+| harness-optimizer | Harness yapılandırma ayarlama | Güvenilirlik, maliyet, verimlilik |
+| rust-reviewer | Rust kod incelemesi | Rust projeleri |
+| rust-build-resolver | Rust build hataları | Rust build başarısızlıkları |
+| pytorch-build-resolver | PyTorch runtime/CUDA/eğitim hataları | PyTorch build/eğitim başarısızlıkları |
+| typescript-reviewer | TypeScript/JavaScript kod incelemesi | TypeScript/JavaScript projeleri |
+
+## Agent Orkestrasyonu
+
+Agentları kullanıcı istemi olmadan proaktif olarak kullanın:
+- Karmaşık özellik istekleri → **planner**
+---END---
+FILE: docs/tr/CLAUDE.md (60 lines)
+# CLAUDE.md
+
+Bu dosya, bu depodaki kodlarla çalışırken Claude Code'a (claude.ai/code) rehberlik sağlar.
+
+## Projeye Genel Bakış
+
+Bu bir **Claude Code plugin**'idir - üretime hazır agent'lar, skill'ler, hook'lar, komutlar, kurallar ve MCP konfigürasyonlarından oluşan bir koleksiyondur. Proje, Claude Code kullanarak yazılım geliştirme için test edilmiş iş akışları sağlar.
+
+## Testleri Çalıştırma
+
+```bash
+# Tüm testleri çalıştır
+node tests/run-all.js
+
+# Tekil test dosyalarını çalıştır
+node tests/lib/utils.test.js
+node tests/lib/package-manager.test.js
+node tests/hooks/hooks.test.js
+```
+
+## Mimari
+
+Proje, birkaç temel bileşen halinde organize edilmiştir:
+
+- **agents/** - Delegasyon için özelleşmiş alt agent'lar (planner, code-reviewer, tdd-guide, vb.)
+- **skills/** - İş akışı tanımları ve alan bilgisi (coding standards, patterns, testing)
+- **commands/** - Kullanıcılar tarafından çağrılan slash komutları (/tdd, /plan, /e2e, vb.)
+- **hooks/** - Tetikleyici tabanlı otomasyonlar (session persistence, pre/post-tool hooks)
+- **rules/** - Her zaman takip edilmesi gereken yönergeler (security, coding style, testing requirements)
+- **mcp-configs/** - Harici entegrasyonlar için MCP server konfigürasyonları
+- **scripts/** - Hook'lar ve kurulum için platformlar arası Node.js yardımcı araçları
+- **tests/** - Script'ler ve yardımcı araçlar için test suite
+
+## Temel Komutlar
+
+- `/tdd` - Test-driven development iş akışı
+- `/plan` - Uygulama planlaması
+- `/e2e` - E2E testleri oluştur ve çalıştır
+- `/code-review` - Kalite incelemesi
+- `/build-fix` - Build hatalarını düzelt
+- `/learn` - Oturumlardan kalıpları çıkar
+- `/skill-create` - Git geçmişinden skill'ler oluştur
+
+## Geliştirme Notları
+
+- Package manager algılama: npm, pnpm, yarn, bun (`CLAUDE_PACKAGE_MANAGER` env var veya proje config ile yapılandırılabilir)
+- Platformlar arası: Node.js script'leri aracılığıyla Windows, macOS, Linux desteği
+- Agent formatı: YAML frontmatter ile Markdown (name, description, tools, model)
+- Skill formatı: Ne zaman kullanılır, nasıl çalışır, örnekler için açık bölümler içeren Markdown
+- Hook formatı: Matcher koşulları ve command/notification hook'ları ile JSON
+---END---
+FILE: docs/tr/examples/CLAUDE.md (100 lines)
+# Örnek Proje CLAUDE.md
+
+Bu, örnek bir proje seviyesi CLAUDE.md dosyasıdır. Bunu proje kök dizininize yerleştirin.
+
+## Proje Genel Bakış
+
+[Projenizin kısa açıklaması - ne yaptığı, teknoloji yığını]
+
+## Kritik Kurallar
+
+### 1. Kod Organizasyonu
+
+- Birkaç büyük dosya yerine çok sayıda küçük dosya
+- Yüksek bağlılık, düşük bağımlılık
+- Tipik olarak 200-400 satır, dosya başına maksimum 800 satır
+- Tipe göre değil, özellik/domain'e göre organize edin
+
+### 2. Kod Stili
+
+- Kod, yorum veya dokümantasyonda emoji kullanmayın
+- Her zaman değişmezlik - asla obje veya array'leri mutate etmeyin
+- Production kodunda console.log kullanmayın
+- try/catch ile uygun hata yönetimi
+- Zod veya benzeri ile input validasyonu
+
+### 3. Test
+
+- TDD: Önce testleri yazın
+- Minimum %80 kapsama
+- Utility'ler için unit testler
+- API'ler için integration testler
+- Kritik akışlar için E2E testler
+
+### 4. Güvenlik
+
+- Hardcoded secret kullanmayın
+- Hassas veriler için environment variable'lar
+- Tüm kullanıcı girdilerini validate edin
+- Sadece parametreli sorgular
+- CSRF koruması aktif
+
+## Dosya Yapısı
+
+```
+src/
+|-- app/              # Next.js app router
+|-- components/       # Tekrar kullanılabilir UI bileşenleri
+|-- hooks/            # Custom React hooks
+|-- lib/              # Utility kütüphaneleri
+|-- types/            # TypeScript tanımlamaları
+---END---
+FILE: docs/zh-CN/AGENTS.md (165 lines)
+# Everything Claude Code (ECC) — 智能体指令
+
+这是一个**生产就绪的 AI 编码插件**，提供 36 个专业代理、147 项技能、68 条命令以及自动化钩子工作流，用于软件开发。
+
+**版本:** 1.9.0
+
+## 核心原则
+
+1. **智能体优先** — 将领域任务委托给专业智能体
+2. **测试驱动** — 先写测试再实现，要求 80%+ 覆盖率
+3. **安全第一** — 绝不妥协安全；验证所有输入
+4. **不可变性** — 总是创建新对象，永不修改现有对象
+5. **先规划后执行** — 在编写代码前规划复杂功能
+
+## 可用智能体
+
+| 代理 | 用途 | 使用时机 |
+|-------|---------|-------------|
+| planner | 实现规划 | 复杂功能、重构 |
+| architect | 系统设计与可扩展性 | 架构决策 |
+| tdd-guide | 测试驱动开发 | 新功能、错误修复 |
+| code-reviewer | 代码质量与可维护性 | 编写/修改代码后 |
+| security-reviewer | 漏洞检测 | 提交前、敏感代码 |
+| build-error-resolver | 修复构建/类型错误 | 构建失败时 |
+| e2e-runner | 端到端 Playwright 测试 | 关键用户流程 |
+| refactor-cleaner | 死代码清理 | 代码维护 |
+| doc-updater | 文档和代码地图更新 | 更新文档时 |
+| docs-lookup | 文档和 API 参考研究 | 库/API 文档问题 |
+| cpp-reviewer | C++ 代码审查 | C++ 项目 |
+| cpp-build-resolver | C++ 构建错误 | C++ 构建失败 |
+| go-reviewer | Go 代码审查 | Go 项目 |
+| go-build-resolver | Go 构建错误 | Go 构建失败 |
+| kotlin-reviewer | Kotlin 代码审查 | Kotlin/Android/KMP 项目 |
+| kotlin-build-resolver | Kotlin/Gradle 构建错误 | Kotlin 构建失败 |
+| database-reviewer | PostgreSQL/Supabase 专家 | 模式设计、查询优化 |
+| python-reviewer | Python 代码审查 | Python 项目 |
+| java-reviewer | Java 和 Spring Boot 代码审查 | Java/Spring Boot 项目 |
+| java-build-resolver | Java/Maven/Gradle 构建错误 | Java 构建失败 |
+| chief-of-staff | 沟通分类与草拟 | 多渠道邮件、Slack、LINE、Messenger |
+| loop-operator | 自主循环执行 | 安全运行循环、监控停滞、干预 |
+| harness-optimizer | Harness 配置调优 | 可靠性、成本、吞吐量 |
+| rust-reviewer | Rust 代码审查 | Rust 项目 |
+| rust-build-resolver | Rust 构建错误 | Rust 构建失败 |
+| pytorch-build-resolver | PyTorch 运行时/CUDA/训练错误 | PyTorch 构建/训练失败 |
+| typescript-reviewer | TypeScript/JavaScript 代码审查 | TypeScript/JavaScript 项目 |
+
+## 智能体编排
+
+主动使用智能体，无需用户提示：
+
+---END---
+FILE: docs/zh-CN/CLAUDE.md (61 lines)
+# CLAUDE.md
+
+本文件为 Claude Code (claude.ai/code) 处理此仓库代码时提供指导。
+
+## 项目概述
+
+这是一个 **Claude Code 插件** - 一个包含生产就绪的代理、技能、钩子、命令、规则和 MCP 配置的集合。该项目提供了使用 Claude Code 进行软件开发的经验证的工作流。
+
+## 运行测试
+
+```bash
+# Run all tests
+node tests/run-all.js
+
+# Run individual test files
+node tests/lib/utils.test.js
+node tests/lib/package-manager.test.js
+node tests/hooks/hooks.test.js
+```
+
+## 架构
+
+项目组织为以下几个核心组件：
+
+* **agents/** - 用于委派的专业化子代理（规划器、代码审查员、TDD 指南等）
+* **skills/** - 工作流定义和领域知识（编码标准、模式、测试）
+* **commands/** - 由用户调用的斜杠命令（/tdd, /plan, /e2e 等）
+* **hooks/** - 基于触发的自动化（会话持久化、工具前后钩子）
+* **rules/** - 始终遵循的指南（安全、编码风格、测试要求）
+* **mcp-configs/** - 用于外部集成的 MCP 服务器配置
+* **scripts/** - 用于钩子和设置的跨平台 Node.js 工具
+* **tests/** - 脚本和工具的测试套件
+
+## 关键命令
+
+* `/tdd` - 测试驱动开发工作流
+* `/plan` - 实施规划
+* `/e2e` - 生成并运行端到端测试
+* `/code-review` - 质量审查
+* `/build-fix` - 修复构建错误
+* `/learn` - 从会话中提取模式
+* `/skill-create` - 从 git 历史记录生成技能
+
+## 开发说明
+
+* 包管理器检测：npm、pnpm、yarn、bun（可通过 `CLAUDE_PACKAGE_MANAGER` 环境变量或项目配置设置）
+* 跨平台：通过 Node.js 脚本支持 Windows、macOS、Linux
+* 代理格式：带有 YAML 前言的 Markdown（名称、描述、工具、模型）
+* 技能格式：带有清晰章节的 Markdown（何时使用、如何工作、示例）
+* 钩子格式：带有匹配器条件和命令/通知钩子的 JSON
+---END---
+FILE: docs/zh-CN/examples/CLAUDE.md (100 lines)
+# 示例项目 CLAUDE.md
+
+这是一个示例项目级别的 CLAUDE.md 文件。请将其放置在您的项目根目录下。
+
+## 项目概述
+
+\[项目简要描述 - 功能、技术栈]
+
+## 关键规则
+
+### 1. 代码组织
+
+* 多个小文件优于少量大文件
+* 高内聚，低耦合
+* 每个文件典型 200-400 行，最多 800 行
+* 按功能/领域组织，而非按类型
+
+### 2. 代码风格
+
+* 代码、注释或文档中不使用表情符号
+* 始终使用不可变性 - 永不改变对象或数组
+* 生产代码中不使用 console.log
+* 使用 try/catch 进行适当的错误处理
+* 使用 Zod 或类似工具进行输入验证
+
+### 3. 测试
+
+* TDD：先写测试
+* 最低 80% 覆盖率
+* 工具函数进行单元测试
+* API 进行集成测试
+* 关键流程进行端到端测试
+
+### 4. 安全
+
+* 不硬编码密钥
+* 敏感数据使用环境变量
+* 验证所有用户输入
+* 仅使用参数化查询
+* 启用 CSRF 保护
+
+## 文件结构
+
+```
+src/
+|-- app/              # Next.js 应用路由
+|-- components/       # 可复用的 UI 组件
+|-- hooks/            # 自定义 React 钩子
+|-- lib/              # 工具库
+|-- types/            # TypeScript 定义
+---END---
+FILE: examples/CLAUDE.md (100 lines)
+# Example Project CLAUDE.md
+
+This is an example project-level CLAUDE.md file. Place this in your project root.
+
+## Project Overview
+
+[Brief description of your project - what it does, tech stack]
+
+## Critical Rules
+
+### 1. Code Organization
+
+- Many small files over few large files
+- High cohesion, low coupling
+- 200-400 lines typical, 800 max per file
+- Organize by feature/domain, not by type
+
+### 2. Code Style
+
+- No emojis in code, comments, or documentation
+- Immutability always - never mutate objects or arrays
+- No console.log in production code
+- Proper error handling with try/catch
+- Input validation with Zod or similar
+
+### 3. Testing
+
+- TDD: Write tests first
+- 80% minimum coverage
+- Unit tests for utilities
+- Integration tests for APIs
+- E2E tests for critical flows
+
+### 4. Security
+
+- No hardcoded secrets
+- Environment variables for sensitive data
+- Validate all user inputs
+- Parameterized queries only
+- CSRF protection enabled
+
+## File Structure
+
+```
+src/
+|-- app/              # Next.js app router
+|-- components/       # Reusable UI components
+|-- hooks/            # Custom React hooks
+|-- lib/              # Utility libraries
+|-- types/            # TypeScript definitions
+---END---
+
+### .claude/ contents
+FILE: .claude/commands/add-language-rules.md (38 lines)
+---
+name: add-language-rules
+description: Workflow command scaffold for add-language-rules in everything-claude-code.
+allowed_tools: ["Bash", "Read", "Write", "Grep", "Glob"]
+---
+
+# /add-language-rules
+
+Use this workflow when working on **add-language-rules** in `everything-claude-code`.
+
+## Goal
+
+Adds a new programming language to the rules system, including coding style, hooks, patterns, security, and testing guidelines.
+
+## Common Files
+
+- `rules/*/coding-style.md`
+- `rules/*/hooks.md`
+- `rules/*/patterns.md`
+- `rules/*/security.md`
+- `rules/*/testing.md`
+
+## Suggested Sequence
+
+1. Understand the current state and failure mode before editing.
+2. Make the smallest coherent change that satisfies the workflow goal.
+3. Run the most relevant verification for touched files.
+4. Summarize what changed and what still needs review.
+
+## Typical Commit Signals
+
+- Create a new directory under rules/{language}/
+- Add coding-style.md, hooks.md, patterns.md, security.md, and testing.md files with language-specific content
+- Optionally reference or link to related skills
+
+## Notes
+
+- Treat this as a scaffold, not a hard-coded script.
+- Update the command if the workflow evolves materially.---END---
+FILE: .claude/commands/database-migration.md (35 lines)
+---
+name: database-migration
+description: Workflow command scaffold for database-migration in everything-claude-code.
+allowed_tools: ["Bash", "Read", "Write", "Grep", "Glob"]
+---
+
+# /database-migration
+
+Use this workflow when working on **database-migration** in `everything-claude-code`.
+
+## Goal
+
+Database schema changes with migration files
+
+## Common Files
+
+- `**/schema.*`
+- `migrations/*`
+
+## Suggested Sequence
+
+1. Understand the current state and failure mode before editing.
+2. Make the smallest coherent change that satisfies the workflow goal.
+3. Run the most relevant verification for touched files.
+4. Summarize what changed and what still needs review.
+
+## Typical Commit Signals
+
+- Create migration file
+- Update schema definitions
+- Generate/update types
+
+## Notes
+
+- Treat this as a scaffold, not a hard-coded script.
+- Update the command if the workflow evolves materially.---END---
+FILE: .claude/commands/feature-development.md (37 lines)
+---
+name: feature-development
+description: Workflow command scaffold for feature-development in everything-claude-code.
+allowed_tools: ["Bash", "Read", "Write", "Grep", "Glob"]
+---
+
+# /feature-development
+
+Use this workflow when working on **feature-development** in `everything-claude-code`.
+
+## Goal
+
+Standard feature implementation workflow
+
+## Common Files
+
+- `manifests/*`
+- `schemas/*`
+- `**/*.test.*`
+- `**/api/**`
+
+## Suggested Sequence
+
+1. Understand the current state and failure mode before editing.
+2. Make the smallest coherent change that satisfies the workflow goal.
+3. Run the most relevant verification for touched files.
+4. Summarize what changed and what still needs review.
+
+## Typical Commit Signals
+
+- Add feature implementation
+- Add tests for feature
+- Update documentation
+
+## Notes
+
+- Treat this as a scaffold, not a hard-coded script.
+- Update the command if the workflow evolves materially.---END---
+FILE: .claude/ecc-tools.json (333 lines)
+{
+  "version": "1.3",
+  "schemaVersion": "1.0",
+  "generatedBy": "ecc-tools",
+  "generatedAt": "2026-03-20T12:07:36.496Z",
+  "repo": "https://github.com/affaan-m/everything-claude-code",
+  "profiles": {
+    "requested": "full",
+    "recommended": "full",
+    "effective": "full",
+    "requestedAlias": "full",
+    "recommendedAlias": "full",
+    "effectiveAlias": "full"
+  },
+  "requestedProfile": "full",
+  "profile": "full",
+  "recommendedProfile": "full",
+  "effectiveProfile": "full",
+  "tier": "enterprise",
+  "requestedComponents": [
+    "repo-baseline",
+    "workflow-automation",
+    "security-audits",
+    "research-tooling",
+    "team-rollout",
+    "governance-controls"
+  ],
+  "selectedComponents": [
+    "repo-baseline",
+    "workflow-automation",
+    "security-audits",
+    "research-tooling",
+    "team-rollout",
+    "governance-controls"
+  ],
+  "requestedAddComponents": [],
+  "requestedRemoveComponents": [],
+  "blockedRemovalComponents": [],
+  "tierFilteredComponents": [],
+  "requestedRootPackages": [
+    "runtime-core",
+    "workflow-pack",
+    "agentshield-pack",
+    "research-pack",
+    "team-config-sync",
+    "enterprise-controls"
+  ],
+  "selectedRootPackages": [
+    "runtime-core",
+    "workflow-pack",
+---END---
+FILE: .claude/enterprise/controls.md (14 lines)
+# Enterprise Controls
+
+This is a starter governance file for enterprise ECC deployments.
+
+## Baseline
+
+- Repository: https://github.com/affaan-m/everything-claude-code
+- Recommended profile: full
+- Keep install manifests, audit allowlists, and Codex baselines under review.
+
+## Approval Expectations
+
+- Security-sensitive workflow changes require explicit reviewer acknowledgement.
+- Audit suppressions must include a reason and the narrowest viable matcher.
+- Generated skills should be reviewed before broad rollout to teams.---END---
+FILE: .claude/homunculus/instincts/inherited/everything-claude-code-instincts.yaml (162 lines)
+# Curated instincts for affaan-m/everything-claude-code
+# Import with: /instinct-import .claude/homunculus/instincts/inherited/everything-claude-code-instincts.yaml
+
+---
+id: everything-claude-code-conventional-commits
+trigger: "when making a commit in everything-claude-code"
+confidence: 0.9
+domain: git
+source: repo-curation
+source_repo: affaan-m/everything-claude-code
+---
+
+# Everything Claude Code Conventional Commits
+
+## Action
+
+Use conventional commit prefixes such as `feat:`, `fix:`, `docs:`, `test:`, `chore:`, and `refactor:`.
+
+## Evidence
+
+- Mainline history consistently uses conventional commit subjects.
+- Release and changelog automation expect readable commit categorization.
+
+---
+id: everything-claude-code-commit-length
+trigger: "when writing a commit subject in everything-claude-code"
+confidence: 0.8
+domain: git
+source: repo-curation
+source_repo: affaan-m/everything-claude-code
+---
+
+# Everything Claude Code Commit Length
+
+## Action
+
+Keep commit subjects concise and close to the repository norm of about 70 characters.
+
+## Evidence
+
+- Recent history clusters around ~70 characters, not ~50.
+- Short, descriptive subjects read well in release notes and PR summaries.
+
+---
+id: everything-claude-code-js-file-naming
+trigger: "when creating a new JavaScript or TypeScript module in everything-claude-code"
+confidence: 0.85
+domain: code-style
+source: repo-curation
+source_repo: affaan-m/everything-claude-code
+---END---
+FILE: .claude/identity.json (13 lines)
+{
+  "version": "2.0",
+  "technicalLevel": "technical",
+  "preferredStyle": {
+    "verbosity": "minimal",
+    "codeComments": true,
+    "explanations": true
+  },
+  "domains": [
+    "javascript"
+  ],
+  "suggestedBy": "ecc-tools-repo-analysis",
+  "createdAt": "2026-03-20T12:07:57.119Z"
+}---END---
+FILE: .claude/package-manager.json (3 lines)
+{
+  "packageManager": "bun",
+  "setAt": "2026-01-23T02:09:58.819Z"
+}---END---
+FILE: .claude/research/everything-claude-code-research-playbook.md (20 lines)
+# Everything Claude Code Research Playbook
+
+Use this when the task is documentation-heavy, source-sensitive, or requires broad repository context.
+
+## Defaults
+
+- Prefer primary documentation and direct source links.
+- Include concrete dates when facts may change over time.
+- Keep a short evidence trail for each recommendation or conclusion.
+
+## Suggested Flow
+
+1. Inspect local code and docs first.
+2. Browse only for unstable or external facts.
+3. Summarize findings with file paths, commands, or links.
+
+## Repo Signals
+
+- Primary language: JavaScript
+- Framework: Not detected
+- Workflows detected: 10---END---
+FILE: .claude/rules/everything-claude-code-guardrails.md (33 lines)
+# Everything Claude Code Guardrails
+
+Generated by ECC Tools from repository history. Review before treating it as a hard policy file.
+
+## Commit Workflow
+
+- Prefer `conventional` commit messaging with prefixes such as fix, test, feat, docs.
+- Keep new changes aligned with the existing pull-request and review flow already present in the repo.
+
+## Architecture
+
+- Preserve the current `hybrid` module organization.
+- Respect the current test layout: `separate`.
+
+## Code Style
+
+- Use `camelCase` file naming.
+- Prefer `relative` imports and `mixed` exports.
+
+## ECC Defaults
+
+- Current recommended install profile: `full`.
+- Validate risky config changes in PRs and keep the install manifest in source control.
+
+## Detected Workflows
+
+- database-migration: Database schema changes with migration files
+- feature-development: Standard feature implementation workflow
+- add-language-rules: Adds a new programming language to the rules system, including coding style, hooks, patterns, security, and testing guidelines.
+
+## Review Reminder
+
+- Regenerate this bundle when repository conventions materially change.
+- Keep suppressions narrow and auditable.---END---
+FILE: .claude/rules/node.md (47 lines)
+# Node.js Rules for everything-claude-code
+
+> Project-specific rules for the ECC codebase. Extends common rules.
+
+## Stack
+
+- **Runtime**: Node.js >=18 (no transpilation, plain CommonJS)
+- **Test runner**: `node tests/run-all.js` — individual files via `node tests/**/*.test.js`
+- **Linter**: ESLint (`@eslint/js`, flat config)
+- **Coverage**: c8
+- **Lint**: markdownlint-cli for `.md` files
+
+## File Conventions
+
+- `scripts/` — Node.js utilities, hooks. CommonJS (`require`/`module.exports`)
+- `agents/`, `commands/`, `skills/`, `rules/` — Markdown with YAML frontmatter
+- `tests/` — Mirror the `scripts/` structure. Test files named `*.test.js`
+- File naming: **lowercase with hyphens** (e.g. `session-start.js`, `post-edit-format.js`)
+
+## Code Style
+
+- CommonJS only — no ESM (`import`/`export`) unless file ends in `.mjs`
+- No TypeScript — plain `.js` throughout
+- Prefer `const` over `let`; never `var`
+- Keep hook scripts under 200 lines — extract helpers to `scripts/lib/`
+- All hooks must `exit 0` on non-critical errors (never block tool execution unexpectedly)
+
+## Hook Development
+
+- Hook scripts normally receive JSON on stdin, but hooks routed through `scripts/hooks/run-with-flags.js` can export `run(rawInput)` and let the wrapper handle parsing/gating
+- Async hooks: mark `"async": true` in `settings.json` with a timeout ≤30s
+- Blocking hooks (PreToolUse, stop): keep fast (<200ms) — no network calls
+- Use `run-with-flags.js` wrapper for all hooks so `ECC_HOOK_PROFILE` and `ECC_DISABLED_HOOKS` runtime gating works
+- Always exit 0 on parse errors; log to stderr with `[HookName]` prefix
+
+## Testing Requirements
+
+- Run `node tests/run-all.js` before committing
+- New scripts in `scripts/lib/` require a matching test in `tests/lib/`
+- New hooks require at least one integration test in `tests/hooks/`
+
+## Markdown / Agent Files
+
+- Agents: YAML frontmatter with `name`, `description`, `tools`, `model`
+- Skills: sections — When to Use, How It Works, Examples
+- Commands: `description:` frontmatter line required
+- Run `npx markdownlint-cli '**/*.md' --ignore node_modules` before committing
+---END---
+FILE: .claude/skills/everything-claude-code/SKILL.md (442 lines)
+---
+name: everything-claude-code-conventions
+description: Development conventions and patterns for everything-claude-code. JavaScript project with conventional commits.
+---
+
+# Everything Claude Code Conventions
+
+> Generated from [affaan-m/everything-claude-code](https://github.com/affaan-m/everything-claude-code) on 2026-03-20
+
+## Overview
+
+This skill teaches Claude the development patterns and conventions used in everything-claude-code.
+
+## Tech Stack
+
+- **Primary Language**: JavaScript
+- **Architecture**: hybrid module organization
+- **Test Location**: separate
+
+## When to Use This Skill
+
+Activate this skill when:
+- Making changes to this repository
+- Adding new features following established patterns
+- Writing tests that match project conventions
+- Creating commits with proper message format
+
+## Commit Conventions
+
+Follow these commit message conventions based on 500 analyzed commits.
+
+### Commit Style: Conventional Commits
+
+### Prefixes Used
+
+- `fix`
+- `test`
+- `feat`
+- `docs`
+
+### Message Guidelines
+
+- Average message length: ~65 characters
+- Keep first line concise and descriptive
+- Use imperative mood ("Add feature" not "Added feature")
+
+
+*Commit message example*
+
+```text
+---END---
+FILE: .claude/team/everything-claude-code-team-config.json (14 lines)
+{
+  "version": "1.0",
+  "generatedBy": "ecc-tools",
+  "profile": "full",
+  "sharedSkills": [
+    ".claude/skills/everything-claude-code/SKILL.md",
+    ".agents/skills/everything-claude-code/SKILL.md"
+  ],
+  "commandFiles": [
+    ".claude/commands/database-migration.md",
+    ".claude/commands/feature-development.md",
+    ".claude/commands/add-language-rules.md"
+  ],
+  "updatedAt": "2026-03-20T12:07:36.496Z"
+}---END---
+
+### .agents/ contents
+FILE: .agents/plugins/marketplace.json (20 lines)
+{
+  "name": "everything-claude-code",
+  "interface": {
+    "displayName": "Everything Claude Code"
+  },
+  "plugins": [
+    {
+      "name": "everything-claude-code",
+      "source": {
+        "source": "local",
+        "path": "../.."
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
+    }
+  ]
+}
+---END---
+FILE: .agents/skills/api-design/agents/openai.yaml (7 lines)
+interface:
+  display_name: "API Design"
+  short_description: "REST API design patterns and best practices"
+  brand_color: "#F97316"
+  default_prompt: "Design REST API: resources, status codes, pagination"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/api-design/SKILL.md (523 lines)
+---
+name: api-design
+description: REST API design patterns including resource naming, status codes, pagination, filtering, error responses, versioning, and rate limiting for production APIs.
+origin: ECC
+---
+
+# API Design Patterns
+
+Conventions and best practices for designing consistent, developer-friendly REST APIs.
+
+## When to Activate
+
+- Designing new API endpoints
+- Reviewing existing API contracts
+- Adding pagination, filtering, or sorting
+- Implementing error handling for APIs
+- Planning API versioning strategy
+- Building public or partner-facing APIs
+
+## Resource Design
+
+### URL Structure
+
+```
+# Resources are nouns, plural, lowercase, kebab-case
+GET    /api/v1/users
+GET    /api/v1/users/:id
+POST   /api/v1/users
+PUT    /api/v1/users/:id
+PATCH  /api/v1/users/:id
+DELETE /api/v1/users/:id
+
+# Sub-resources for relationships
+GET    /api/v1/users/:id/orders
+POST   /api/v1/users/:id/orders
+
+# Actions that don't map to CRUD (use verbs sparingly)
+POST   /api/v1/orders/:id/cancel
+POST   /api/v1/auth/login
+POST   /api/v1/auth/refresh
+```
+
+### Naming Rules
+
+```
+# GOOD
+/api/v1/team-members          # kebab-case for multi-word resources
+/api/v1/orders?status=active  # query params for filtering
+/api/v1/users/123/orders      # nested resources for ownership
+
+---END---
+FILE: .agents/skills/article-writing/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Article Writing"
+  short_description: "Write long-form content in a supplied voice without sounding templated"
+  brand_color: "#B45309"
+  default_prompt: "Draft a sharp long-form article from these notes and examples"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/article-writing/SKILL.md (106 lines)
+---
+name: article-writing
+description: Write articles, guides, blog posts, tutorials, newsletter issues, and other long-form content in a distinctive voice derived from supplied examples or brand guidance. Use when the user wants polished written content longer than a paragraph, especially when voice consistency, structure, and credibility matter.
+origin: ECC
+---
+
+# Article Writing
+
+Write long-form content that sounds like an actual person with a point of view, not an LLM smoothing itself into paste.
+
+## When to Activate
+
+- drafting blog posts, essays, launch posts, guides, tutorials, or newsletter issues
+- turning notes, transcripts, or research into polished articles
+- matching an existing founder, operator, or brand voice from examples
+- tightening structure, pacing, and evidence in already-written long-form copy
+
+## Core Rules
+
+1. Lead with the concrete thing: artifact, example, output, anecdote, number, screenshot, or code.
+2. Explain after the example, not before.
+3. Keep sentences tight unless the source voice is intentionally expansive.
+4. Use proof instead of adjectives.
+5. Never invent facts, credibility, or customer evidence.
+
+## Voice Capture Workflow
+
+If the user wants a specific voice, collect one or more of:
+- published articles
+- newsletters
+- X posts or threads
+- docs or memos
+- launch notes
+- a style guide
+
+Then extract:
+- sentence length and rhythm
+- whether the writing is compressed, explanatory, sharp, or formal
+- how parentheses are used
+- how often the writer asks questions
+- whether the writer uses fragments, lists, or hard pivots
+- formatting habits such as headers, bullets, code blocks, pull quotes
+- what the writer clearly avoids
+
+If no voice references are given, default to a sharp operator voice: concrete, unsentimental, useful.
+
+## Affaan / ECC Voice Reference
+
+When matching Affaan / ECC voice, bias toward:
+- direct claims over scene-setting
+---END---
+FILE: .agents/skills/backend-patterns/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Backend Patterns"
+  short_description: "API design, database, and server-side patterns"
+  brand_color: "#F59E0B"
+  default_prompt: "Apply backend patterns: API design, repository, caching"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/backend-patterns/SKILL.md (598 lines)
+---
+name: backend-patterns
+description: Backend architecture patterns, API design, database optimization, and server-side best practices for Node.js, Express, and Next.js API routes.
+origin: ECC
+---
+
+# Backend Development Patterns
+
+Backend architecture patterns and best practices for scalable server-side applications.
+
+## When to Activate
+
+- Designing REST or GraphQL API endpoints
+- Implementing repository, service, or controller layers
+- Optimizing database queries (N+1, indexing, connection pooling)
+- Adding caching (Redis, in-memory, HTTP cache headers)
+- Setting up background jobs or async processing
+- Structuring error handling and validation for APIs
+- Building middleware (auth, logging, rate limiting)
+
+## API Design Patterns
+
+### RESTful API Structure
+
+```typescript
+// PASS: Resource-based URLs
+GET    /api/markets                 # List resources
+GET    /api/markets/:id             # Get single resource
+POST   /api/markets                 # Create resource
+PUT    /api/markets/:id             # Replace resource
+PATCH  /api/markets/:id             # Update resource
+DELETE /api/markets/:id             # Delete resource
+
+// PASS: Query parameters for filtering, sorting, pagination
+GET /api/markets?status=active&sort=volume&limit=20&offset=0
+```
+
+### Repository Pattern
+
+```typescript
+// Abstract data access logic
+interface MarketRepository {
+  findAll(filters?: MarketFilters): Promise<Market[]>
+  findById(id: string): Promise<Market | null>
+  create(data: CreateMarketDto): Promise<Market>
+  update(id: string, data: UpdateMarketDto): Promise<Market>
+  delete(id: string): Promise<void>
+}
+
+class SupabaseMarketRepository implements MarketRepository {
+---END---
+FILE: .agents/skills/bun-runtime/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Bun Runtime"
+  short_description: "Bun as runtime, package manager, bundler, and test runner"
+  brand_color: "#FBF0DF"
+  default_prompt: "Use Bun for scripts, install, or run"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/bun-runtime/SKILL.md (84 lines)
+---
+name: bun-runtime
+description: Bun as runtime, package manager, bundler, and test runner. When to choose Bun vs Node, migration notes, and Vercel support.
+origin: ECC
+---
+
+# Bun Runtime
+
+Bun is a fast all-in-one JavaScript runtime and toolkit: runtime, package manager, bundler, and test runner.
+
+## When to Use
+
+- **Prefer Bun** for: new JS/TS projects, scripts where install/run speed matters, Vercel deployments with Bun runtime, and when you want a single toolchain (run + install + test + build).
+- **Prefer Node** for: maximum ecosystem compatibility, legacy tooling that assumes Node, or when a dependency has known Bun issues.
+
+Use when: adopting Bun, migrating from Node, writing or debugging Bun scripts/tests, or configuring Bun on Vercel or other platforms.
+
+## How It Works
+
+- **Runtime**: Drop-in Node-compatible runtime (built on JavaScriptCore, implemented in Zig).
+- **Package manager**: `bun install` is significantly faster than npm/yarn. Lockfile is `bun.lock` (text) by default in current Bun; older versions used `bun.lockb` (binary).
+- **Bundler**: Built-in bundler and transpiler for apps and libraries.
+- **Test runner**: Built-in `bun test` with Jest-like API.
+
+**Migration from Node**: Replace `node script.js` with `bun run script.js` or `bun script.js`. Run `bun install` in place of `npm install`; most packages work. Use `bun run` for npm scripts; `bun x` for npx-style one-off runs. Node built-ins are supported; prefer Bun APIs where they exist for better performance.
+
+**Vercel**: Set runtime to Bun in project settings. Build: `bun run build` or `bun build ./src/index.ts --outdir=dist`. Install: `bun install --frozen-lockfile` for reproducible deploys.
+
+## Examples
+
+### Run and install
+
+```bash
+# Install dependencies (creates/updates bun.lock or bun.lockb)
+bun install
+
+# Run a script or file
+bun run dev
+bun run src/index.ts
+bun src/index.ts
+```
+
+### Scripts and env
+
+```bash
+bun run --env-file=.env dev
+FOO=bar bun run script.ts
+```
+
+### Testing
+---END---
+FILE: .agents/skills/claude-api/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Claude API"
+  short_description: "Anthropic Claude API patterns and SDKs"
+  brand_color: "#D97706"
+  default_prompt: "Build applications with the Claude API using Messages, tool use, streaming, and Agent SDK"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/claude-api/SKILL.md (337 lines)
+---
+name: claude-api
+description: Anthropic Claude API patterns for Python and TypeScript. Covers Messages API, streaming, tool use, vision, extended thinking, batches, prompt caching, and Claude Agent SDK. Use when building applications with the Claude API or Anthropic SDKs.
+origin: ECC
+---
+
+# Claude API
+
+Build applications with the Anthropic Claude API and SDKs.
+
+## When to Activate
+
+- Building applications that call the Claude API
+- Code imports `anthropic` (Python) or `@anthropic-ai/sdk` (TypeScript)
+- User asks about Claude API patterns, tool use, streaming, or vision
+- Implementing agent workflows with Claude Agent SDK
+- Optimizing API costs, token usage, or latency
+
+## Model Selection
+
+| Model | ID | Best For |
+|-------|-----|----------|
+| Opus 4.6 | `claude-opus-4-6` | Complex reasoning, architecture, research |
+| Sonnet 4.6 | `claude-sonnet-4-6` | Balanced coding, most development tasks |
+| Haiku 4.5 | `claude-haiku-4-5-20251001` | Fast responses, high-volume, cost-sensitive |
+
+Default to Sonnet 4.6 unless the task requires deep reasoning (Opus) or speed/cost optimization (Haiku).
+
+## Python SDK
+
+### Installation
+
+```bash
+pip install anthropic
+```
+
+### Basic Message
+
+```python
+import anthropic
+
+client = anthropic.Anthropic()  # reads ANTHROPIC_API_KEY from env
+
+message = client.messages.create(
+    model="claude-sonnet-4-6",
+    max_tokens=1024,
+    messages=[
+        {"role": "user", "content": "Explain async/await in Python"}
+    ]
+)
+---END---
+FILE: .agents/skills/coding-standards/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Coding Standards"
+  short_description: "Universal coding standards and best practices"
+  brand_color: "#3B82F6"
+  default_prompt: "Apply standards: immutability, error handling, type safety"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/coding-standards/SKILL.md (530 lines)
+---
+name: coding-standards
+description: Universal coding standards, best practices, and patterns for TypeScript, JavaScript, React, and Node.js development.
+origin: ECC
+---
+
+# Coding Standards & Best Practices
+
+Universal coding standards applicable across all projects.
+
+## When to Activate
+
+- Starting a new project or module
+- Reviewing code for quality and maintainability
+- Refactoring existing code to follow conventions
+- Enforcing naming, formatting, or structural consistency
+- Setting up linting, formatting, or type-checking rules
+- Onboarding new contributors to coding conventions
+
+## Code Quality Principles
+
+### 1. Readability First
+- Code is read more than written
+- Clear variable and function names
+- Self-documenting code preferred over comments
+- Consistent formatting
+
+### 2. KISS (Keep It Simple, Stupid)
+- Simplest solution that works
+- Avoid over-engineering
+- No premature optimization
+- Easy to understand > clever code
+
+### 3. DRY (Don't Repeat Yourself)
+- Extract common logic into functions
+- Create reusable components
+- Share utilities across modules
+- Avoid copy-paste programming
+
+### 4. YAGNI (You Aren't Gonna Need It)
+- Don't build features before they're needed
+- Avoid speculative generality
+- Add complexity only when required
+- Start simple, refactor when needed
+
+## TypeScript/JavaScript Standards
+
+### Variable Naming
+
+```typescript
+---END---
+FILE: .agents/skills/content-engine/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Content Engine"
+  short_description: "Turn one idea into platform-native social and content outputs"
+  brand_color: "#DC2626"
+  default_prompt: "Turn this source asset into strong multi-platform content"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/content-engine/SKILL.md (150 lines)
+---
+name: content-engine
+description: Create platform-native content systems for X, LinkedIn, TikTok, YouTube, newsletters, and repurposed multi-platform campaigns. Use when the user wants social posts, threads, scripts, content calendars, or one source asset adapted cleanly across platforms.
+origin: ECC
+---
+
+# Content Engine
+
+Build platform-native content without flattening the author's real voice into platform slop.
+
+## When to Activate
+
+- writing X posts or threads
+- drafting LinkedIn posts or launch updates
+- scripting short-form video or YouTube explainers
+- repurposing articles, podcasts, demos, docs, or internal notes into public content
+- building a launch sequence or ongoing content system around a product, insight, or narrative
+
+## Non-Negotiables
+
+1. Start from source material, not generic post formulas.
+2. Adapt the format for the platform, not the persona.
+3. One post should carry one actual claim.
+4. Specificity beats adjectives.
+5. No engagement bait unless the user explicitly asks for it.
+
+## Source-First Workflow
+
+Before drafting, identify the source set:
+- published articles
+- notes or internal memos
+- product demos
+- docs or changelogs
+- transcripts
+- screenshots
+- prior posts from the same author
+
+If the user wants a specific voice, build a voice profile from real examples before writing.
+
+## Voice Capture Workflow
+
+Collect 5 to 20 examples when available. Good sources:
+- articles or essays
+- X posts or threads
+- docs or release notes
+- newsletters
+- previous launch posts
+
+If live X access is available, use `x-api` to pull recent original posts before drafting. If not, use the examples already provided or present in the repo.
+
+---END---
+FILE: .agents/skills/crosspost/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Crosspost"
+  short_description: "Multi-platform content distribution with native adaptation"
+  brand_color: "#EC4899"
+  default_prompt: "Distribute content across X, LinkedIn, Threads, and Bluesky with platform-native adaptation"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/crosspost/SKILL.md (114 lines)
+---
+name: crosspost
+description: Multi-platform content distribution across X, LinkedIn, Threads, and Bluesky. Adapts content per platform using content-engine patterns. Never posts identical content cross-platform. Use when the user wants to distribute content across social platforms.
+origin: ECC
+---
+
+# Crosspost
+
+Distribute content across platforms without turning it into the same fake post in four costumes.
+
+## When to Activate
+
+- the user wants to publish the same underlying idea across multiple platforms
+- a launch, update, release, or essay needs platform-specific versions
+- the user says "crosspost", "post this everywhere", or "adapt this for X and LinkedIn"
+
+## Core Rules
+
+1. Do not publish identical copy across platforms.
+2. Preserve the author's voice across platforms.
+3. Adapt for constraints, not stereotypes.
+4. One post should still be about one thing.
+5. Do not invent a CTA, question, or moral if the source did not earn one.
+
+## Workflow
+
+### Step 1: Start with the Primary Version
+
+Pick the strongest source version first:
+- the original X post
+- the original article
+- the launch note
+- the thread
+- the memo or changelog
+
+Use `content-engine` first if the source still needs voice shaping.
+
+### Step 2: Capture the Voice Fingerprint
+
+Before adapting, note:
+- how blunt or explanatory the source is
+- whether the source uses fragments, lists, or longer transitions
+- whether the source uses parentheses
+- whether the source avoids questions, hashtags, or CTA language
+
+The adaptation should preserve that fingerprint.
+
+### Step 3: Adapt by Platform Constraint
+
+### X
+---END---
+FILE: .agents/skills/deep-research/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Deep Research"
+  short_description: "Multi-source deep research with firecrawl and exa MCPs"
+  brand_color: "#6366F1"
+  default_prompt: "Research the given topic using firecrawl and exa, produce a cited report"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/deep-research/SKILL.md (155 lines)
+---
+name: deep-research
+description: Multi-source deep research using firecrawl and exa MCPs. Searches the web, synthesizes findings, and delivers cited reports with source attribution. Use when the user wants thorough research on any topic with evidence and citations.
+origin: ECC
+---
+
+# Deep Research
+
+Produce thorough, cited research reports from multiple web sources using firecrawl and exa MCP tools.
+
+## When to Activate
+
+- User asks to research any topic in depth
+- Competitive analysis, technology evaluation, or market sizing
+- Due diligence on companies, investors, or technologies
+- Any question requiring synthesis from multiple sources
+- User says "research", "deep dive", "investigate", or "what's the current state of"
+
+## MCP Requirements
+
+At least one of:
+- **firecrawl** — `firecrawl_search`, `firecrawl_scrape`, `firecrawl_crawl`
+- **exa** — `web_search_exa`, `web_search_advanced_exa`, `crawling_exa`
+
+Both together give the best coverage. Configure in `~/.claude.json` or `~/.codex/config.toml`.
+
+## Workflow
+
+### Step 1: Understand the Goal
+
+Ask 1-2 quick clarifying questions:
+- "What's your goal — learning, making a decision, or writing something?"
+- "Any specific angle or depth you want?"
+
+If the user says "just research it" — skip ahead with reasonable defaults.
+
+### Step 2: Plan the Research
+
+Break the topic into 3-5 research sub-questions. Example:
+- Topic: "Impact of AI on healthcare"
+  - What are the main AI applications in healthcare today?
+  - What clinical outcomes have been measured?
+  - What are the regulatory challenges?
+  - What companies are leading this space?
+  - What's the market size and growth trajectory?
+
+### Step 3: Execute Multi-Source Search
+
+For EACH sub-question, search using available MCP tools:
+
+---END---
+FILE: .agents/skills/dmux-workflows/agents/openai.yaml (7 lines)
+interface:
+  display_name: "dmux Workflows"
+  short_description: "Multi-agent orchestration with dmux"
+  brand_color: "#14B8A6"
+  default_prompt: "Orchestrate parallel agent sessions using dmux pane manager"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/dmux-workflows/SKILL.md (144 lines)
+---
+name: dmux-workflows
+description: Multi-agent orchestration using dmux (tmux pane manager for AI agents). Patterns for parallel agent workflows across Claude Code, Codex, OpenCode, and other harnesses. Use when running multiple agent sessions in parallel or coordinating multi-agent development workflows.
+origin: ECC
+---
+
+# dmux Workflows
+
+Orchestrate parallel AI agent sessions using dmux, a tmux pane manager for agent harnesses.
+
+## When to Activate
+
+- Running multiple agent sessions in parallel
+- Coordinating work across Claude Code, Codex, and other harnesses
+- Complex tasks that benefit from divide-and-conquer parallelism
+- User says "run in parallel", "split this work", "use dmux", or "multi-agent"
+
+## What is dmux
+
+dmux is a tmux-based orchestration tool that manages AI agent panes:
+- Press `n` to create a new pane with a prompt
+- Press `m` to merge pane output back to the main session
+- Supports: Claude Code, Codex, OpenCode, Cline, Gemini, Qwen
+
+**Install:** `npm install -g dmux` or see [github.com/standardagents/dmux](https://github.com/standardagents/dmux)
+
+## Quick Start
+
+```bash
+# Start dmux session
+dmux
+
+# Create agent panes (press 'n' in dmux, then type prompt)
+# Pane 1: "Implement the auth middleware in src/auth/"
+# Pane 2: "Write tests for the user service"
+# Pane 3: "Update API documentation"
+
+# Each pane runs its own agent session
+# Press 'm' to merge results back
+```
+
+## Workflow Patterns
+
+### Pattern 1: Research + Implement
+
+Split research and implementation into parallel tracks:
+
+```
+Pane 1 (Research): "Research best practices for rate limiting in Node.js.
+  Check current libraries, compare approaches, and write findings to
+---END---
+FILE: .agents/skills/documentation-lookup/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Documentation Lookup"
+  short_description: "Fetch up-to-date library docs via Context7 MCP"
+  brand_color: "#6366F1"
+  default_prompt: "Look up docs for a library or API"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/documentation-lookup/SKILL.md (90 lines)
+---
+name: documentation-lookup
+description: Use up-to-date library and framework docs via Context7 MCP instead of training data. Activates for setup questions, API references, code examples, or when the user names a framework (e.g. React, Next.js, Prisma).
+origin: ECC
+---
+
+# Documentation Lookup (Context7)
+
+When the user asks about libraries, frameworks, or APIs, fetch current documentation via the Context7 MCP (tools `resolve-library-id` and `query-docs`) instead of relying on training data.
+
+## Core Concepts
+
+- **Context7**: MCP server that exposes live documentation; use it instead of training data for libraries and APIs.
+- **resolve-library-id**: Returns Context7-compatible library IDs (e.g. `/vercel/next.js`) from a library name and query.
+- **query-docs**: Fetches documentation and code snippets for a given library ID and question. Always call resolve-library-id first to get a valid library ID.
+
+## When to use
+
+Activate when the user:
+
+- Asks setup or configuration questions (e.g. "How do I configure Next.js middleware?")
+- Requests code that depends on a library ("Write a Prisma query for...")
+- Needs API or reference information ("What are the Supabase auth methods?")
+- Mentions specific frameworks or libraries (React, Vue, Svelte, Express, Tailwind, Prisma, Supabase, etc.)
+
+Use this skill whenever the request depends on accurate, up-to-date behavior of a library, framework, or API. Applies across harnesses that have the Context7 MCP configured (e.g. Claude Code, Cursor, Codex).
+
+## How it works
+
+### Step 1: Resolve the Library ID
+
+Call the **resolve-library-id** MCP tool with:
+
+- **libraryName**: The library or product name taken from the user's question (e.g. `Next.js`, `Prisma`, `Supabase`).
+- **query**: The user's full question. This improves relevance ranking of results.
+
+You must obtain a Context7-compatible library ID (format `/org/project` or `/org/project/version`) before querying docs. Do not call query-docs without a valid library ID from this step.
+
+### Step 2: Select the Best Match
+
+From the resolution results, choose one result using:
+
+- **Name match**: Prefer exact or closest match to what the user asked for.
+- **Benchmark score**: Higher scores indicate better documentation quality (100 is highest).
+- **Source reputation**: Prefer High or Medium reputation when available.
+- **Version**: If the user specified a version (e.g. "React 19", "Next.js 15"), prefer a version-specific library ID if listed (e.g. `/org/project/v1.2.0`).
+
+### Step 3: Fetch the Documentation
+
+Call the **query-docs** MCP tool with:
+---END---
+FILE: .agents/skills/e2e-testing/agents/openai.yaml (7 lines)
+interface:
+  display_name: "E2E Testing"
+  short_description: "Playwright end-to-end testing"
+  brand_color: "#06B6D4"
+  default_prompt: "Generate Playwright E2E tests with Page Object Model"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/e2e-testing/SKILL.md (326 lines)
+---
+name: e2e-testing
+description: Playwright E2E testing patterns, Page Object Model, configuration, CI/CD integration, artifact management, and flaky test strategies.
+origin: ECC
+---
+
+# E2E Testing Patterns
+
+Comprehensive Playwright patterns for building stable, fast, and maintainable E2E test suites.
+
+## Test File Organization
+
+```
+tests/
+├── e2e/
+│   ├── auth/
+│   │   ├── login.spec.ts
+│   │   ├── logout.spec.ts
+│   │   └── register.spec.ts
+│   ├── features/
+│   │   ├── browse.spec.ts
+│   │   ├── search.spec.ts
+│   │   └── create.spec.ts
+│   └── api/
+│       └── endpoints.spec.ts
+├── fixtures/
+│   ├── auth.ts
+│   └── data.ts
+└── playwright.config.ts
+```
+
+## Page Object Model (POM)
+
+```typescript
+import { Page, Locator } from '@playwright/test'
+
+export class ItemsPage {
+  readonly page: Page
+  readonly searchInput: Locator
+  readonly itemCards: Locator
+  readonly createButton: Locator
+
+  constructor(page: Page) {
+    this.page = page
+    this.searchInput = page.locator('[data-testid="search-input"]')
+    this.itemCards = page.locator('[data-testid="item-card"]')
+    this.createButton = page.locator('[data-testid="create-btn"]')
+  }
+
+  async goto() {
+---END---
+FILE: .agents/skills/eval-harness/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Eval Harness"
+  short_description: "Eval-driven development with pass/fail criteria"
+  brand_color: "#EC4899"
+  default_prompt: "Set up eval-driven development with pass/fail criteria"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/eval-harness/SKILL.md (236 lines)
+---
+name: eval-harness
+description: Formal evaluation framework for Claude Code sessions implementing eval-driven development (EDD) principles
+origin: ECC
+tools: Read, Write, Edit, Bash, Grep, Glob
+---
+
+# Eval Harness Skill
+
+A formal evaluation framework for Claude Code sessions, implementing eval-driven development (EDD) principles.
+
+## When to Activate
+
+- Setting up eval-driven development (EDD) for AI-assisted workflows
+- Defining pass/fail criteria for Claude Code task completion
+- Measuring agent reliability with pass@k metrics
+- Creating regression test suites for prompt or agent changes
+- Benchmarking agent performance across model versions
+
+## Philosophy
+
+Eval-Driven Development treats evals as the "unit tests of AI development":
+- Define expected behavior BEFORE implementation
+- Run evals continuously during development
+- Track regressions with each change
+- Use pass@k metrics for reliability measurement
+
+## Eval Types
+
+### Capability Evals
+Test if Claude can do something it couldn't before:
+```markdown
+[CAPABILITY EVAL: feature-name]
+Task: Description of what Claude should accomplish
+Success Criteria:
+  - [ ] Criterion 1
+  - [ ] Criterion 2
+  - [ ] Criterion 3
+Expected Output: Description of expected result
+```
+
+### Regression Evals
+Ensure changes don't break existing functionality:
+```markdown
+[REGRESSION EVAL: feature-name]
+Baseline: SHA or checkpoint name
+Tests:
+  - existing-test-1: PASS/FAIL
+  - existing-test-2: PASS/FAIL
+  - existing-test-3: PASS/FAIL
+---END---
+FILE: .agents/skills/everything-claude-code/agents/openai.yaml (5 lines)
+interface:
+  display_name: "Everything Claude Code"
+  short_description: "Repo-specific patterns and workflows for everything-claude-code"
+  default_prompt: "Use the everything-claude-code repo skill to follow existing architecture, testing, and workflow conventions."
+policy:
+  allow_implicit_invocation: true---END---
+FILE: .agents/skills/everything-claude-code/SKILL.md (442 lines)
+---
+name: everything-claude-code-conventions
+description: Development conventions and patterns for everything-claude-code. JavaScript project with conventional commits.
+---
+
+# Everything Claude Code Conventions
+
+> Generated from [affaan-m/everything-claude-code](https://github.com/affaan-m/everything-claude-code) on 2026-03-20
+
+## Overview
+
+This skill teaches Claude the development patterns and conventions used in everything-claude-code.
+
+## Tech Stack
+
+- **Primary Language**: JavaScript
+- **Architecture**: hybrid module organization
+- **Test Location**: separate
+
+## When to Use This Skill
+
+Activate this skill when:
+- Making changes to this repository
+- Adding new features following established patterns
+- Writing tests that match project conventions
+- Creating commits with proper message format
+
+## Commit Conventions
+
+Follow these commit message conventions based on 500 analyzed commits.
+
+### Commit Style: Conventional Commits
+
+### Prefixes Used
+
+- `fix`
+- `test`
+- `feat`
+- `docs`
+
+### Message Guidelines
+
+- Average message length: ~65 characters
+- Keep first line concise and descriptive
+- Use imperative mood ("Add feature" not "Added feature")
+
+
+*Commit message example*
+
+```text
+---END---
+FILE: .agents/skills/exa-search/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Exa Search"
+  short_description: "Neural search via Exa MCP for web, code, and companies"
+  brand_color: "#8B5CF6"
+  default_prompt: "Search using Exa MCP tools for web content, code, or company research"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/exa-search/SKILL.md (170 lines)
+---
+name: exa-search
+description: Neural search via Exa MCP for web, code, and company research. Use when the user needs web search, code examples, company intel, people lookup, or AI-powered deep research with Exa's neural search engine.
+origin: ECC
+---
+
+# Exa Search
+
+Neural search for web content, code, companies, and people via the Exa MCP server.
+
+## When to Activate
+
+- User needs current web information or news
+- Searching for code examples, API docs, or technical references
+- Researching companies, competitors, or market players
+- Finding professional profiles or people in a domain
+- Running background research for any development task
+- User says "search for", "look up", "find", or "what's the latest on"
+
+## MCP Requirement
+
+Exa MCP server must be configured. Add to `~/.claude.json`:
+
+```json
+"exa-web-search": {
+  "command": "npx",
+  "args": ["-y", "exa-mcp-server"],
+  "env": { "EXA_API_KEY": "YOUR_EXA_API_KEY_HERE" }
+}
+```
+
+Get an API key at [exa.ai](https://exa.ai).
+
+## Core Tools
+
+### web_search_exa
+General web search for current information, news, or facts.
+
+```
+web_search_exa(query: "latest AI developments 2026", numResults: 5)
+```
+
+**Parameters:**
+
+| Param | Type | Default | Notes |
+|-------|------|---------|-------|
+| `query` | string | required | Search query |
+| `numResults` | number | 8 | Number of results |
+
+### web_search_advanced_exa
+---END---
+FILE: .agents/skills/fal-ai-media/agents/openai.yaml (7 lines)
+interface:
+  display_name: "fal.ai Media"
+  short_description: "AI image, video, and audio generation via fal.ai"
+  brand_color: "#F43F5E"
+  default_prompt: "Generate images, videos, or audio using fal.ai models"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/fal-ai-media/SKILL.md (277 lines)
+---
+name: fal-ai-media
+description: Unified media generation via fal.ai MCP — image, video, and audio. Covers text-to-image (Nano Banana), text/image-to-video (Seedance, Kling, Veo 3), text-to-speech (CSM-1B), and video-to-audio (ThinkSound). Use when the user wants to generate images, videos, or audio with AI.
+origin: ECC
+---
+
+# fal.ai Media Generation
+
+Generate images, videos, and audio using fal.ai models via MCP.
+
+## When to Activate
+
+- User wants to generate images from text prompts
+- Creating videos from text or images
+- Generating speech, music, or sound effects
+- Any media generation task
+- User says "generate image", "create video", "text to speech", "make a thumbnail", or similar
+
+## MCP Requirement
+
+fal.ai MCP server must be configured. Add to `~/.claude.json`:
+
+```json
+"fal-ai": {
+  "command": "npx",
+  "args": ["-y", "fal-ai-mcp-server"],
+  "env": { "FAL_KEY": "YOUR_FAL_KEY_HERE" }
+}
+```
+
+Get an API key at [fal.ai](https://fal.ai).
+
+## MCP Tools
+
+The fal.ai MCP provides these tools:
+- `search` — Find available models by keyword
+- `find` — Get model details and parameters
+- `generate` — Run a model with parameters
+- `result` — Check async generation status
+- `status` — Check job status
+- `cancel` — Cancel a running job
+- `estimate_cost` — Estimate generation cost
+- `models` — List popular models
+- `upload` — Upload files for use as inputs
+
+---
+
+## Image Generation
+
+### Nano Banana 2 (Fast)
+---END---
+FILE: .agents/skills/frontend-patterns/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Frontend Patterns"
+  short_description: "React and Next.js patterns and best practices"
+  brand_color: "#8B5CF6"
+  default_prompt: "Apply React/Next.js patterns and best practices"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/frontend-patterns/SKILL.md (642 lines)
+---
+name: frontend-patterns
+description: Frontend development patterns for React, Next.js, state management, performance optimization, and UI best practices.
+origin: ECC
+---
+
+# Frontend Development Patterns
+
+Modern frontend patterns for React, Next.js, and performant user interfaces.
+
+## When to Activate
+
+- Building React components (composition, props, rendering)
+- Managing state (useState, useReducer, Zustand, Context)
+- Implementing data fetching (SWR, React Query, server components)
+- Optimizing performance (memoization, virtualization, code splitting)
+- Working with forms (validation, controlled inputs, Zod schemas)
+- Handling client-side routing and navigation
+- Building accessible, responsive UI patterns
+
+## Component Patterns
+
+### Composition Over Inheritance
+
+```typescript
+// PASS: GOOD: Component composition
+interface CardProps {
+  children: React.ReactNode
+  variant?: 'default' | 'outlined'
+}
+
+export function Card({ children, variant = 'default' }: CardProps) {
+  return <div className={`card card-${variant}`}>{children}</div>
+}
+
+export function CardHeader({ children }: { children: React.ReactNode }) {
+  return <div className="card-header">{children}</div>
+}
+
+export function CardBody({ children }: { children: React.ReactNode }) {
+  return <div className="card-body">{children}</div>
+}
+
+// Usage
+<Card>
+  <CardHeader>Title</CardHeader>
+  <CardBody>Content</CardBody>
+</Card>
+```
+
+---END---
+FILE: .agents/skills/frontend-slides/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Frontend Slides"
+  short_description: "Create distinctive HTML slide decks and convert PPTX to web"
+  brand_color: "#FF6B3D"
+  default_prompt: "Create a viewport-safe HTML presentation with strong visual direction"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/frontend-slides/SKILL.md (184 lines)
+---
+name: frontend-slides
+description: Create stunning, animation-rich HTML presentations from scratch or by converting PowerPoint files. Use when the user wants to build a presentation, convert a PPT/PPTX to web, or create slides for a talk/pitch. Helps non-designers discover their aesthetic through visual exploration rather than abstract choices.
+origin: ECC
+---
+
+# Frontend Slides
+
+Create zero-dependency, animation-rich HTML presentations that run entirely in the browser.
+
+Inspired by the visual exploration approach showcased in work by [zarazhangrui](https://github.com/zarazhangrui).
+
+## When to Activate
+
+- Creating a talk deck, pitch deck, workshop deck, or internal presentation
+- Converting `.ppt` or `.pptx` slides into an HTML presentation
+- Improving an existing HTML presentation's layout, motion, or typography
+- Exploring presentation styles with a user who does not know their design preference yet
+
+## Non-Negotiables
+
+1. **Zero dependencies**: default to one self-contained HTML file with inline CSS and JS.
+2. **Viewport fit is mandatory**: every slide must fit inside one viewport with no internal scrolling.
+3. **Show, don't tell**: use visual previews instead of abstract style questionnaires.
+4. **Distinctive design**: avoid generic purple-gradient, Inter-on-white, template-looking decks.
+5. **Production quality**: keep code commented, accessible, responsive, and performant.
+
+Before generating, read `STYLE_PRESETS.md` for the viewport-safe CSS base, density limits, preset catalog, and CSS gotchas.
+
+## Workflow
+
+### 1. Detect Mode
+
+Choose one path:
+- **New presentation**: user has a topic, notes, or full draft
+- **PPT conversion**: user has `.ppt` or `.pptx`
+- **Enhancement**: user already has HTML slides and wants improvements
+
+### 2. Discover Content
+
+Ask only the minimum needed:
+- purpose: pitch, teaching, conference talk, internal update
+- length: short (5-10), medium (10-20), long (20+)
+- content state: finished copy, rough notes, topic only
+
+If the user has content, ask them to paste it before styling.
+
+### 3. Discover Style
+
+Default to visual exploration.
+---END---
+FILE: .agents/skills/frontend-slides/STYLE_PRESETS.md (330 lines)
+# Style Presets Reference
+
+Curated visual styles for `frontend-slides`.
+
+Use this file for:
+- the mandatory viewport-fitting CSS base
+- preset selection and mood mapping
+- CSS gotchas and validation rules
+
+Abstract shapes only. Avoid illustrations unless the user explicitly asks for them.
+
+## Viewport Fit Is Non-Negotiable
+
+Every slide must fully fit in one viewport.
+
+### Golden Rule
+
+```text
+Each slide = exactly one viewport height.
+Too much content = split into more slides.
+Never scroll inside a slide.
+```
+
+### Density Limits
+
+| Slide Type | Maximum Content |
+|------------|-----------------|
+| Title slide | 1 heading + 1 subtitle + optional tagline |
+| Content slide | 1 heading + 4-6 bullets or 2 paragraphs |
+| Feature grid | 6 cards maximum |
+| Code slide | 8-10 lines maximum |
+| Quote slide | 1 quote + attribution |
+| Image slide | 1 image, ideally under 60vh |
+
+## Mandatory Base CSS
+
+Copy this block into every generated presentation and then theme on top of it.
+
+```css
+/* ===========================================
+   VIEWPORT FITTING: MANDATORY BASE STYLES
+   =========================================== */
+
+html, body {
+    height: 100%;
+    overflow-x: hidden;
+}
+
+html {
+    scroll-snap-type: y mandatory;
+---END---
+FILE: .agents/skills/investor-materials/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Investor Materials"
+  short_description: "Create decks, memos, and financial materials from one source of truth"
+  brand_color: "#7C3AED"
+  default_prompt: "Draft investor materials that stay numerically consistent across assets"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/investor-materials/SKILL.md (96 lines)
+---
+name: investor-materials
+description: Create and update pitch decks, one-pagers, investor memos, accelerator applications, financial models, and fundraising materials. Use when the user needs investor-facing documents, projections, use-of-funds tables, milestone plans, or materials that must stay internally consistent across multiple fundraising assets.
+origin: ECC
+---
+
+# Investor Materials
+
+Build investor-facing materials that are consistent, credible, and easy to defend.
+
+## When to Activate
+
+- creating or revising a pitch deck
+- writing an investor memo or one-pager
+- building a financial model, milestone plan, or use-of-funds table
+- answering accelerator or incubator application questions
+- aligning multiple fundraising docs around one source of truth
+
+## Golden Rule
+
+All investor materials must agree with each other.
+
+Create or confirm a single source of truth before writing:
+- traction metrics
+- pricing and revenue assumptions
+- raise size and instrument
+- use of funds
+- team bios and titles
+- milestones and timelines
+
+If conflicting numbers appear, stop and resolve them before drafting.
+
+## Core Workflow
+
+1. inventory the canonical facts
+2. identify missing assumptions
+3. choose the asset type
+4. draft the asset with explicit logic
+5. cross-check every number against the source of truth
+
+## Asset Guidance
+
+### Pitch Deck
+Recommended flow:
+1. company + wedge
+2. problem
+3. solution
+4. product / demo
+5. market
+6. business model
+---END---
+FILE: .agents/skills/investor-outreach/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Investor Outreach"
+  short_description: "Write concise, personalized outreach and follow-ups for fundraising"
+  brand_color: "#059669"
+  default_prompt: "Draft a personalized investor outreach email with a clear low-friction ask"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/investor-outreach/SKILL.md (87 lines)
+---
+name: investor-outreach
+description: Draft cold emails, warm intro blurbs, follow-ups, update emails, and investor communications for fundraising. Use when the user wants outreach to angels, VCs, strategic investors, or accelerators and needs concise, personalized, investor-facing messaging.
+origin: ECC
+---
+
+# Investor Outreach
+
+Write investor communication that is short, concrete, and easy to act on.
+
+## When to Activate
+
+- writing a cold email to an investor
+- drafting a warm intro request
+- sending follow-ups after a meeting or no response
+- writing investor updates during a process
+- tailoring outreach based on fund thesis or partner fit
+
+## Core Rules
+
+1. Personalize every outbound message.
+2. Keep the ask low-friction.
+3. Use proof instead of adjectives.
+4. Stay concise.
+5. Never send copy that could go to any investor.
+
+## Hard Bans
+
+Delete and rewrite any of these:
+- "I'd love to connect"
+- "excited to share"
+- generic thesis praise without a real tie-in
+- vague founder adjectives
+- "no fluff"
+- begging language
+- soft closing questions when a direct ask is clearer
+
+## Cold Email Structure
+
+1. subject line: short and specific
+2. opener: why this investor specifically
+3. pitch: what the company does, why now, and what proof matters
+4. ask: one concrete next step
+5. sign-off: name, role, and one credibility anchor if needed
+
+## Personalization Sources
+
+Reference one or more of:
+- relevant portfolio companies
+- a public thesis, talk, post, or article
+---END---
+FILE: .agents/skills/market-research/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Market Research"
+  short_description: "Source-attributed market, competitor, and investor research"
+  brand_color: "#2563EB"
+  default_prompt: "Research this market and summarize the decision-relevant findings"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/market-research/SKILL.md (75 lines)
+---
+name: market-research
+description: Conduct market research, competitive analysis, investor due diligence, and industry intelligence with source attribution and decision-oriented summaries. Use when the user wants market sizing, competitor comparisons, fund research, technology scans, or research that informs business decisions.
+origin: ECC
+---
+
+# Market Research
+
+Produce research that supports decisions, not research theater.
+
+## When to Activate
+
+- researching a market, category, company, investor, or technology trend
+- building TAM/SAM/SOM estimates
+- comparing competitors or adjacent products
+- preparing investor dossiers before outreach
+- pressure-testing a thesis before building, funding, or entering a market
+
+## Research Standards
+
+1. Every important claim needs a source.
+2. Prefer recent data and call out stale data.
+3. Include contrarian evidence and downside cases.
+4. Translate findings into a decision, not just a summary.
+5. Separate fact, inference, and recommendation clearly.
+
+## Common Research Modes
+
+### Investor / Fund Diligence
+Collect:
+- fund size, stage, and typical check size
+- relevant portfolio companies
+- public thesis and recent activity
+- reasons the fund is or is not a fit
+- any obvious red flags or mismatches
+
+### Competitive Analysis
+Collect:
+- product reality, not marketing copy
+- funding and investor history if public
+- traction metrics if public
+- distribution and pricing clues
+- strengths, weaknesses, and positioning gaps
+
+### Market Sizing
+Use:
+- top-down estimates from reports or public datasets
+- bottom-up sanity checks from realistic customer acquisition assumptions
+- explicit assumptions for every leap in logic
+
+---END---
+FILE: .agents/skills/mcp-server-patterns/SKILL.md (67 lines)
+---
+name: mcp-server-patterns
+description: Build MCP servers with Node/TypeScript SDK — tools, resources, prompts, Zod validation, stdio vs Streamable HTTP. Use Context7 or official MCP docs for latest API.
+origin: ECC
+---
+
+# MCP Server Patterns
+
+The Model Context Protocol (MCP) lets AI assistants call tools, read resources, and use prompts from your server. Use this skill when building or maintaining MCP servers. The SDK API evolves; check Context7 (query-docs for "MCP") or the official MCP documentation for current method names and signatures.
+
+## When to Use
+
+Use when: implementing a new MCP server, adding tools or resources, choosing stdio vs HTTP, upgrading the SDK, or debugging MCP registration and transport issues.
+
+## How It Works
+
+### Core concepts
+
+- **Tools**: Actions the model can invoke (e.g. search, run a command). Register with `registerTool()` or `tool()` depending on SDK version.
+- **Resources**: Read-only data the model can fetch (e.g. file contents, API responses). Register with `registerResource()` or `resource()`. Handlers typically receive a `uri` argument.
+- **Prompts**: Reusable, parameterised prompt templates the client can surface (e.g. in Claude Desktop). Register with `registerPrompt()` or equivalent.
+- **Transport**: stdio for local clients (e.g. Claude Desktop); Streamable HTTP is preferred for remote (Cursor, cloud). Legacy HTTP/SSE is for backward compatibility.
+
+The Node/TypeScript SDK may expose `tool()` / `resource()` or `registerTool()` / `registerResource()`; the official SDK has changed over time. Always verify against the current [MCP docs](https://modelcontextprotocol.io) or Context7.
+
+### Connecting with stdio
+
+For local clients, create a stdio transport and pass it to your server’s connect method. The exact API varies by SDK version (e.g. constructor vs factory). See the official MCP documentation or query Context7 for "MCP stdio server" for the current pattern.
+
+Keep server logic (tools + resources) independent of transport so you can plug in stdio or HTTP in the entrypoint.
+
+### Remote (Streamable HTTP)
+
+For Cursor, cloud, or other remote clients, use **Streamable HTTP** (single MCP HTTP endpoint per current spec). Support legacy HTTP/SSE only when backward compatibility is required.
+
+## Examples
+
+### Install and server setup
+
+```bash
+npm install @modelcontextprotocol/sdk zod
+```
+
+```typescript
+import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { z } from "zod";
+
+const server = new McpServer({ name: "my-server", version: "1.0.0" });
+```
+
+---END---
+FILE: .agents/skills/nextjs-turbopack/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Next.js Turbopack"
+  short_description: "Next.js 16+ and Turbopack dev bundler"
+  brand_color: "#000000"
+  default_prompt: "Next.js dev, Turbopack, or bundle optimization"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/nextjs-turbopack/SKILL.md (44 lines)
+---
+name: nextjs-turbopack
+description: Next.js 16+ and Turbopack — incremental bundling, FS caching, dev speed, and when to use Turbopack vs webpack.
+origin: ECC
+---
+
+# Next.js and Turbopack
+
+Next.js 16+ uses Turbopack by default for local development: an incremental bundler written in Rust that significantly speeds up dev startup and hot updates.
+
+## When to Use
+
+- **Turbopack (default dev)**: Use for day-to-day development. Faster cold start and HMR, especially in large apps.
+- **Webpack (legacy dev)**: Use only if you hit a Turbopack bug or rely on a webpack-only plugin in dev. Disable with `--webpack` (or `--no-turbopack` depending on your Next.js version; check the docs for your release).
+- **Production**: Production build behavior (`next build`) may use Turbopack or webpack depending on Next.js version; check the official Next.js docs for your version.
+
+Use when: developing or debugging Next.js 16+ apps, diagnosing slow dev startup or HMR, or optimizing production bundles.
+
+## How It Works
+
+- **Turbopack**: Incremental bundler for Next.js dev. Uses file-system caching so restarts are much faster (e.g. 5–14x on large projects).
+- **Default in dev**: From Next.js 16, `next dev` runs with Turbopack unless disabled.
+- **File-system caching**: Restarts reuse previous work; cache is typically under `.next`; no extra config needed for basic use.
+- **Bundle Analyzer (Next.js 16.1+)**: Experimental Bundle Analyzer to inspect output and find heavy dependencies; enable via config or experimental flag (see Next.js docs for your version).
+
+## Examples
+
+### Commands
+
+```bash
+next dev
+next build
+next start
+```
+
+### Usage
+
+Run `next dev` for local development with Turbopack. Use the Bundle Analyzer (see Next.js docs) to optimize code-splitting and trim large dependencies. Prefer App Router and server components where possible.
+
+## Best Practices
+
+- Stay on a recent Next.js 16.x for stable Turbopack and caching behavior.
+- If dev is slow, ensure you're on Turbopack (default) and that the cache isn't being cleared unnecessarily.
+- For production bundle size issues, use the official Next.js bundle analysis tooling for your version.
+---END---
+FILE: .agents/skills/security-review/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Security Review"
+  short_description: "Comprehensive security checklist and vulnerability detection"
+  brand_color: "#EF4444"
+  default_prompt: "Run security checklist: secrets, input validation, injection prevention"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/security-review/SKILL.md (495 lines)
+---
+name: security-review
+description: Use this skill when adding authentication, handling user input, working with secrets, creating API endpoints, or implementing payment/sensitive features. Provides comprehensive security checklist and patterns.
+origin: ECC
+---
+
+# Security Review Skill
+
+This skill ensures all code follows security best practices and identifies potential vulnerabilities.
+
+## When to Activate
+
+- Implementing authentication or authorization
+- Handling user input or file uploads
+- Creating new API endpoints
+- Working with secrets or credentials
+- Implementing payment features
+- Storing or transmitting sensitive data
+- Integrating third-party APIs
+
+## Security Checklist
+
+### 1. Secrets Management
+
+#### FAIL: NEVER Do This
+```typescript
+const apiKey = "sk-proj-xxxxx"  // Hardcoded secret
+const dbPassword = "password123" // In source code
+```
+
+#### PASS: ALWAYS Do This
+```typescript
+const apiKey = process.env.OPENAI_API_KEY
+const dbUrl = process.env.DATABASE_URL
+
+// Verify secrets exist
+if (!apiKey) {
+  throw new Error('OPENAI_API_KEY not configured')
+}
+```
+
+#### Verification Steps
+- [ ] No hardcoded API keys, tokens, or passwords
+- [ ] All secrets in environment variables
+- [ ] `.env.local` in .gitignore
+- [ ] No secrets in git history
+- [ ] Production secrets in hosting platform (Vercel, Railway)
+
+### 2. Input Validation
+
+---END---
+FILE: .agents/skills/strategic-compact/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Strategic Compact"
+  short_description: "Context management via strategic compaction"
+  brand_color: "#14B8A6"
+  default_prompt: "Suggest task boundary compaction for context management"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/strategic-compact/SKILL.md (103 lines)
+---
+name: strategic-compact
+description: Suggests manual context compaction at logical intervals to preserve context through task phases rather than arbitrary auto-compaction.
+origin: ECC
+---
+
+# Strategic Compact Skill
+
+Suggests manual `/compact` at strategic points in your workflow rather than relying on arbitrary auto-compaction.
+
+## When to Activate
+
+- Running long sessions that approach context limits (200K+ tokens)
+- Working on multi-phase tasks (research → plan → implement → test)
+- Switching between unrelated tasks within the same session
+- After completing a major milestone and starting new work
+- When responses slow down or become less coherent (context pressure)
+
+## Why Strategic Compaction?
+
+Auto-compaction triggers at arbitrary points:
+- Often mid-task, losing important context
+- No awareness of logical task boundaries
+- Can interrupt complex multi-step operations
+
+Strategic compaction at logical boundaries:
+- **After exploration, before execution** — Compact research context, keep implementation plan
+- **After completing a milestone** — Fresh start for next phase
+- **Before major context shifts** — Clear exploration context before different task
+
+## How It Works
+
+The `suggest-compact.js` script runs on PreToolUse (Edit/Write) and:
+
+1. **Tracks tool calls** — Counts tool invocations in session
+2. **Threshold detection** — Suggests at configurable threshold (default: 50 calls)
+3. **Periodic reminders** — Reminds every 25 calls after threshold
+
+## Hook Setup
+
+Add to your `~/.claude/settings.json`:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [{ "type": "command", "command": "node ~/.claude/skills/strategic-compact/suggest-compact.js" }]
+      },
+---END---
+FILE: .agents/skills/tdd-workflow/agents/openai.yaml (7 lines)
+interface:
+  display_name: "TDD Workflow"
+  short_description: "Test-driven development with 80%+ coverage"
+  brand_color: "#22C55E"
+  default_prompt: "Follow TDD: write tests first, implement, verify 80%+ coverage"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/tdd-workflow/SKILL.md (410 lines)
+---
+name: tdd-workflow
+description: Use this skill when writing new features, fixing bugs, or refactoring code. Enforces test-driven development with 80%+ coverage including unit, integration, and E2E tests.
+origin: ECC
+---
+
+# Test-Driven Development Workflow
+
+This skill ensures all code development follows TDD principles with comprehensive test coverage.
+
+## When to Activate
+
+- Writing new features or functionality
+- Fixing bugs or issues
+- Refactoring existing code
+- Adding API endpoints
+- Creating new components
+
+## Core Principles
+
+### 1. Tests BEFORE Code
+ALWAYS write tests first, then implement code to make tests pass.
+
+### 2. Coverage Requirements
+- Minimum 80% coverage (unit + integration + E2E)
+- All edge cases covered
+- Error scenarios tested
+- Boundary conditions verified
+
+### 3. Test Types
+
+#### Unit Tests
+- Individual functions and utilities
+- Component logic
+- Pure functions
+- Helpers and utilities
+
+#### Integration Tests
+- API endpoints
+- Database operations
+- Service interactions
+- External API calls
+
+#### E2E Tests (Playwright)
+- Critical user flows
+- Complete workflows
+- Browser automation
+- UI interactions
+
+## TDD Workflow Steps
+---END---
+FILE: .agents/skills/verification-loop/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Verification Loop"
+  short_description: "Build, test, lint, typecheck verification"
+  brand_color: "#10B981"
+  default_prompt: "Run verification: build, test, lint, typecheck, security"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/verification-loop/SKILL.md (126 lines)
+---
+name: verification-loop
+description: "A comprehensive verification system for Claude Code sessions."
+origin: ECC
+---
+
+# Verification Loop Skill
+
+A comprehensive verification system for Claude Code sessions.
+
+## When to Use
+
+Invoke this skill:
+- After completing a feature or significant code change
+- Before creating a PR
+- When you want to ensure quality gates pass
+- After refactoring
+
+## Verification Phases
+
+### Phase 1: Build Verification
+```bash
+# Check if project builds
+npm run build 2>&1 | tail -20
+# OR
+pnpm build 2>&1 | tail -20
+```
+
+If build fails, STOP and fix before continuing.
+
+### Phase 2: Type Check
+```bash
+# TypeScript projects
+npx tsc --noEmit 2>&1 | head -30
+
+# Python projects
+pyright . 2>&1 | head -30
+```
+
+Report all type errors. Fix critical ones before continuing.
+
+### Phase 3: Lint Check
+```bash
+# JavaScript/TypeScript
+npm run lint 2>&1 | head -30
+
+# Python
+ruff check . 2>&1 | head -30
+```
+
+---END---
+FILE: .agents/skills/video-editing/agents/openai.yaml (7 lines)
+interface:
+  display_name: "Video Editing"
+  short_description: "AI-assisted video editing for real footage"
+  brand_color: "#EF4444"
+  default_prompt: "Edit video using AI-assisted pipeline: organize, cut, compose, generate assets, polish"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/video-editing/SKILL.md (308 lines)
+---
+name: video-editing
+description: AI-assisted video editing workflows for cutting, structuring, and augmenting real footage. Covers the full pipeline from raw capture through FFmpeg, Remotion, ElevenLabs, fal.ai, and final polish in Descript or CapCut. Use when the user wants to edit video, cut footage, create vlogs, or build video content.
+origin: ECC
+---
+
+# Video Editing
+
+AI-assisted editing for real footage. Not generation from prompts. Editing existing video fast.
+
+## When to Activate
+
+- User wants to edit, cut, or structure video footage
+- Turning long recordings into short-form content
+- Building vlogs, tutorials, or demo videos from raw capture
+- Adding overlays, subtitles, music, or voiceover to existing video
+- Reframing video for different platforms (YouTube, TikTok, Instagram)
+- User says "edit video", "cut this footage", "make a vlog", or "video workflow"
+
+## Core Thesis
+
+AI video editing is useful when you stop asking it to create the whole video and start using it to compress, structure, and augment real footage. The value is not generation. The value is compression.
+
+## The Pipeline
+
+```
+Screen Studio / raw footage
+  → Claude / Codex
+  → FFmpeg
+  → Remotion
+  → ElevenLabs / fal.ai
+  → Descript or CapCut
+```
+
+Each layer has a specific job. Do not skip layers. Do not try to make one tool do everything.
+
+## Layer 1: Capture (Screen Studio / Raw Footage)
+
+Collect the source material:
+- **Screen Studio**: polished screen recordings for app demos, coding sessions, browser workflows
+- **Raw camera footage**: vlog footage, interviews, event recordings
+- **Desktop capture via VideoDB**: session recording with real-time context (see `videodb` skill)
+
+Output: raw files ready for organization.
+
+## Layer 2: Organization (Claude / Codex)
+
+Use Claude Code or Codex to:
+- **Transcribe and label**: generate transcript, identify topics and themes
+- **Plan structure**: decide what stays, what gets cut, what order works
+---END---
+FILE: .agents/skills/x-api/agents/openai.yaml (7 lines)
+interface:
+  display_name: "X API"
+  short_description: "X/Twitter API integration for posting, threads, and analytics"
+  brand_color: "#000000"
+  default_prompt: "Use X API to post tweets, threads, or retrieve timeline and search data"
+policy:
+  allow_implicit_invocation: true
+---END---
+FILE: .agents/skills/x-api/SKILL.md (214 lines)
+---
+name: x-api
+description: X/Twitter API integration for posting tweets, threads, reading timelines, search, and analytics. Covers OAuth auth patterns, rate limits, and platform-native content posting. Use when the user wants to interact with X programmatically.
+origin: ECC
+---
+
+# X API
+
+Programmatic interaction with X (Twitter) for posting, reading, searching, and analytics.
+
+## When to Activate
+
+- User wants to post tweets or threads programmatically
+- Reading timeline, mentions, or user data from X
+- Searching X for content, trends, or conversations
+- Building X integrations or bots
+- Analytics and engagement tracking
+- User says "post to X", "tweet", "X API", or "Twitter API"
+
+## Authentication
+
+### OAuth 2.0 (App-Only / User Context)
+
+Best for: read-heavy operations, search, public data.
+
+```bash
+# Environment setup
+export X_BEARER_TOKEN="your-bearer-token"
+```
+
+```python
+import os
+import requests
+
+bearer = os.environ["X_BEARER_TOKEN"]
+headers = {"Authorization": f"Bearer {bearer}"}
+
+# Search recent tweets
+resp = requests.get(
+    "https://api.x.com/2/tweets/search/recent",
+    headers=headers,
+    params={"query": "claude code", "max_results": 10}
+)
+tweets = resp.json()
+```
+
+### OAuth 1.0a (User Context)
+
+Required for: posting tweets, managing account, DMs.
+
+---END---
+
+## Repository Structure
+### Top-level layout
+agents
+AGENTS.md
+agent.yaml
+assets
+CHANGELOG.md
+CLAUDE.md
+CODE_OF_CONDUCT.md
+commands
+COMMANDS-QUICK-REF.md
+commitlint.config.js
+contexts
+CONTRIBUTING.md
+docs
+ecc2
+eslint.config.js
+EVALUATION.md
+examples
+hooks
+install.ps1
+install.sh
+LICENSE
+manifests
+mcp-configs
+package.json
+package-lock.json
+plugins
+README.md
+README.zh-CN.md
+REPO-ASSESSMENT.md
+research
+rules
+RULES.md
+schemas
+scripts
+SECURITY.md
+skills
+SOUL.md
+SPONSORING.md
+SPONSORS.md
+tests
+the-longform-guide.md
+the-security-guide.md
+the-shortform-guide.md
+TROUBLESHOOTING.md
+VERSION
+WORKING-CONTEXT.md
+yarn.lock
+
+### README
+FILE: README.md
+**Language:** English | [Português (Brasil)](docs/pt-BR/README.md) | [简体中文](README.zh-CN.md) | [繁體中文](docs/zh-TW/README.md) | [日本語](docs/ja-JP/README.md) | [한국어](docs/ko-KR/README.md) | [Türkçe](docs/tr/README.md)
+
+# Everything Claude Code
+
+[![Stars](https://img.shields.io/github/stars/affaan-m/everything-claude-code?style=flat)](https://github.com/affaan-m/everything-claude-code/stargazers)
+[![Forks](https://img.shields.io/github/forks/affaan-m/everything-claude-code?style=flat)](https://github.com/affaan-m/everything-claude-code/network/members)
+[![Contributors](https://img.shields.io/github/contributors/affaan-m/everything-claude-code?style=flat)](https://github.com/affaan-m/everything-claude-code/graphs/contributors)
+[![npm ecc-universal](https://img.shields.io/npm/dw/ecc-universal?label=ecc-universal%20weekly%20downloads&logo=npm)](https://www.npmjs.com/package/ecc-universal)
+[![npm ecc-agentshield](https://img.shields.io/npm/dw/ecc-agentshield?label=ecc-agentshield%20weekly%20downloads&logo=npm)](https://www.npmjs.com/package/ecc-agentshield)
+[![GitHub App Install](https://img.shields.io/badge/GitHub%20App-150%20installs-2ea44f?logo=github)](https://github.com/marketplace/ecc-tools)
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+![Shell](https://img.shields.io/badge/-Shell-4EAA25?logo=gnu-bash&logoColor=white)
+![TypeScript](https://img.shields.io/badge/-TypeScript-3178C6?logo=typescript&logoColor=white)
+![Python](https://img.shields.io/badge/-Python-3776AB?logo=python&logoColor=white)
+![Go](https://img.shields.io/badge/-Go-00ADD8?logo=go&logoColor=white)
+![Java](https://img.shields.io/badge/-Java-ED8B00?logo=openjdk&logoColor=white)
+![Perl](https://img.shields.io/badge/-Perl-39457E?logo=perl&logoColor=white)
+![Markdown](https://img.shields.io/badge/-Markdown-000000?logo=markdown&logoColor=white)
+
+> **50K+ stars** | **6K+ forks** | **30 contributors** | **7 languages supported** | **Anthropic Hackathon Winner**
+
+---
+
+<div align="center">
+
+**Language / 语言 / 語言 / Dil**
+
+[**English**](README.md) | [Português (Brasil)](docs/pt-BR/README.md) | [简体中文](README.zh-CN.md) | [繁體中文](docs/zh-TW/README.md) | [日本語](docs/ja-JP/README.md) | [한국어](docs/ko-KR/README.md)
+ | [Türkçe](docs/tr/README.md)
+
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "ecc-universal",
+  "version": "1.9.0",
+  "description": "Complete collection of battle-tested Claude Code configs — agents, skills, hooks, rules, and legacy command shims evolved over 10+ months of intensive daily use by an Anthropic hackathon winner",
+  "keywords": [
+    "claude-code",
+    "ai",
+    "agents",
+    "skills",
+    "hooks",
+    "mcp",
+    "rules",
+    "claude",
+    "anthropic",
+    "tdd",
+    "code-review",
+    "security",
+    "automation",
+    "best-practices",
+    "cursor",
+    "cursor-ide",
+    "opencode",
+    "codex",
+    "presentations",
+    "slides"
+  ],
+  "author": {
+    "name": "Affaan Mustafa",
+    "url": "https://x.com/affaanmustafa"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/affaan-m/everything-claude-code.git"
+  },
+  "homepage": "https://github.com/affaan-m/everything-claude-code#readme",
+  "bugs": {
+    "url": "https://github.com/affaan-m/everything-claude-code/issues"
+  },
+  "files": [
+---END---
+### Lock files
+package-lock.json: EXISTS
+yarn.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+.tool-versions: # .tool-versions — Tool version pins for asdf (https://asdf-vm.com)
+# Install asdf, then run: asdf install
+# These versions are also compatible with mise (https://mise.jdx.dev).
+
+nodejs 20.19.0
+python 3.12.8
+
+## Tests
+test_file_count: 76
+ci_workflow_count: 7
+ci.yml
+maintenance.yml
+monthly-metrics.yml
+release.yml
+reusable-release.yml
+reusable-test.yml
+reusable-validate.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.js: EXISTS
+.prettierrc: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 493 lines
+# Contributing to Everything Claude Code
+
+Thanks for wanting to contribute! This repo is a community resource for Claude Code users.
+
+## Table of Contents
+
+- [What We're Looking For](#what-were-looking-for)
+- [Quick Start](#quick-start)
+- [Contributing Skills](#contributing-skills)
+- [Contributing Agents](#contributing-agents)
+- [Contributing Hooks](#contributing-hooks)
+- [Contributing Commands](#contributing-commands)
+- [MCP and documentation (e.g. Context7)](#mcp-and-documentation-eg-context7)
+- [Cross-Harness and Translations](#cross-harness-and-translations)
+- [Pull Request Process](#pull-request-process)
+
+---
+
+## What We're Looking For
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: CLI tool (has bin in package.json)
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### Determinism
+sleep_pattern_count_in_tests: 11
+### Largest source files
+  69080 total
+   5336 ./tests/hooks/hooks.test.js
+   2854 ./tests/ci/validators.test.js
+   2650 ./tests/lib/session-manager.test.js
+   2604 ./tests/lib/utils.test.js
+   1830 ./tests/lib/session-aliases.test.js
+   1698 ./tests/lib/package-manager.test.js
+   1426 ./skills/continuous-learning-v2/scripts/instinct-cli.py
+   1273 ./ecc2/src/tui/dashboard.rs
+   1226 ./scripts/lib/install-lifecycle.js
+    984 ./skills/continuous-learning-v2/scripts/test_parse_instinct.py
+
+=== END SIGNALS ===

@@ -1,0 +1,564 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/facebook-react
+
+## Agent Documentation
+FILE: CLAUDE.md (8 lines)
+# React
+
+React is a JavaScript library for building user interfaces.
+
+## Monorepo Overview
+
+- **React**: All files outside `/compiler/`
+- **React Compiler**: `/compiler/` directory (has its own instructions)
+---END---
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json (44 lines)
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [[ \"$PWD\" != */compiler* ]]; then cat .claude/instructions.md 2>/dev/null || true; fi"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Skill(extract-errors)",
+      "Skill(feature-flags)",
+      "Skill(fix)",
+      "Skill(flags)",
+      "Skill(flow)",
+      "Skill(test)",
+      "Skill(verify)",
+      "Bash(yarn test:*)",
+      "Bash(yarn test-www:*)",
+      "Bash(yarn test-classic:*)",
+      "Bash(yarn test-stable:*)",
+      "Bash(yarn linc:*)",
+      "Bash(yarn lint:*)",
+      "Bash(yarn flow:*)",
+      "Bash(yarn prettier:*)",
+      "Bash(yarn build:*)",
+      "Bash(yarn extract-errors:*)",
+      "Bash(yarn flags:*)"
+    ],
+    "deny": [
+      "Bash(yarn download-build:*)",
+      "Bash(yarn download-build-for-head:*)",
+      "Bash(npm:*)",
+      "Bash(pnpm:*)",
+      "Bash(bun:*)",
+      "Bash(npx:*)"
+    ]
+  }
+}
+---END---
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+FILE: compiler/CLAUDE.md (261 lines)
+# React Compiler Knowledge Base
+
+This document contains knowledge about the React Compiler gathered during development sessions. It serves as a reference for understanding the codebase architecture and key concepts.
+
+## Project Structure
+
+When modifying the compiler, you MUST read the documentation about that pass in `compiler/packages/babel-plugin-react-compiler/docs/passes/` to learn more about the role of that pass within the compiler.
+
+- `packages/babel-plugin-react-compiler/` - Main compiler package
+  - `src/HIR/` - High-level Intermediate Representation types and utilities
+  - `src/Inference/` - Effect inference passes (aliasing, mutation, etc.)
+  - `src/Validation/` - Validation passes that check for errors
+  - `src/Entrypoint/Pipeline.ts` - Main compilation pipeline with pass ordering
+  - `src/__tests__/fixtures/compiler/` - Test fixtures
+    - `error.todo-*.js` - Unsupported feature, correctly throws Todo error (graceful bailout)
+    - `error.bug-*.js` - Known bug, throws wrong error type or incorrect behavior
+    - `*.expect.md` - Expected output for each fixture
+
+## Running Tests
+
+```bash
+# Run all tests
+yarn snap
+
+# Run tests matching a pattern
+# Example: yarn snap -p 'error.*'
+yarn snap -p <pattern>
+
+# Run a single fixture in debug mode. Use the path relative to the __tests__/fixtures/compiler directory
+# For each step of compilation, outputs the step name and state of the compiled program
+# Example: yarn snap -p simple.js -d
+yarn snap -p <file-basename> -d
+
+# Update fixture outputs (also works with -p)
+yarn snap -u
+```
+
+## Linting
+
+```bash
+# Run lint on the compiler source
+yarn workspace babel-plugin-react-compiler lint
+```
+
+## Formatting
+
+```bash
+# Run prettier on all files (from the react root directory, not compiler/)
+yarn prettier-all
+```
+---END---
+
+### .claude/ contents
+FILE: .claude/instructions.md (46 lines)
+# React
+
+**Scope**: All code EXCEPT `/compiler/` (compiler has its own instructions).
+
+## Project Structure
+
+| Directory | Purpose |
+|-----------|---------|
+| `/packages/` | Publishable packages (react, react-dom, scheduler, etc.) |
+| `/scripts/` | Build, test, and development scripts |
+| `/fixtures/` | Test applications for manual testing |
+| `/compiler/` | React Compiler (separate sub-project) |
+
+## Key Packages
+
+| Package | Purpose |
+|---------|---------|
+| `react` | Core React library |
+| `react-dom` | DOM renderer |
+| `react-reconciler` | Core reconciliation algorithm |
+| `scheduler` | Cooperative scheduling |
+| `react-server-dom-*` | Server Components |
+| `react-devtools-*` | Developer Tools |
+| `react-refresh` | Fast Refresh runtime |
+
+## Requirements
+
+- **Node**: Must be installed. Stop and prompt user if missing.
+- **Package Manager**: Use `yarn` only.
+
+## Verification
+
+**IMPORTANT**: Use `/verify` to validate all changes before committing.
+
+## Commands
+
+| Command  | Purpose              |
+|----------|----------------------|
+| `/fix`   | Lint and format code |
+| `/test`  | Run tests            |
+| `/flow`  | Type check with Flow |
+| `/flags` | Check feature flags  |
+
+## Building
+
+Builds are handled by CI. Do not run locally unless instructed.
+---END---
+FILE: .claude/skills/extract-errors/SKILL.md (12 lines)
+---
+name: extract-errors
+description: Use when adding new error messages to React, or seeing "unknown error code" warnings.
+---
+
+# Extract Error Codes
+
+## Instructions
+
+1. Run `yarn extract-errors`
+2. Report if any new errors need codes assigned
+3. Check if error codes are up to date
+---END---
+FILE: .claude/skills/feature-flags/SKILL.md (79 lines)
+---
+name: feature-flags
+description: Use when feature flag tests fail, flags need updating, understanding @gate pragmas, debugging channel-specific test failures, or adding new flags to React.
+---
+
+# React Feature Flags
+
+## Flag Files
+
+| File | Purpose |
+|------|---------|
+| `packages/shared/ReactFeatureFlags.js` | Default flags (canary), `__EXPERIMENTAL__` overrides |
+| `packages/shared/forks/ReactFeatureFlags.www.js` | www channel, `__VARIANT__` overrides |
+| `packages/shared/forks/ReactFeatureFlags.native-fb.js` | React Native, `__VARIANT__` overrides |
+| `packages/shared/forks/ReactFeatureFlags.test-renderer.js` | Test renderer |
+
+## Gating Tests
+
+### `@gate` pragma (test-level)
+
+Use when the feature is completely unavailable without the flag:
+
+```javascript
+// @gate enableViewTransition
+it('supports view transitions', () => {
+  // This test only runs when enableViewTransition is true
+  // and is SKIPPED (not failed) when false
+});
+```
+
+### `gate()` inline (assertion-level)
+
+Use when the feature exists but behavior differs based on flag:
+
+```javascript
+it('renders component', async () => {
+  await act(() => root.render(<App />));
+
+  if (gate(flags => flags.enableNewBehavior)) {
+    expect(container.textContent).toBe('new output');
+  } else {
+    expect(container.textContent).toBe('legacy output');
+  }
+});
+```
+
+## Adding a New Flag
+
+1. Add to `ReactFeatureFlags.js` with default value
+2. Add to each fork file (`*.www.js`, `*.native-fb.js`, etc.)
+---END---
+FILE: .claude/skills/fix/SKILL.md (17 lines)
+---
+name: fix
+description: Use when you have lint errors, formatting issues, or before committing code to ensure it passes CI.
+---
+
+# Fix Lint and Formatting
+
+## Instructions
+
+1. Run `yarn prettier` to fix formatting
+2. Run `yarn linc` to check for remaining lint issues
+3. Report any remaining manual fixes needed
+
+## Common Mistakes
+
+- **Running prettier on wrong files** - `yarn prettier` only formats changed files
+- **Ignoring linc errors** - These will fail CI, fix them before committing
+---END---
+FILE: .claude/skills/flags/SKILL.md (39 lines)
+---
+name: flags
+description: Use when you need to check feature flag states, compare channels, or debug why a feature behaves differently across release channels.
+---
+
+# Feature Flags
+
+Arguments:
+- $ARGUMENTS: Optional flags
+
+## Options
+
+| Option | Purpose |
+|--------|---------|
+| (none) | Show all flags across all channels |
+| `--diff <ch1> <ch2>` | Compare flags between channels |
+| `--cleanup` | Show flags grouped by cleanup status |
+| `--csv` | Output in CSV format |
+
+## Channels
+
+- `www`, `www-modern` - Meta internal
+- `canary`, `next`, `experimental` - OSS channels
+- `rn`, `rn-fb`, `rn-next` - React Native
+
+## Legend
+
+✅ enabled, ❌ disabled, 🧪 `__VARIANT__`, 📊 profiling-only
+
+## Instructions
+
+1. Run `yarn flags $ARGUMENTS`
+2. Explain the output to the user
+3. For --diff, highlight meaningful differences
+
+## Common Mistakes
+
+- **Forgetting `__VARIANT__` flags** - These are tested both ways in www; check both variants
+- **Comparing wrong channels** - Use `--diff` to see exact differences
+---END---
+FILE: .claude/skills/flow/SKILL.md (30 lines)
+---
+name: flow
+description: Use when you need to run Flow type checking, or when seeing Flow type errors in React code.
+---
+
+# Flow Type Checking
+
+Arguments:
+- $ARGUMENTS: Renderer to check (default: dom-node)
+
+## Renderers
+
+| Renderer | When to Use |
+|----------|-------------|
+| `dom-node` | Default, recommended for most changes |
+| `dom-browser` | Browser-specific DOM code |
+| `native` | React Native |
+| `fabric` | React Native Fabric |
+
+## Instructions
+
+1. Run `yarn flow $ARGUMENTS` (use `dom-node` if no argument)
+2. Report type errors with file locations
+3. For comprehensive checking (slow), use `yarn flow-ci`
+
+## Common Mistakes
+
+- **Running without a renderer** - Always specify or use default `dom-node`
+- **Ignoring suppressions** - Check if `$FlowFixMe` comments are masking real issues
+- **Missing type imports** - Ensure types are imported from the correct package
+---END---
+FILE: .claude/skills/test/SKILL.md (46 lines)
+---
+name: test
+description: Use when you need to run tests for React core. Supports source, www, stable, and experimental channels.
+---
+
+Run tests for the React codebase.
+
+Arguments:
+- $ARGUMENTS: Channel, flags, and test pattern
+
+Usage Examples:
+- `/test ReactFiberHooks` - Run with source channel (default)
+- `/test experimental ReactFiberHooks` - Run with experimental channel
+- `/test www ReactFiberHooks` - Run with www-modern channel
+- `/test www variant false ReactFiberHooks` - Test __VARIANT__=false
+- `/test stable ReactFiberHooks` - Run with stable channel
+- `/test classic ReactFiberHooks` - Run with www-classic channel
+- `/test watch ReactFiberHooks` - Run in watch mode (TDD)
+
+Release Channels:
+- `(default)` - Source/canary channel, uses ReactFeatureFlags.js defaults
+- `experimental` - Source/experimental channel with __EXPERIMENTAL__ flags = true
+- `www` - www-modern channel with __VARIANT__ flags = true
+- `www variant false` - www channel with __VARIANT__ flags = false
+- `stable` - What ships to npm
+- `classic` - Legacy www-classic (rarely needed)
+
+Instructions:
+1. Parse channel from arguments (default: source)
+2. Map to yarn command:
+   - (default) → `yarn test --silent --no-watchman <pattern>`
+   - experimental → `yarn test -r=experimental --silent --no-watchman <pattern>`
+   - stable → `yarn test-stable --silent --no-watchman <pattern>`
+   - classic → `yarn test-classic --silent --no-watchman <pattern>`
+   - www → `yarn test-www --silent --no-watchman <pattern>`
+   - www variant false → `yarn test-www --variant=false --silent --no-watchman <pattern>`
+3. Report test results and any failures
+
+Hard Rules:
+1. **Use --silent to see failures** - This limits the test output to only failures.
+2. **Use --no-watchman** - This is a common failure in sandboxing.
+
+Common Mistakes:
+- **Running without a pattern** - Runs ALL tests, very slow. Always specify a pattern.
+- **Forgetting both www variants** - Test `www` AND `www variant false` for `__VARIANT__` flags.
+- **Test skipped unexpectedly** - Check for `@gate` pragma; see `feature-flags` skill.
+---END---
+FILE: .claude/skills/verify/SKILL.md (24 lines)
+---
+name: verify
+description: Use when you want to validate changes before committing, or when you need to check all React contribution requirements.
+---
+
+# Verification
+
+Run all verification steps.
+
+Arguments:
+- $ARGUMENTS: Test pattern for the test step
+
+## Instructions
+
+Run these first in sequence:
+1. Run `yarn prettier` - format code (stop if fails)
+2. Run `yarn linc` - lint changed files (stop if fails)
+
+Then run these with subagents in parallel:
+1. Use `/flow` to type check (stop if fails)
+2. Use `/test` to test changes in source (stop if fails)
+3. Use `/test www` to test changes in www (stop if fails)
+
+If all pass, show success summary. On failure, stop immediately and report the issue with suggested fixes.
+---END---
+
+## Repository Structure
+### Top-level layout
+babel.config.js
+babel.config-react-compiler.js
+babel.config-ts.js
+CHANGELOG.md
+CLAUDE.md
+CODE_OF_CONDUCT.md
+compiler
+CONTRIBUTING.md
+dangerfile.js
+fixtures
+flow-typed
+flow-typed.config.json
+LICENSE
+MAINTAINERS
+package.json
+packages
+react.code-workspace
+ReactVersions.js
+README.md
+scripts
+SECURITY.md
+yarn.lock
+
+### README
+FILE: README.md
+# [React](https://react.dev/) &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/facebook/react/blob/main/LICENSE) [![npm version](https://img.shields.io/npm/v/react.svg?style=flat)](https://www.npmjs.com/package/react) [![(Runtime) Build and Test](https://github.com/facebook/react/actions/workflows/runtime_build_and_test.yml/badge.svg)](https://github.com/facebook/react/actions/workflows/runtime_build_and_test.yml) [![(Compiler) TypeScript](https://github.com/facebook/react/actions/workflows/compiler_typescript.yml/badge.svg?branch=main)](https://github.com/facebook/react/actions/workflows/compiler_typescript.yml) [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://legacy.reactjs.org/docs/how-to-contribute.html#your-first-pull-request)
+
+React is a JavaScript library for building user interfaces.
+
+* **Declarative:** React makes it painless to create interactive UIs. Design simple views for each state in your application, and React will efficiently update and render just the right components when your data changes. Declarative views make your code more predictable, simpler to understand, and easier to debug.
+* **Component-Based:** Build encapsulated components that manage their own state, then compose them to make complex UIs. Since component logic is written in JavaScript instead of templates, you can easily pass rich data through your app and keep the state out of the DOM.
+* **Learn Once, Write Anywhere:** We don't make assumptions about the rest of your technology stack, so you can develop new features in React without rewriting existing code. React can also render on the server using [Node](https://nodejs.org/en) and power mobile apps using [React Native](https://reactnative.dev/).
+
+[Learn how to use React in your project](https://react.dev/learn).
+
+## Installation
+
+React has been designed for gradual adoption from the start, and **you can use as little or as much React as you need**:
+
+* Use [Quick Start](https://react.dev/learn) to get a taste of React.
+* [Add React to an Existing Project](https://react.dev/learn/add-react-to-an-existing-project) to use as little or as much React as you need.
+* [Create a New React App](https://react.dev/learn/start-a-new-react-project) if you're looking for a powerful JavaScript toolchain.
+
+## Documentation
+
+You can find the React documentation [on the website](https://react.dev/).
+
+Check out the [Getting Started](https://react.dev/learn) page for a quick overview.
+
+The documentation is divided into several sections:
+
+* [Quick Start](https://react.dev/learn)
+* [Tutorial](https://react.dev/learn/tutorial-tic-tac-toe)
+* [Thinking in React](https://react.dev/learn/thinking-in-react)
+* [Installation](https://react.dev/learn/installation)
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "devDependencies": {
+    "@babel/cli": "^7.10.5",
+    "@babel/code-frame": "^7.10.4",
+    "@babel/core": "^7.11.1",
+    "@babel/helper-define-map": "^7.18.6",
+    "@babel/helper-module-imports": "^7.10.4",
+    "@babel/parser": "^7.11.3",
+    "@babel/plugin-external-helpers": "^7.10.4",
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.11.0",
+    "@babel/plugin-syntax-dynamic-import": "^7.8.3",
+    "@babel/plugin-syntax-import-meta": "^7.10.4",
+    "@babel/plugin-syntax-jsx": "^7.23.3",
+    "@babel/plugin-syntax-typescript": "^7.14.5",
+    "@babel/plugin-transform-arrow-functions": "^7.10.4",
+    "@babel/plugin-transform-block-scoped-functions": "^7.10.4",
+    "@babel/plugin-transform-block-scoping": "^7.11.1",
+    "@babel/plugin-transform-class-properties": "^7.25.9",
+    "@babel/plugin-transform-classes": "^7.10.4",
+    "@babel/plugin-transform-computed-properties": "^7.10.4",
+    "@babel/plugin-transform-destructuring": "^7.10.4",
+    "@babel/plugin-transform-for-of": "^7.10.4",
+    "@babel/plugin-transform-literals": "^7.10.4",
+    "@babel/plugin-transform-modules-commonjs": "^7.10.4",
+    "@babel/plugin-transform-object-super": "^7.10.4",
+    "@babel/plugin-transform-parameters": "^7.10.5",
+    "@babel/plugin-transform-private-methods": "^7.10.4",
+    "@babel/plugin-transform-react-jsx": "^7.23.4",
+    "@babel/plugin-transform-react-jsx-development": "^7.22.5",
+    "@babel/plugin-transform-react-jsx-source": "^7.10.5",
+    "@babel/plugin-transform-shorthand-properties": "^7.10.4",
+    "@babel/plugin-transform-spread": "^7.11.0",
+    "@babel/plugin-transform-template-literals": "^7.10.5",
+    "@babel/preset-env": "^7.26.9",
+    "@babel/preset-flow": "^7.10.4",
+---END---
+### Lock files
+yarn.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+.nvmrc: v20.19.0
+
+## Tests
+test_file_count: 14
+ci_workflow_count: 24
+compiler_discord_notify.yml
+compiler_playground.yml
+compiler_prereleases_manual.yml
+compiler_prereleases_nightly.yml
+compiler_prereleases.yml
+compiler_typescript.yml
+devtools_discord_notify.yml
+devtools_regression_tests.yml
+runtime_build_and_test.yml
+runtime_commit_artifacts.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.eslintrc.js: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 5 lines
+# Contributing to React
+
+Want to contribute to React? There are a few things you need to know.  
+
+We wrote a **[contribution guide](https://reactjs.org/docs/how-to-contribute.html)** to help you get started.
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 292711 total
+   9640 ./packages/react-dom/src/__tests__/ReactDOMFloat-test.js
+   9604 ./packages/react-dom/src/__tests__/ReactDOMFizzServer-test.js
+   8781 ./packages/eslint-plugin-react-hooks/__tests__/ESLintRuleExhaustiveDeps-test.js
+   6444 ./packages/react-server/src/ReactFlightServer.js
+   6255 ./packages/react-server/src/ReactFizzServer.js
+   5585 ./scripts/bench/benchmarks/pe-class-components/benchmark.js
+   5406 ./packages/react-client/src/ReactFlightClient.js
+   5179 ./scripts/bench/benchmarks/pe-functional-components/benchmark.js
+   4943 ./scripts/bench/benchmarks/pe-no-components/benchmark.js
+   4391 ./packages/react-client/src/__tests__/ReactFlight-test.js
+
+=== END SIGNALS ===

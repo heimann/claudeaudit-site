@@ -1,0 +1,635 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/microsoft-playwright
+
+## Agent Documentation
+FILE: CLAUDE.md (148 lines)
+### Monorepo Packages
+
+| Package | npm name | Purpose |
+|---------|----------|---------|
+| `playwright-core` | `playwright-core` | Browser automation engine: client, server, dispatchers, protocol |
+| `playwright` | `playwright` | Test runner + browser automation (public package) |
+| `playwright-test` | `@playwright/test` | Test runner entry point |
+| `playwright-client` | `@playwright/client` | Standalone client package |
+| `protocol` | *(internal)* | RPC protocol definitions (`protocol.yml` → generated `channels.d.ts`) |
+
+### Browser Packages
+
+`playwright-chromium`, `playwright-firefox`, `playwright-webkit` — per-browser distributions.
+`playwright-browser-chromium`, `playwright-browser-firefox`, `playwright-browser-webkit` — binary packages.
+
+### Tooling Packages
+
+| Package | Purpose |
+|---------|---------|
+| `html-reporter` | HTML test report viewer |
+| `trace-viewer` | Trace viewer UI |
+| `recorder` | Test recorder |
+| `web` | Shared web UI components |
+| `injected` | Scripts injected into browser pages |
+
+### Component Testing
+
+`playwright-ct-core`, `playwright-ct-react`, `playwright-ct-vue`
+
+### Key Directories
+
+| Directory | Purpose |
+|-----------|---------|
+| `tests/` | All test suites (page, library, playwright-test, mcp, components, etc.) |
+| `docs/src/` | API documentation — **source of truth** for public TypeScript types |
+| `docs/src/api/` | Per-class API reference (`class-page.md`, `class-locator.md`, etc.) |
+| `utils/` | Build scripts, code generation, linting, doc tools |
+| `browser_patches/` | Browser engine patches |
+
+## Build
+
+```bash
+npm run build       # Full build
+npm run watch       # Watch mode (recommended during development)
+```
+
+Assume watch is running and code is up to date. Generated files (types, channels, validators) are produced by watch automatically.
+
+## Lint and type check
+
+```bash
+npm run flint
+```
+
+Runs all lint checks in parallel: eslint, tsc, doclint, check-deps, generate_channels, generate_types, lint-tests, test-types, lint-packages, code-snippet linting.
+
+**Always run `flint` before committing.** Do not use `tsc --noEmit` or individual lint commands separately.
+
+## Test Commands
+
+| Command | Scope |
+|---------|-------|
+| `npm run ctest <filter>` | Chromium only library tests — **use during development** |
+| `npm run test <filter> -- --project=<chromium,firefix,webkit>` | All library / per project |
+| `npm run ttest <filter>` | Test runner (`tests/playwright-test/`) |
+| `npm run ctest-mcp <filter>` | Chromium only MCP tools (`tests/mcp/`) |
+| `npm run test-mcp <filter> -- --project=<chromium,firefox,webkit>` | MCP tools (`tests/mcp/`) |
+
+
+### Filtering
+
+```bash
+npm run ctest tests/page/locator-click.spec.ts         # Specific file
+npm run ctest tests/page/locator-click.spec.ts:12      # Specific location
+npm run ctest -- --grep "should click"                 # By test name
+npm run ctest-mcp snapshot                             # By file name part
+```
+
+### Test Directories and Fixtures
+
+| Directory | Import | Key Fixtures | What to Test |
+|-----------|--------|--------------|--------------|
+| `tests/page/` | `import { test, expect } from './pageTest'` | `page`, `server`, `browserName` | User interactions: click, fill, navigate, locators, assertions |
+| `tests/library/` | `import { browserTest, expect } from '../config/browserTest'` | `browser`, `context`, `browserType` | Browser/context lifecycle, cookies, permissions, browser-specific features |
+| `tests/playwright-test/` | `import { test, expect } from './playwright-test-fixtures'` | test runner fixtures | Test runner: reporters, config, annotations, retries |
+| `tests/mcp/` | `import { test, expect } from './fixtures'` | `client`, `server` | MCP tools via `client.callTool()` |
+
+**Decision rule**: Does the test need `browser`/`browserType`/`context` → `tests/library/`. Just needs `page` + `server` → `tests/page/`.
+
+## DEPS System
+
+Import boundaries are enforced via `DEPS.list` files (52+ across the repo), checked by `npm run flint`.
+
+**Key rule**: Client code NEVER imports server code. Server code NEVER imports client code. Communication is only through the protocol.
+When creating or moving files, update the relevant `DEPS.list` to declare allowed imports. Files marked `"strict"` can only import what is explicitly listed.
+
+## Coding Convention
+
+For exported classes:
+- `private _method()` — only used within the class itself
+---END---
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (10 lines)
+## PR Review Guidelines
+
+When reviewing pull requests:
+
+- Only comment on semantically meaningful issues: bugs, incorrect logic, security problems, or API contract violations.
+- Skip style, formatting, naming, and whitespace observations unless they cause functional problems.
+- Keep each comment short — one or two sentences maximum.
+- Do not write long descriptions or summaries of what the code does.
+- Do not suggest refactors or improvements unrelated to the PR's stated goal.
+- NEVER produce a review body or top-level PR overview comment. The review body MUST be empty. Put findings only in inline comments on specific lines.
+---END---
+
+### Subdirectory agent docs
+
+### .claude/ contents
+FILE: .claude/skills/playwright-dev/api.md (295 lines)
+# Adding and Modifying APIs
+
+- Before performing the implementation, go over the steps to understand and plan the work ahead. It is important to follow the steps in order, as some of them are prerequisites for others.
+
+## Step 1: Define API in Documentation
+
+Define (or update) API in `docs/src/api/class-xxx.md`. For the new methods, params and options use the version from package.json (without `-next`).
+
+### Documentation Format
+
+**Method definition:**
+```markdown
+## async method: Page.methodName
+* since: v1.XX
+- returns: <[null]|[Response]>
+
+Description of the method.
+
+### param: Page.methodName.paramName
+* since: v1.XX
+- `paramName` <[string]>
+
+Description of the parameter.
+
+### option: Page.methodName.optionName
+* since: v1.XX
+- `optionName` <[string]>
+
+Description of the option.
+```
+
+**Key syntax rules:**
+- `* since: v1.XX` — always take the version from package.json (without -next)
+- `* langs: js, python` — language filter (optional)
+- `* langs: alias-java: navigate` — language-specific method name
+- `* deprecated: v1.XX` — deprecation marker
+- `<[TypeName]>` — type annotation: `<[string]>`, `<[int]>`, `<[float]>`, `<[boolean]>`
+- `<[null]|[Response]>` — union type
+- `<[Array]<[Locator]>>` — array type
+- `<[Object]>` with indented `- \`field\` <[type]>` — object type
+- `### param:` — required parameter
+- `### option:` — optional parameter
+- `= %%-placeholder-name-%%` — reuse shared param definition from `docs/src/api/params.md`
+
+**Property definition:**
+```markdown
+## property: Page.propName
+* since: v1.XX
+- type: <[string]>
+
+---END---
+FILE: .claude/skills/playwright-dev/library.md (418 lines)
+# Playwright Library Architecture: Client, Server, and Dispatchers
+
+Playwright uses a client-server architecture connected by a protocol layer. The client provides the public API, the server performs actual browser automation, and dispatchers bridge the two over an RPC channel.
+
+## Package Layout
+
+```
+packages/protocol/src/
+  protocol.yml              — RPC protocol definition (source of truth)
+  channels.d.ts             — generated TypeScript channel interfaces
+  callMetadata.d.ts         — call metadata types
+
+packages/playwright-core/src/
+  client/                   — public API objects (ChannelOwner subclasses)
+  server/                   — browser automation implementation (SdkObject subclasses)
+  server/dispatchers/       — protocol bridge (Dispatcher subclasses)
+  protocol/                 — validators (generated + primitives)
+  utils/isomorphic/         — shared code used by both client and server
+    protocolMetainfo.ts     — generated method metadata (flags, titles)
+```
+
+## Dependency Rules (DEPS.list)
+
+Each directory has a `DEPS.list` constraining its imports. These are enforced by `npm run flint`.
+
+**client/** can import from:
+- `../protocol/` — validators and channel types
+- `../utils/isomorphic` — shared utilities
+
+**server/** can import from:
+- `../protocol/`, `../utils/`, `../utils/isomorphic/`, `../utilsBundle.ts`
+- `./` (own directory), `./codegen/`, `./isomorphic/`, `./har/`, `./recorder/`, `./registry/`, `./utils/`
+- Only `playwright.ts` can import browser engines (`./chromium/`, `./firefox/`, `./webkit/`, `./bidi/`, `./android/`, `./electron/`)
+- Only `devtoolsController.ts` can additionally import `./chromium/`
+
+**server/dispatchers/** can import from:
+- `../../protocol/`, `../../utils/`, `../../utils/isomorphic/`
+- `../**` — all server modules
+
+**Key rule:** Client code NEVER imports server code. Server code NEVER imports client code. They communicate only through the protocol.
+
+## Protocol Layer
+
+### protocol.yml
+
+Defines all RPC interfaces, commands (methods), events, and types. Example:
+
+```yaml
+Page:
+  type: interface
+---END---
+FILE: .claude/skills/playwright-dev/SKILL.md (16 lines)
+---
+name: playwright-dev
+description: Explains how to develop Playwright - add APIs, MCP tools, CLI commands, and vendor dependencies.
+---
+
+# Playwright Development Guide
+
+See [CLAUDE.md](../../../CLAUDE.md) for monorepo structure, build/test/lint commands, and coding conventions.
+
+## Detailed Guides
+
+- [Library Architecture](library.md) — client/server/dispatcher structure, protocol layer, DEPS rules
+- [Adding and Modifying APIs](api.md) — define API docs, implement client/server, add tests
+- [MCP Tools and CLI Commands](tools.md) — add MCP tools, CLI commands, config options
+- [Vendoring Dependencies](vendor.md) — bundle third-party npm packages into playwright-core or playwright
+- [Updating WebKit Safari Version](webkit-safari-version.md) — update the Safari version string in the WebKit user-agent
+---END---
+FILE: .claude/skills/playwright-dev/tools.md (512 lines)
+# MCP Tools and CLI Commands
+
+## Adding MCP Tools
+
+### Step 1: Create the Tool File
+
+Create `packages/playwright-core/src/tools/backend/<your-tool>.ts`.
+
+Import zod from the MCP bundle and use `defineTool` or `defineTabTool`:
+
+```typescript
+import { z } from '../../zodBundle';
+import { defineTool, defineTabTool } from './tool';
+```
+
+**Choose `defineTabTool` vs `defineTool`:**
+- `defineTabTool` — most tools use this. Receives a `Tab` object, auto-handles modal state (dialogs/file choosers).
+- `defineTool` — receives the full `Context`. Use when you need `context.ensureBrowserContext()` without a specific tab, or need custom tab management.
+
+**Tool definition pattern:**
+
+```typescript
+const myTool = defineTabTool({
+  capability: 'core',  // ToolCapability — see step 2
+
+  // Optional: only available in skill mode (not exposed via MCP)
+  // skillOnly: true,
+
+  // Optional: this tool clears a modal state ('dialog' | 'fileChooser')
+  // clearsModalState: 'dialog',
+
+  schema: {
+    name: 'browser_my_tool',       // MCP tool name (browser_ prefix)
+    title: 'My Tool',              // Human-readable title
+    description: 'Does something', // Description shown to LLM
+    inputSchema: z.object({
+      ref: z.string().describe('Element reference from snapshot'),
+      value: z.string().optional().describe('Optional value'),
+    }),
+    type: 'action',  // 'input' | 'assertion' | 'action' | 'readOnly'
+  },
+
+  handle: async (tab, params, response) => {
+    // Implementation using tab.page (Playwright Page object)
+    await tab.page.click(`[ref="${params.ref}"]`);
+
+    // Add generated Playwright code
+    response.addCode(`await page.click('[ref="${params.ref}"]');`);
+
+    // Include page snapshot in response (for navigation/state changes)
+---END---
+FILE: .claude/skills/playwright-dev/trace_system_guide.md (929 lines)
+# Playwright Trace System - Comprehensive Guide
+
+## 1. Overview
+
+The Playwright trace system is a comprehensive recording and visualization framework that captures:
+- **Actions** (API calls, user interactions)
+- **Network traffic** (HAR format)
+- **Snapshots** (DOM snapshots at key moments)
+- **Screencast frames** (video of page rendering)
+- **Console messages** and events
+- **Errors** and logs
+- **Resources** (images, stylesheets, scripts, etc.)
+
+---
+
+## 2. File Structure
+
+### packages/trace/src/ - Trace Type Definitions
+Located in `/home/pfeldman/code/playwright/packages/trace/src/`
+
+**Key Files:**
+- **trace.ts** - Core trace event type definitions
+- **har.ts** - HTTP Archive format (network traffic)
+- **snapshot.ts** - DOM snapshot data structures
+- **DEPS.list** - Dependencies marker
+
+**File List:**
+```
+trace/src/
+├── trace.ts        (183 lines) - Main trace event types
+├── har.ts          (189 lines) - HAR format types
+├── snapshot.ts     (62 lines)  - Snapshot data structures
+└── DEPS.list       - Dependencies file
+```
+
+---
+
+## 3. Trace Event Types (trace.ts)
+
+### 3.1 Core Event Types
+
+**VERSION: 8** (Current format version)
+
+#### ContextCreatedTraceEvent
+```typescript
+type ContextCreatedTraceEvent = {
+  version: number,
+  type: 'context-options',
+  origin: 'testRunner' | 'library',
+  browserName: string,
+---END---
+FILE: .claude/skills/playwright-dev/vendor.md (190 lines)
+# Vendoring (Bundling) a New Dependency
+
+Playwright vendors third-party npm packages by bundling them with esbuild into self-contained files.
+This isolates dependencies, prevents version conflicts, and keeps the published packages lean.
+
+## Architecture Overview
+
+Each bundle lives under `packages/<package>/bundles/<name>/` and consists of three parts:
+
+1. **Bundle directory** (`bundles/<name>/`) — has its own `package.json` with the dependencies to vendor, plus a `src/<name>BundleImpl.ts` entry point that imports and re-exports them.
+2. **Build configuration** in `utils/build/build.js` — an esbuild entry that bundles the impl file into a single minified CJS file.
+3. **Wrapper file** (`src/<name>Bundle.ts`) — a thin typed wrapper that `require()`s the built bundle impl and re-exports symbols with TypeScript types.
+
+Data flow:
+```
+bundles/<name>/package.json          (declares npm deps)
+  → npm ci → node_modules/
+bundles/<name>/src/<name>BundleImpl.ts  (imports from node_modules, re-exports)
+  → esbuild (bundle + minify) →
+lib/<name>BundleImpl.js              (single self-contained file)
+  ←
+src/<name>Bundle.ts                  (typed wrapper, require('./...BundleImpl'))
+  → esbuild (normal compile) →
+lib/<name>Bundle.js                  (used by application code)
+```
+
+## Step-by-Step: Adding a New Bundle
+
+### Decide which package it belongs to
+
+- `packages/playwright-core/bundles/` — for core browser automation deps (networking, compression, protocols, etc.)
+- `packages/playwright/bundles/` — for test runner deps (assertion libs, transpilers, file watchers, etc.)
+
+### 1. Create the bundle directory
+
+```
+packages/<package>/bundles/<name>/
+├── package.json
+└── src/
+    └── <name>BundleImpl.ts
+```
+
+### 2. Create `package.json`
+
+Minimal private package with only the deps you want to bundle:
+
+```json
+{
+  "name": "<name>-bundle",
+  "version": "0.0.1",
+---END---
+FILE: .claude/skills/playwright-dev/webkit-safari-version.md (22 lines)
+# Updating WebKit Safari Version
+
+The Safari version string used in the WebKit user-agent is declared in one place:
+
+**[packages/playwright-core/src/server/webkit/wkBrowser.ts](../../../packages/playwright-core/src/server/webkit/wkBrowser.ts)** — `BROWSER_VERSION` constant (line ~35).
+
+```ts
+const BROWSER_VERSION = '26.4';
+const DEFAULT_USER_AGENT = `Mozilla/5.0 ... Version/${BROWSER_VERSION} Safari/605.1.15`;
+```
+
+## Steps to update
+
+1. **Find the latest stable Safari version** — search `site:developer.apple.com "Safari X.Y Release Notes"` or check the [Safari Release Notes](https://developer.apple.com/documentation/safari-release-notes) index. The highest numbered entry that is not a Technology Preview is the current stable release.
+
+2. **Update `BROWSER_VERSION`** in `wkBrowser.ts`.
+
+3. **Run lint** to update any generated files that embed the version:
+
+   ```bash
+   npm run flint
+   ```
+---END---
+
+## Repository Structure
+### Top-level layout
+browser_patches
+CLAUDE.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+docs
+eslint.config.mjs
+examples
+FILING_ISSUES.md
+LICENSE
+NOTICE
+package.json
+package-lock.json
+packages
+README.md
+SECURITY.md
+SUPPORT.md
+tests
+tsconfig.json
+utils
+
+### README
+FILE: README.md
+# 🎭 Playwright
+
+[![npm version](https://img.shields.io/npm/v/playwright.svg)](https://www.npmjs.com/package/playwright) <!-- GEN:chromium-version-badge -->[![Chromium version](https://img.shields.io/badge/chromium-147.0.7727.15-blue.svg?logo=google-chrome)](https://www.chromium.org/Home)<!-- GEN:stop --> <!-- GEN:firefox-version-badge -->[![Firefox version](https://img.shields.io/badge/firefox-148.0.2-blue.svg?logo=firefoxbrowser)](https://www.mozilla.org/en-US/firefox/new/)<!-- GEN:stop --> <!-- GEN:webkit-version-badge -->[![WebKit version](https://img.shields.io/badge/webkit-26.4-blue.svg?logo=safari)](https://webkit.org/)<!-- GEN:stop --> [![Join Discord](https://img.shields.io/badge/join-discord-informational)](https://aka.ms/playwright/discord)
+
+## [Documentation](https://playwright.dev) | [API reference](https://playwright.dev/docs/api/class-playwright)
+
+Playwright is a framework for web automation and testing. It drives Chromium, Firefox, and WebKit with a single API — in your tests, in your scripts, and as a tool for AI agents.
+
+## Get Started
+
+Choose the path that fits your workflow:
+
+| | Best for | Install |
+|---|---|---|
+| **[Playwright Test](#playwright-test)** | End-to-end testing | `npm init playwright@latest` |
+| **[Playwright CLI](#playwright-cli)** | Coding agents (Claude Code, Copilot) | `npm i -g @playwright/cli@latest` |
+| **[Playwright MCP](#playwright-mcp)** | AI agents and LLM-driven automation | `npx @playwright/mcp@latest` |
+| **[Playwright Library](#playwright-library)** | Browser automation scripts | `npm i playwright` |
+| **[VS Code Extension](#vs-code-extension)** | Test authoring and debugging in VS Code | [Install from Marketplace](https://marketplace.visualstudio.com/items?itemName=ms-playwright.playwright) |
+
+---
+
+## Playwright Test
+
+Playwright Test is a full-featured test runner built for end-to-end testing. It runs tests across Chromium, Firefox, and WebKit with full browser isolation, auto-waiting, and web-first assertions.
+
+### Install
+
+```bash
+npm init playwright@latest
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "playwright-internal",
+  "private": true,
+  "version": "1.60.0-next",
+  "description": "A high-level API to automate web browsers",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/microsoft/playwright.git"
+  },
+  "homepage": "https://playwright.dev",
+  "engines": {
+    "node": ">=18"
+  },
+  "author": {
+    "name": "Microsoft Corporation"
+  },
+  "license": "Apache-2.0",
+  "scripts": {
+    "ctest": "playwright test --config=tests/library/playwright.config.ts --project=chromium-*",
+    "ftest": "playwright test --config=tests/library/playwright.config.ts --project=firefox-*",
+    "wtest": "playwright test --config=tests/library/playwright.config.ts --project=webkit-*",
+    "atest": "playwright test --config=tests/android/playwright.config.ts",
+    "etest": "playwright test --config=tests/electron/playwright.config.ts",
+    "itest": "playwright test --config=tests/installation/playwright.config.ts",
+    "stest": "playwright test --config=tests/stress/playwright.config.ts",
+    "biditest": "playwright test --config=tests/bidi/playwright.config.ts",
+    "ttest": "node ./tests/playwright-test/stable-test-runner/node_modules/@playwright/test/cli test --config=tests/playwright-test/playwright.config.ts",
+    "ct": "playwright test tests/components/test-all.spec.js --reporter=list",
+    "test": "playwright test --config=tests/library/playwright.config.ts",
+    "test-mcp": "playwright test --config=tests/mcp/playwright.config.ts",
+    "ctest-mcp": "playwright test --config=tests/mcp/playwright.config.ts --project=chrome",
+    "eslint": "eslint --cache",
+    "tsc": "tsc -p .",
+    "doc": "node utils/doclint/cli.js",
+    "lint": "npm run eslint && npm run tsc && npm run doc && npm run check-deps && node utils/generate_channels.js && node utils/generate_types/ && npm run lint-tests && npm run test-types && npm run lint-packages",
+    "lint-packages": "node utils/workspace.js --ensure-consistent",
+    "lint-tests": "node utils/lint_tests.js",
+    "flint": "concurrently \"npm run eslint\" \"npm run tsc\" \"npm run doc\" \"npm run check-deps\" \"node utils/generate_channels.js\" \"npm run lint-tests\" \"npm run test-types\" \"npm run lint-packages\" \"node utils/doclint/linting-code-snippets/cli.js --js-only\"",
+    "clean": "node utils/build/clean.js",
+    "build": "node utils/build/build.js",
+---END---
+### Lock files
+package-lock.json: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 576
+ci_workflow_count: 18
+copilot-setup-steps.yml
+create_test_report.yml
+dependabot_rebuild.yml
+infra.yml
+merge.config.ts
+pr_check_client_side_changes.yml
+publish_release_docker.yml
+publish_release.yml
+roll_browser_into_playwright.yml
+roll_nodejs.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.mjs: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 158 lines
+# Contributing
+
+## Choose an issue
+
+Playwright **requires an issue** for every contribution, except for minor documentation updates. We strongly recommend
+to pick an issue
+labeled [open-to-a-pull-request](https://github.com/microsoft/playwright/issues?q=is%3Aissue%20state%3Aopen%20label%3Aopen-to-a-pull-request)
+for your first contribution to the project.
+
+If you are passionate about a bug/feature, but cannot find an issue describing it, **file an issue first**. This will
+facilitate the discussion, and you might get some early feedback from project maintainers before spending your time on
+creating a pull request.
+
+## Make a change
+
+Make sure you're running Node.js 20 or later.
+```bash
+node --version
+```
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "watch": "node utils/build/build.js --watch --lint",
+### tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext", "DOM", "DOM.Iterable"],
+    "paths": {
+      /*
+        The following two serve different purposes:
+         - @foo/* is for importing types only,
+         - .../lib/* means require dependency
+      */
+      "@dashboard/*": ["./packages/dashboard/src/*"],
+      "@html-reporter/*": ["./packages/html-reporter/src/*"],
+      "@injected/*": ["./packages/injected/src/*"],
+      "@isomorphic/*": ["./packages/playwright-core/src/utils/isomorphic/*"],
+      "@protocol/*": ["./packages/protocol/src/*"],
+      "@recorder/*": ["./packages/recorder/src/*"],
+      "@testIsomorphic/*": ["./packages/playwright/src/isomorphic/*"],
+      "@trace/*": ["./packages/trace/src/*"],
+      "@web/*": ["./packages/web/src/*"],
+      "playwright-core/lib/*": ["./packages/playwright-core/src/*"],
+      "playwright/lib/*": ["./packages/playwright/src/*"],
+      "@playwright/*": ["./packages/playwright/src/*"],
+    },
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "allowJs": false,
+    "jsx": "react-jsx",
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  470865 total
+   29771 ./tests/assets/reading-list/react-dom_18.1.0.js
+   26292 ./tests/assets/reading-list/react-dom_17.0.2.js
+   25147 ./tests/assets/reading-list/react-dom_16.14.0.js
+   24720 ./packages/playwright-core/types/protocol.d.ts
+   24720 ./packages/playwright-core/src/server/chromium/protocol.d.ts
+   23623 ./packages/playwright-core/types/types.d.ts
+   23623 ./packages/playwright-client/types/types.d.ts
+   18853 ./tests/assets/reading-list/react-dom_15.7.0.js
+   14997 ./tests/assets/reading-list/vue_3.1.5.js
+   12014 ./tests/assets/reading-list/vue_2.6.14.js
+
+=== END SIGNALS ===

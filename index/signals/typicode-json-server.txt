@@ -1,0 +1,165 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/typicode-json-server
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+fixtures
+LICENSE
+package.json
+pnpm-lock.yaml
+public
+README.md
+schema.json
+src
+tsconfig.json
+views
+
+### README
+FILE: README.md
+# JSON-Server
+
+[![Node.js CI](https://github.com/typicode/json-server/actions/workflows/node.js.yml/badge.svg)](https://github.com/typicode/json-server/actions/workflows/node.js.yml)
+
+> [!IMPORTANT]
+> Viewing beta v1 documentation – usable but expect breaking changes. For stable version, see [here](https://github.com/typicode/json-server/tree/v0.17.4)
+
+> [!NOTE]
+> Using React ⚛️ and tired of CSS-in-JS? See [MistCSS](https://github.com/typicode/mistcss) 👀
+
+## Install
+
+```shell
+npm install json-server
+```
+
+## Usage
+
+Create a `db.json` or `db.json5` file
+
+```json
+{
+  "$schema": "./node_modules/json-server/schema.json",
+  "posts": [
+    { "id": "1", "title": "a title", "views": 100 },
+    { "id": "2", "title": "another title", "views": 200 }
+  ],
+  "comments": [
+    { "id": "1", "text": "a comment about post 1", "postId": "1" },
+    { "id": "2", "text": "another comment about post 1", "postId": "1" }
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "json-server",
+  "version": "1.0.0-beta.15",
+  "description": "",
+  "keywords": [
+    "JSON",
+    "server",
+    "fake",
+    "REST",
+    "API",
+    "prototyping",
+    "mock",
+    "mocking",
+    "test",
+    "testing",
+    "rest",
+    "data",
+    "dummy"
+  ],
+  "license": "MIT",
+  "author": "typicode <typicode@gmail.com>",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/typicode/json-server.git"
+  },
+  "bin": {
+    "json-server": "lib/bin.js"
+  },
+  "files": [
+    "lib",
+    "views",
+    "schema.json"
+  ],
+  "type": "module",
+  "scripts": {
+    "dev": "node --watch --experimental-strip-types src/bin.ts fixtures/db.json",
+    "build": "rm -rf lib && tsc",
+    "prepublishOnly": "rm -rf lib && tsc",
+    "typecheck": "tsc --noEmit",
+    "test": "node --experimental-strip-types --test src/*.test.ts",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 6
+ci_workflow_count: 2
+node.js.yml
+publish.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+FILE: .husky/pre-commit
+pnpm test
+---END---
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: CLI tool (has bin in package.json)
+
+## Ergonomics
+### npm scripts with watch/dev
+    "dev": "node --watch --experimental-strip-types src/bin.ts fixtures/db.json",
+### tsconfig.json
+{
+  "exclude": ["src/**/*.test.ts"],
+  "compilerOptions": {
+    "outDir": "./lib",
+    "target": "esnext",
+    "module": "nodenext",
+    "skipLibCheck": true,
+    "strict": true,
+    "allowImportingTsExtensions": true,
+    "rewriteRelativeImportExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true
+  }
+}
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 1635 total
+  224 ./src/bin.ts
+  222 ./src/service.ts
+  182 ./src/app.test.ts
+  180 ./src/service.test.ts
+  170 ./src/app.ts
+  123 ./src/parse-where.test.ts
+  107 ./src/paginate.test.ts
+   88 ./src/matches-where.ts
+   69 ./src/parse-where.ts
+   63 ./src/matches-where.test.ts
+
+=== END SIGNALS ===

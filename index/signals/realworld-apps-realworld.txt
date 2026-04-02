@@ -1,0 +1,154 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/realworld-apps-realworld
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+assets
+CONTRIBUTING.md
+docs
+LICENSE
+Makefile
+README.md
+specs
+
+### README
+FILE: README.md
+![RealWorld Example Applications](assets/media/realworld-dual-mode.png)
+
+<p align="center" style="margin-top: 30px;">
+  <img src="assets/media/frameworks.svg" alt="Frontend and Backend Frameworks" width="720"/>
+</p>
+
+### See how [_the exact same_ Medium.com clone](https://demo.realworld.show) is built using different [frontends](https://codebase.show/projects/realworld?category=frontend) and [backends](https://codebase.show/projects/realworld?category=backend)
+
+You can combine any frontend with any backend, because **they all adhere to the same API spec**
+
+While most "todo" demos provide an excellent cursory glance at a framework's capabilities, they typically don't convey the knowledge & perspective required to actually build _real_ applications with it.
+
+**RealWorld** solves this by allowing you to choose any frontend (React, Angular, & more) and any backend (Node, Django, & more).
+
+_Read the [full blog post announcing RealWorld on Medium.](https://medium.com/@ericsimons/introducing-realworld-6016654d36b5)_
+
+Join us on [GitHub Discussions!](https://github.com/realworld-apps/realworld/discussions) 🎉
+
+# Implementations
+
+Over 100 implementations have been created using various languages, libraries, and frameworks.
+
+Explore them on [**CodebaseShow**](https://codebase.show/projects/realworld).
+
+## Spec-compliant backends
+
+These backends pass the full [API spec test suite](specs/api/):
+
+- [**Nitro + Prisma + Zod**](https://github.com/realworld-apps/nitro-prisma-zod-realworld-example-app) — TypeScript
+- [**Django Ninja**](https://github.com/c4ffein/realworld-django-ninja) — Python
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+FILE: Makefile (first 30 lines)
+.PHONY: help \
+	bruno-generate \
+	bruno-check \
+	documentation-setup \
+	documentation-dev \
+	documentation-dev-host \
+	documentation-build \
+	documentation-preview \
+	documentation-clean
+
+help:
+	@echo "Bruno Collection:"
+	@echo "  bruno-generate"
+	@echo "  bruno-check"
+	@echo ""
+	@echo "Documentation:"
+	@echo "  documentation-setup"
+	@echo "  documentation-dev"
+	@echo "  documentation-dev-host"
+	@echo "  documentation-build"
+	@echo "  documentation-preview"
+	@echo "  documentation-clean"
+
+########################
+# Bruno Collection
+
+bruno-generate:
+	bun specs/api/hurl-to-bruno.js
+
+bruno-check:
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 12
+ci_workflow_count: 4
+bruno-check.yml
+codeql.yml
+deploy-docs.yml
+spammy-guardian.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 214 lines
+# Contributing to RealWorld
+
+We would love for you to contribute to RealWorld and help make it even better than it is
+today! As a contributor, here are the guidelines we would like you to follow:
+
+- [Question or Problem?](#question)
+- [Issues and Bugs](#issue)
+- [Feature Requests](#feature)
+- [Submission Guidelines](#submit)
+- [Coding Rules](#rules)
+- [Commit Message Guidelines](#commit)
+
+## <a name="question"></a> Got a Question or Problem?
+
+Do not open issues for general support questions as we want to keep GitHub issues for bug reports and feature requests.  
+For open discussions, we encourage you to use the [Github Discussions][github-discussions] channels.
+
+## <a name="issue"></a> Interested in creating Conduit for your framework?
+
+To create an official implementation of Conduit, check out our [Github Discussions](https://github.com/realworld-apps/realworld/discussions/categories/wip-implementations) and see if anyone else has requested and/or is already working on your framework.
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  4431 total
+   911 ./specs/e2e/error-handling.spec.ts
+   594 ./specs/api/hurl-to-bruno.js
+   309 ./specs/e2e/user-fetch-errors.spec.ts
+   306 ./specs/e2e/articles.spec.ts
+   276 ./specs/e2e/xss-security.spec.ts
+   271 ./specs/e2e/settings.spec.ts
+   270 ./specs/e2e/url-navigation.spec.ts
+   251 ./specs/e2e/navigation.spec.ts
+   187 ./specs/e2e/social.spec.ts
+   177 ./specs/e2e/null-fields.spec.ts
+
+=== END SIGNALS ===

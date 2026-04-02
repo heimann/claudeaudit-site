@@ -1,0 +1,209 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/shadcn-ui-ui
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+### .claude/ contents
+FILE: .claude/settings.local.json (13 lines)
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm test:*)",
+      "Bash(npm run typecheck:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)"
+    ],
+    "deny": []
+  }
+}
+---END---
+
+## Repository Structure
+### Top-level layout
+apps
+CONTRIBUTING.md
+LICENSE.md
+package.json
+packages
+pnpm-lock.yaml
+pnpm-workspace.yaml
+prettier.config.cjs
+README.md
+scripts
+SECURITY.md
+skills
+templates
+tsconfig.json
+turbo.json
+vitest.config.ts
+vitest.workspace.ts
+
+### README
+FILE: README.md
+# shadcn/ui
+
+A set of beautifully designed components that you can customize, extend, and build on. Start here then make it your own. Open Source. Open Code. **Use this to build your own component library**.
+
+![hero](apps/v4/public/opengraph-image.png)
+
+## Documentation
+
+Visit https://ui.shadcn.com/docs to view the documentation.
+
+## Contributing
+
+Please read the [contributing guide](/CONTRIBUTING.md).
+
+## License
+
+Licensed under the [MIT license](./LICENSE.md).
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "ui",
+  "version": "0.0.1",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "author": {
+    "name": "shadcn",
+    "url": "https://twitter.com/shadcn"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "build": "turbo run build",
+    "registry:build": "pnpm --filter=v4 registry:build && pnpm lint:fix && pnpm format:write -- --loglevel silent",
+    "registry:capture": "pnpm --filter=v4 registry:capture",
+    "explore:capture": "pnpm --filter=v4 explore:capture",
+    "dev": "turbo run dev --parallel",
+    "shadcn:dev": "turbo --filter=shadcn dev",
+    "shadcn": "pnpm --filter=shadcn start:dev",
+    "shadcn:prod": "pnpm --filter=shadcn start:prod",
+    "shadcn:build": "pnpm --filter=shadcn build",
+    "shadcn:test": "pnpm --filter=shadcn test",
+    "v4:dev": "pnpm --filter=v4 dev",
+    "v4:build": "pnpm --filter=v4 build",
+    "lint": "turbo run lint",
+    "lint:fix": "turbo run lint:fix",
+    "preview": "turbo run preview",
+    "typecheck": "turbo run typecheck",
+    "format:write": "turbo run format:write",
+    "format:check": "turbo run format:check",
+    "sync:templates": "./scripts/sync-templates.sh \"templates/*\"",
+    "check": "turbo lint typecheck format:check",
+    "release": "changeset version",
+    "pub:beta": "cd packages/shadcn && pnpm pub:beta",
+    "pub:release": "cd packages/shadcn && pnpm pub:release",
+    "test:dev": "turbo run test --filter=!shadcn-ui --force",
+    "test": "start-server-and-test v4:dev http://localhost:4000 test:dev",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+.nvmrc: v20.5.1
+
+## Tests
+test_file_count: 79
+ci_workflow_count: 7
+code-check.yml
+issue-stale.yml
+prerelease-comment.yml
+prerelease.yml
+release.yml
+test.yml
+validate-registries.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.eslintrc.json: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 193 lines
+# Contributing
+
+Thanks for your interest in contributing to ui.shadcn.com. We're happy to have you here.
+
+Please take a moment to review this document before submitting your first pull request. We also strongly recommend that you check for open issues and pull requests to see if someone else is working on something similar.
+
+If you need any help, feel free to reach out to [@shadcn](https://twitter.com/shadcn).
+
+## About this repository
+
+This repository is a monorepo.
+
+- We use [pnpm](https://pnpm.io) and [`workspaces`](https://pnpm.io/workspaces) for development.
+- We use [Turborepo](https://turbo.build/repo) as our build system.
+- We use [changesets](https://github.com/changesets/changesets) for managing releases.
+
+## Structure
+
+This repository is structured as follows:
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "dev": "turbo run dev --parallel",
+### tsconfig.json
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "display": "Default",
+  "compilerOptions": {
+    "composite": false,
+    "declaration": true,
+    "declarationMap": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "inlineSources": false,
+    "isolatedModules": true,
+    "moduleResolution": "node",
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "preserveWatchOutput": true,
+    "skipLibCheck": true,
+    "strict": true
+  },
+  "exclude": ["node_modules"]
+}
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 1
+### Largest source files
+  75896 total
+   2651 ./apps/v4/registry/new-york-v4/examples/_registry.ts
+   2403 ./packages/shadcn/src/registry/resolver.test.ts
+   2126 ./apps/v4/registry/_legacy-colors.ts
+   1971 ./packages/shadcn/test/utils/updaters/update-files.test.ts
+   1811 ./packages/shadcn/src/registry/api.test.ts
+   1789 ./apps/v4/registry/_legacy-base-colors.ts
+   1602 ./packages/shadcn/src/utils/updaters/update-fonts.test.ts
+   1500 ./packages/shadcn/test/utils/dry-run.test.ts
+   1377 ./packages/shadcn/test/utils/updaters/update-tailwind-config.test.ts
+   1349 ./packages/tests/src/tests/registries.test.ts
+
+=== END SIGNALS ===

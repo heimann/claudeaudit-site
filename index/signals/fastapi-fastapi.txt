@@ -1,0 +1,207 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/fastapi-fastapi
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+CITATION.cff
+CONTRIBUTING.md
+docs
+docs_src
+fastapi
+fastapi-slim
+LICENSE
+pyproject.toml
+README.md
+scripts
+SECURITY.md
+tests
+uv.lock
+
+### README
+FILE: README.md
+<p align="center">
+  <a href="https://fastapi.tiangolo.com"><img src="https://fastapi.tiangolo.com/img/logo-margin/logo-teal.png" alt="FastAPI"></a>
+</p>
+<p align="center">
+    <em>FastAPI framework, high performance, easy to learn, fast to code, ready for production</em>
+</p>
+<p align="center">
+<a href="https://github.com/fastapi/fastapi/actions?query=workflow%3ATest+event%3Apush+branch%3Amaster">
+    <img src="https://github.com/fastapi/fastapi/actions/workflows/test.yml/badge.svg?event=push&branch=master" alt="Test">
+</a>
+<a href="https://coverage-badge.samuelcolvin.workers.dev/redirect/fastapi/fastapi">
+    <img src="https://coverage-badge.samuelcolvin.workers.dev/fastapi/fastapi.svg" alt="Coverage">
+</a>
+<a href="https://pypi.org/project/fastapi">
+    <img src="https://img.shields.io/pypi/v/fastapi?color=%2334D058&label=pypi%20package" alt="Package version">
+</a>
+<a href="https://pypi.org/project/fastapi">
+    <img src="https://img.shields.io/pypi/pyversions/fastapi.svg?color=%2334D058" alt="Supported Python versions">
+</a>
+</p>
+
+---
+
+**Documentation**: [https://fastapi.tiangolo.com](https://fastapi.tiangolo.com)
+
+**Source Code**: [https://github.com/fastapi/fastapi](https://github.com/fastapi/fastapi)
+
+---
+
+FastAPI is a modern, fast (high-performance), web framework for building APIs with Python based on standard Python type hints.
+---END---
+
+## Dependencies
+FILE: pyproject.toml
+[build-system]
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+
+[project]
+name = "fastapi"
+dynamic = ["version"]
+description = "FastAPI framework, high performance, easy to learn, fast to code, ready for production"
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.10"
+authors = [
+    { name = "Sebastián Ramírez", email = "tiangolo@gmail.com" },
+]
+classifiers = [
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python",
+    "Topic :: Internet",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: Software Development :: Libraries",
+    "Topic :: Software Development",
+    "Typing :: Typed",
+    "Development Status :: 4 - Beta",
+    "Environment :: Web Environment",
+    "Framework :: AsyncIO",
+    "Framework :: FastAPI",
+    "Framework :: Pydantic",
+    "Framework :: Pydantic :: 2",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+---END---
+### Lock files
+uv.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+.python-version: 3.11
+
+## Tests
+test_file_count: 499
+ci_workflow_count: 19
+add-to-project.yml
+build-docs.yml
+contributors.yml
+deploy-docs.yml
+detect-conflicts.yml
+issue-manager.yml
+label-approved.yml
+labeler.yml
+latest-changes.yml
+notify-translations.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+# See https://pre-commit.com for more information
+# See https://pre-commit.com/hooks.html for more hooks
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-added-large-files
+        args: ['--maxkb=750']
+        exclude: ^uv.lock$
+      - id: check-toml
+      - id: check-yaml
+        args:
+        - --unsafe
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+
+  - repo: local
+    hooks:
+      - id: local-ruff-check
+        name: ruff check
+        entry: uv run ruff check --force-exclude --fix --exit-non-zero-on-fix
+        require_serial: true
+        language: unsupported
+        types: [python]
+
+      - id: local-ruff-format
+        name: ruff format
+        entry: uv run ruff format --force-exclude --exit-non-zero-on-format
+        require_serial: true
+        language: unsupported
+        types: [python]
+
+      - id: local-mypy
+        name: mypy check
+        entry: uv run mypy fastapi
+        require_serial: true
+        language: unsupported
+        pass_filenames: false
+
+      - id: local-ty
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 1 lines
+Please read the [Development - Contributing](https://fastapi.tiangolo.com/contributing/) guidelines in the documentation site.
+---END---
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### mypy config
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+strict = true
+
+[[tool.mypy.overrides]]
+module = "fastapi.concurrency"
+### Determinism
+sleep_pattern_count_in_tests: 6
+### Largest source files
+ 105490 total
+   7304 ./tests/test_include_router_defaults_overrides.py
+   4956 ./fastapi/routing.py
+   4749 ./fastapi/applications.py
+   2460 ./fastapi/param_functions.py
+   1699 ./tests/test_generate_unique_id_function.py
+   1285 ./tests/test_application.py
+   1121 ./tests/test_response_model_as_return_annotation.py
+   1057 ./fastapi/dependencies/utils.py
+    857 ./tests/test_schema_extra_examples.py
+    780 ./tests/test_path.py
+
+=== END SIGNALS ===

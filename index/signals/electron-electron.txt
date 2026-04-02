@@ -1,0 +1,721 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/electron-electron
+
+## Agent Documentation
+FILE: CLAUDE.md (270 lines)
+# Electron Development Guide
+
+## Project Overview
+
+Electron is a framework for building cross-platform desktop applications using web technologies. It embeds Chromium for rendering and Node.js for backend functionality.
+
+## Directory Structure
+
+```text
+electron/                 # This repo (run `e` commands here)
+├── shell/               # Core C++ application code
+│   ├── browser/         # Main process implementation (107+ API modules)
+│   ├── renderer/        # Renderer process code
+│   ├── common/          # Shared code between processes
+│   ├── app/             # Application entry points
+│   └── services/        # Node.js service integration
+├── lib/                 # TypeScript/JavaScript library code
+│   ├── browser/         # Main process JS (47 API implementations)
+│   ├── renderer/        # Renderer process JS
+│   └── common/          # Shared JS modules
+├── patches/             # Patches for upstream dependencies
+│   ├── chromium/        # ~159 patches to Chromium
+│   ├── node/            # ~48 patches to Node.js
+│   └── ...              # Other targets (v8, boringssl, etc.)
+├── spec/                # Test suite (1189+ TypeScript test files)
+├── docs/                # API documentation and guides
+├── build/               # Build configuration
+├── script/              # Build and automation scripts
+└── chromium_src/        # Chromium source overrides
+../                      # Parent directory is Chromium source
+```
+
+## Build Tools Setup
+
+Electron uses `@electron/build-tools` for development. The `e` command is the primary CLI.
+
+**Installation:**
+
+```bash
+npm i -g @electron/build-tools
+```
+
+**Configuration location:** `~/.electron_build_tools/configs/`
+
+## Essential Commands
+
+### Configuration Management
+
+| Command | Purpose |
+|---------|---------|
+| `e init <name> --root=<path> --bootstrap testing` | Create new build config and sync |
+| `e use <name>` | Switch to a different build configuration |
+| `e show current` | Display active configuration name |
+| `e show configs` | List all available configurations |
+
+### Build & Development Loop
+
+| Command | Purpose |
+|---------|---------|
+| `e sync` | Fetch/update all source code and apply patches |
+| `e sync --3` | Sync with 3-way merge (required for Chromium upgrades) |
+| `e build` | Build Electron (runs GN + Ninja) |
+| `e build -k 999` | Build and continue on errors (up to 999) |
+| `e build -t <target>` | Build specific target (e.g., `electron:node_headers`) |
+| `e start` | Run the built Electron executable |
+| `e start --version` | Verify Electron launches and print version |
+| `e test` | Run the test suite |
+| `e debug` | Run Electron in debugger (lldb on macOS, gdb on Linux) |
+
+### Patch Management
+
+| Command | Purpose |
+|---------|---------|
+| `e patches <target>` | Export patches for a target (chromium, node, v8, etc.) |
+| `e patches all` | Export all patches from all targets |
+| `e patches --list-targets` | List available patch targets |
+
+## Typical Development Workflow
+
+```bash
+# 1. Ensure you're on the right config
+e show current
+
+# 2. Sync to get latest code
+e sync
+
+# 3. Make your changes in shell/ or lib/ or ../
+
+# 4. Build
+e build
+
+# 5. Test your changes (Leave the user to do this, don't run these commands unless asked)
+e start
+e test
+
+# 6. If you modified patched files in Chromium:
+cd ..  # Go to Chromium repo
+git add <files>
+git commit -m "description of change"
+cd electron
+---END---
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json (24 lines)
+{
+  "permissions": {
+    "allow": [
+      "Bash(e sync)",
+      "Bash(e patches --list-targets:*)",
+      "Bash(git add:*)",
+      "Bash(git am:*)",
+      "Bash(git commit:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(e patches:*)",
+      "Bash(e sync:*)",
+      "Skill(electron-chromium-upgrade)",
+      "Read(*)",
+      "Bash(echo:*)",
+      "Bash(e build:*)",
+      "Bash(tee:*)",
+      "Bash(git diff:*)",
+      "Bash(git rev-parse:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
+---END---
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (122 lines)
+# Copilot Instructions for Electron
+
+## Build System
+
+Electron uses `@electron/build-tools` (`e` CLI). Install with `npm i -g @electron/build-tools`.
+
+```bash
+e sync              # Fetch sources and apply patches
+e build             # Build Electron (GN + Ninja)
+e build -k 999      # Build, continuing through errors
+e start             # Run built Electron
+e start --version   # Verify Electron launches
+e test              # Run full test suite
+e debug             # Run in debugger (lldb on macOS, gdb on Linux)
+```
+
+### Linting
+
+```bash
+npm run lint              # Run all linters (JS, C++, Python, GN, docs)
+npm run lint:js           # JavaScript/TypeScript only
+npm run lint:clang-format # C++ formatting only
+npm run lint:cpp          # C++ linting only
+npm run lint:docs         # Documentation only
+```
+
+### Running a Single Test
+
+```bash
+npm run test -- -g "pattern"   # Run tests matching a regex pattern
+# Example: npm run test -- -g "ipc"
+```
+
+### Running a Single Node.js Test
+
+```bash
+node script/node-spec-runner.js parallel/test-crypto-keygen
+```
+
+## Architecture
+
+Electron embeds Chromium (rendering) and Node.js (backend) to enable desktop apps with web technologies. The parent directory (`../`) is the Chromium source tree.
+
+### Process Model
+
+Electron has two primary process types, mirroring Chromium:
+
+- **Main process** (`shell/browser/` + `lib/browser/`): Controls app lifecycle, creates windows, system APIs
+- **Renderer process** (`shell/renderer/` + `lib/renderer/`): Runs web content in BrowserWindows
+
+### Native ↔ JavaScript Bridge
+
+Each API is implemented as a C++/JS pair:
+
+- C++ side: `shell/browser/api/electron_api_{name}.cc/.h` — uses `gin::Wrappable` and `ObjectTemplateBuilder`
+- JS side: `lib/browser/api/{name}.ts` — exports the module, registered in `lib/browser/api/module-list.ts`
+- Binding: `NODE_LINKED_BINDING_CONTEXT_AWARE(electron_browser_{name}, Initialize)` in C++ and registered in `shell/common/node_bindings.cc`
+- Type declaration: `typings/internal-ambient.d.ts` maps `process._linkedBinding('electron_browser_{name}')`
+
+### Patches System
+
+Electron patches upstream dependencies (Chromium, Node.js, V8, etc.) rather than forking them. Patches live in `patches/` organized by target, with `patches/config.json` mapping directories to repos.
+
+```text
+patches/{target}/*.patch  →  [e sync]   →  target repo commits
+                          ←  [e patches] ←
+```
+
+Key rules:
+
+- Fix existing patches rather than creating new ones
+- Preserve original authorship in TODO comments — never change `TODO(name)` assignees
+- Each patch commit message must explain why the patch exists
+- After modifying patches, run `e patches {target}` to export
+
+When working on the `roller/chromium/main` branch for Chromium upgrades, use `e sync --3` for 3-way merge conflict resolution.
+
+## Conventions
+
+### File Naming
+
+- JS/TS files: kebab-case (`file-name.ts`)
+- C++ files: snake_case with `electron_api_` prefix (`electron_api_safe_storage.cc`)
+- Test files: `api-{module-name}-spec.ts` in `spec/`
+- Source file lists are maintained in `filenames.gni` (with platform-specific sections)
+
+### JavaScript/TypeScript
+
+- Semicolons required (`"semi": ["error", "always"]`)
+- `const` and `let` only (no `var`)
+- Arrow functions preferred
+- Import order enforced: `@electron/internal` → `@electron` → `electron` → external → builtin → relative
+- API naming: `PascalCase` for classes (`BrowserWindow`), `camelCase` for module APIs (`globalShortcut`)
+- Prefer getters/setters over jQuery-style `.text([text])` patterns
+
+### C++
+
+- Follows Chromium coding style, enforced by `clang-format` and `clang-tidy`
+- Uses Chromium abstractions (`base::`, `content::`, etc.)
+- Header guards: `#ifndef ELECTRON_SHELL_BROWSER_API_ELECTRON_API_{NAME}_H_`
+---END---
+
+### Subdirectory agent docs
+FILE: docs/CLAUDE.md (58 lines)
+# Electron Documentation Guide
+
+## API History Migration
+
+Guide: `docs/development/api-history-migration-guide.md`
+Style rules: `docs/development/style-guide.md` (see "API History" section)
+Schema: `docs/api-history.schema.json`
+Lint: `npm run lint:api-history`
+
+### Format
+
+Place YAML history block directly after the Markdown header, before parameters:
+
+````md
+### `module.method(args)`
+
+<!--
+```YAML history
+added:
+  - pr-url: https://github.com/electron/electron/pull/XXXXX
+```
+-->
+
+* `arg` type - Description.
+````
+
+### Finding when an API was added
+
+- `git log --all --reverse --oneline -S "methodName" -- docs/api/file.md` — find first commit adding a method name
+- `git log --reverse -L :FunctionName:path/to/source.cc` — trace C++ implementation history
+- `git log --grep="keyword" --oneline` — find merge commits referencing PRs
+- `gh pr view <number> --repo electron/electron --json baseRefName` — verify PR targets main (not a backport)
+- Always use the main-branch PR URL in history blocks, not backport PRs
+
+### Cross-referencing breaking changes
+
+- Search `docs/breaking-changes.md` for the API name to find deprecations/removals
+- Use `git blame` on the breaking-changes entry to find the associated PR
+- Add `breaking-changes-header` field using the heading ID from breaking-changes.md
+
+### Placement rules
+
+- Only add blocks to actual API entries (methods, events, properties with backtick signatures)
+- Do NOT add blocks to section headers like `## Methods`, `### Instance Methods`, `## Events`
+- Module-level blocks go after the `# moduleName` heading, before the module description quote
+- For changes affecting multiple APIs, add a block under each affected top-level heading (see style guide "Change affecting multiple APIs")
+
+### Key details
+
+- `added` and `deprecated` arrays have `maxItems: 1`; `changes` can have multiple items
+---END---
+
+### .claude/ contents
+FILE: .claude/.gitignore (1 lines)
+settings.local.json
+---END---
+FILE: .claude/skills/electron-chromium-upgrade/references/patch-analysis.md (119 lines)
+# Analyzing Patch Failures
+
+## Investigation Steps
+
+1. **Read the patch file** at `patches/{target}/{patch_name}.patch`
+
+2. **Examine current state** of the file in Chromium at mentioned line numbers
+
+3. **Check recent upstream changes:**
+   ```bash
+   cd ..  # or relevant target repo
+   git log --oneline -10 -- {file}
+   ```
+
+4. **Find Chromium CL** in commit messages:
+   ```
+   Reviewed-on: https://chromium-review.googlesource.com/c/chromium/src/+/{CL_NUMBER}
+   ```
+
+## Critical: Resolve by Intent, Not by Mechanical Merge
+
+When resolving a patch conflict, do NOT blindly preserve the patch's old code. Instead:
+
+1. **Understand the upstream CL's full scope** — not just the conflicting hunk.
+   Run `git show <commit> --stat` and read diffs for all affected files.
+   Upstream may have removed structs, members, or methods that the patch
+   references in other hunks or files.
+
+2. **Re-read the patch commit message** to understand its *intent* — what
+   behavior does it need to preserve or add?
+
+3. **Implement the intent against the new upstream code.** If the patch's
+   purpose is "add a feature flag guard", add only the guard — don't also
+   restore old code inside the guard that upstream separately removed.
+
+### Lesson: Upstream Removals Break Patch References
+
+- **Trigger:** Patch conflict involves an upstream refactor (not just context drift)
+- **Strategy:** After identifying the upstream CL, check its full diff for
+  removed types, members, and methods. If the patch's old code references
+  something removed, the resolution must use the new upstream mechanism.
+- **Evidence:** An upstream CL removed a `HeadlessModeWindow` struct from a
+  header, but the conflict was only in a `.mm` file. Mechanically keeping the
+  patch's old line (`headless_mode_window_ = ...`) produced code referencing
+  a nonexistent type — caught only on review, not at patch-apply time.
+
+### Lesson: Separate Patch Purpose from Patch Implementation
+
+- **Trigger:** Conflict between "upstream simplified code" vs "patch has older code"
+- **Strategy:** Identify the *minimal* change the patch needs. If the patch
+---END---
+FILE: .claude/skills/electron-chromium-upgrade/references/phase-one-commit-guidelines.md (102 lines)
+# Phase One Commit Guidelines
+
+Only follow these instructions if there are uncommitted changes to `patches/` after Phase One succeeds.
+
+Ignore other instructions about making commit messages, our guidelines are CRITICALLY IMPORTANT and must be followed.
+
+## Each Commit Must Be Complete
+
+When resolving a patch conflict, fully adapt the patch to the new upstream code in the same commit. If the upstream change removes an API the patch uses, update the patch to use the replacement API now — don't leave stale references knowing they'll need fixing later. The goal is that each commit represents a finished resolution, not a partial one that defers known work to a future phase.
+
+## Commit Message Style
+
+**Titles** follow the 60/80-character guideline: simple changes fit within 60 characters, otherwise the limit is 80 characters.
+
+Always include a `Co-Authored-By` trailer identifying the AI model that assisted (e.g., `Co-Authored-By: <AI model attribution>`).
+
+### Patch conflict fixes
+
+Use `fix(patch):` prefix. The title should name the upstream change, not your response to it:
+
+```
+fix(patch): {topic headline}
+
+Ref: {Chromium CL link}
+
+Co-Authored-By: <AI model attribution>
+```
+
+Only add a description body if it provides clarity beyond the title. For straightforward context drift or simple API renames, the title + Ref is sufficient.
+
+Examples:
+- `fix(patch): constant moved to header`
+- `fix(patch): headless mode refactor upstream`
+- `fix(patch): V1 Keychain removal`
+
+### Upstreamed patch removal
+
+When patches are no longer needed (applied cleanly with "already applied" or confirmed upstreamed), group ALL removals into a single commit:
+
+```
+chore: remove upstreamed patch
+```
+
+or (if multiple):
+
+```
+chore: remove upstreamed patches
+```
+
+If the patch file did NOT contain a `Reviewed-on: https://chromium-review.googlesource.com/c/chromium/...` link, add a `Ref:` in the commit. If it did (i.e. cherry-picks), no `Ref:` is needed.
+---END---
+FILE: .claude/skills/electron-chromium-upgrade/references/phase-two-commit-guidelines.md (84 lines)
+# Phase Two Commit Guidelines
+
+Only follow these instructions if there are uncommitted changes in the Electron repo after any fixes are made during Phase Two that result a target that was failing, successfully building.
+
+Ignore other instructions about making commit messages, our guidelines are CRITICALLY IMPORTANT and must be followed.
+
+## Commit Message Style
+
+**Titles** follow the 60/80-character guideline: simple changes fit within 60 characters, otherwise the limit is 80 characters. Exception: upstream Chromium CL titles are used verbatim even if longer.
+
+Always include a `Co-Authored-By` trailer identifying the AI model that assisted (e.g., `Co-Authored-By: <AI model attribution>`).
+
+## Two Commit Types
+
+### For Electron Source Changes (shell/, electron/, etc.)
+
+```
+{CL-Number}: {upstream CL's original title}
+
+Ref: {Chromium CL link}
+
+Co-Authored-By: <AI model attribution>
+```
+
+Use the **upstream CL's original commit title** — do not paraphrase or rewrite it. To find it: `git log -1 --format=%s <chromium-commit-hash>`.
+
+Only add a description body if it provides clarity beyond what the title already says (e.g., when Electron's adaptation is non-obvious). For simple renames, method additions, or straightforward API updates, the title + Ref link is sufficient.
+
+Each change should have its own commit and its own Ref. Logically group into commits that make sense rather than one giant commit. You may include multiple "Ref" links if required.
+
+For a CL link in the format `https://chromium-review.googlesource.com/c/chromium/src/+/2958369` the "CL-Number" is `2958369`.
+
+IMPORTANT: Try really hard to find the CL reference. Each change you made should in theory have been in response to a change in Chromium. Do not give up easily.
+
+### For Patch Updates (patches/chromium/*.patch)
+
+Use the same fixup workflow as Phase One and follow `references/phase-one-commit-guidelines.md` for the commit message format (`fix(patch):` prefix, topic style).
+
+## Dependent Patch Header Updates
+
+After any patch modification, check for other affected patches:
+
+```bash
+git status
+# If other .patch files show as modified with only index, line number, and context changes:
+git add patches/
+git commit -m "chore: update patches (trivial only)"
+```
+
+## Finding CL References
+---END---
+FILE: .claude/skills/electron-chromium-upgrade/SKILL.md (184 lines)
+---
+name: electron-chromium-upgrade
+description: Guide for performing Chromium version upgrades in the Electron project. Use when working on the roller/chromium/main branch to fix patch conflicts during `e sync --3`. Covers the patch application workflow, conflict resolution, analyzing upstream Chromium changes, and proper commit formatting for patch fixes.
+---
+
+# Electron Chromium Upgrade: Phase One
+
+## Summary
+
+Run `e sync --3` repeatedly, fixing patch conflicts as they arise, until it succeeds. Then export patches and commit changes atomically.
+
+## Success Criteria
+
+Phase One is complete when:
+- `e sync --3` exits with code 0 (no patch failures)
+- All changes are committed per the commit guidelines
+
+Do not stop until these criteria are met.
+
+**CRITICAL** Do not delete or skip patches unless 100% certain the patch is no longer needed. Complicated conflicts or hard to resolve issues should be presented to the user after you have exhausted all other options. Do not delete the patch just because you can't solve it.
+
+**CRITICAL** Never use `git am --skip` and then manually recreate a patch by making a new commit. This destroys the original patch's authorship, commit message, and position in the series. If `git am --continue` reports "No changes", investigate why — the changes were likely absorbed by a prior conflict resolution's 3-way merge. Present this situation to the user rather than skipping and recreating.
+
+## Context
+
+The `roller/chromium/main` branch is created by automation to update Electron's Chromium dependency SHA. No work has been done to handle breaking changes between the old and new versions.
+
+**Key directories:**
+- Current directory: Electron repo (always run `e` commands here)
+- `..` (parent): Chromium repo (where most patches apply)
+- `patches/`: Patch files organized by target
+- `docs/development/patches.md`: Patch system documentation
+
+## Pre-flight Checks
+
+Run these once at the start of each upgrade session:
+
+1. **Clear rerere cache** (if enabled): `git rerere clear` in both the electron and `..` repos. Stale recorded resolutions from a prior attempt can silently apply wrong merges.
+2. **Ensure pre-commit hooks are installed**: Check that `.git/hooks/pre-commit` exists. If not, run `yarn husky` to install it. The hook runs `lint-staged` which handles clang-format for C++ files.
+
+## Workflow
+
+1. Run `e sync --3` (the `--3` flag enables 3-way merge, always required)
+2. If succeeds → skip to step 5
+3. If patch fails:
+   - Identify target repo and patch from error output
+   - Analyze failure (see references/patch-analysis.md)
+   - Fix conflict in target repo's working directory
+   - Run `git am --continue` in affected repo
+   - Repeat until all patches for that repo apply
+---END---
+
+## Repository Structure
+### Top-level layout
+build
+buildflags
+BUILD.gn
+chromium_src
+CLAUDE.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+default_app
+DEPS
+docs
+filenames.auto.gni
+filenames.gni
+filenames.hunspell.gni
+filenames.libcxxabi.gni
+filenames.libcxx.gni
+lib
+LICENSE
+npm
+package.json
+patches
+README.md
+script
+SECURITY.md
+shell
+spec
+tsconfig.default_app.json
+tsconfig.electron.json
+tsconfig.json
+tsconfig.script.json
+tsconfig.spec.json
+typings
+yarn.lock
+
+### README
+FILE: README.md
+[![Electron Logo](https://electronjs.org/images/electron-logo.svg)](https://electronjs.org)
+
+[![GitHub Actions Build Status](https://github.com/electron/electron/actions/workflows/build.yml/badge.svg)](https://github.com/electron/electron/actions/workflows/build.yml)
+[![Electron Discord Invite](https://img.shields.io/discord/745037351163527189?color=%237289DA&label=chat&logo=discord&logoColor=white)](https://discord.gg/electronjs)
+
+:memo: Available Translations: 🇨🇳 🇧🇷 🇪🇸 🇯🇵 🇷🇺 🇫🇷 🇺🇸 🇩🇪.
+View these docs in other languages on our [Crowdin](https://crowdin.com/project/electron) project.
+
+The Electron framework lets you write cross-platform desktop applications
+using JavaScript, HTML and CSS. It is based on [Node.js](https://nodejs.org/) and
+[Chromium](https://www.chromium.org) and is used by the
+[Visual Studio Code](https://github.com/Microsoft/vscode/) and many other [apps](https://electronjs.org/apps).
+
+Follow [@electronjs](https://twitter.com/electronjs) on Twitter for important
+announcements.
+
+This project adheres to the Contributor Covenant
+[code of conduct](https://github.com/electron/electron/tree/main/CODE_OF_CONDUCT.md).
+By participating, you are expected to uphold this code. Please report unacceptable
+behavior to [coc@electronjs.org](mailto:coc@electronjs.org).
+
+## Installation
+
+To install prebuilt Electron binaries, use [`npm`](https://docs.npmjs.com/).
+The preferred method is to install Electron as a development dependency in your
+app:
+
+```sh
+npm install electron --save-dev
+```
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "@electron-ci/dev-root",
+  "version": "0.0.0-development",
+  "repository": "https://github.com/electron/electron",
+  "description": "Build cross platform desktop apps with JavaScript, HTML, and CSS",
+  "devDependencies": {
+    "@azure/storage-blob": "^12.28.0",
+    "@datadog/datadog-ci": "^5.9.1",
+    "@electron/asar": "^4.0.1",
+    "@electron/docs-parser": "^2.0.0",
+    "@electron/fiddle-core": "^1.3.4",
+    "@electron/github-app-auth": "^3.2.0",
+    "@electron/lint-roller": "^3.2.0",
+    "@electron/typescript-definitions": "^9.1.5",
+    "@hurdlegroup/robotjs": "^0.12.3",
+    "@octokit/rest": "^20.1.2",
+    "@primer/octicons": "^10.0.0",
+    "@sentry/cli": "1.72.0",
+    "@types/minimist": "^1.2.5",
+    "@types/node": "^24.9.0",
+    "@types/semver": "^7.5.8",
+    "@types/stream-json": "^1.7.8",
+    "@types/temp": "^0.9.4",
+    "@typescript-eslint/eslint-plugin": "^8.32.1",
+    "@typescript-eslint/parser": "^8.7.0",
+    "@xmldom/xmldom": "^0.8.11",
+    "buffer": "^6.0.3",
+    "chalk": "^4.1.0",
+    "check-for-leaks": "^1.2.1",
+    "eslint": "^8.57.1",
+    "eslint-config-standard": "^17.1.0",
+    "eslint-plugin-import": "^2.32.0",
+    "eslint-plugin-markdown": "^5.1.0",
+    "eslint-plugin-mocha": "^10.5.0",
+    "eslint-plugin-n": "^17.24.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.6.0",
+    "events": "^3.2.0",
+    "folder-hash": "^4.1.2",
+    "got": "^11.8.5",
+---END---
+### Lock files
+yarn.lock: EXISTS
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+.nvmrc: 22
+
+## Tests
+test_file_count: 4
+ci_workflow_count: 40
+apply-patches.yml
+archaeologist-dig.yml
+audit-branch-ci.yml
+branch-created.yml
+build-git-cache.yml
+build.yml
+clean-src-cache.yml
+issue-commented.yml
+issue-labeled.yml
+issue-opened.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+FILE: .husky/pre-commit
+npm run precommit---END---
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.eslintrc.json: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 74 lines
+# Contributing to Electron
+
+:+1::tada: First off, thanks for taking the time to contribute! :tada::+1:
+
+This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDUCT.md).
+By participating, you are expected to uphold this code. Please report unacceptable
+behavior to coc@electronjs.org.
+
+The following is a set of guidelines for contributing to Electron.
+These are just guidelines, not rules, use your best judgment and feel free to
+propose changes to this document in a pull request.
+
+## [Issues](https://electronjs.org/docs/development/issues)
+
+Issues are created [here](https://github.com/electron/electron/issues/new/choose).
+
+* [How to Contribute in Issues](https://electronjs.org/docs/development/issues#how-to-contribute-in-issues)
+* [Asking for General Help](https://electronjs.org/docs/development/issues#asking-for-general-help)
+* [Submitting a Bug Report](https://electronjs.org/docs/development/issues#submitting-a-bug-report)
+* [Triaging a Bug Report](https://electronjs.org/docs/development/issues#triaging-a-bug-report)
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### tsconfig.json
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2020",
+    "lib": [
+      "es2022",
+      "dom",
+      "dom.iterable"
+    ],
+    "sourceMap": true,
+    "experimentalDecorators": true,
+    "strict": true,
+    "baseUrl": ".",
+    "allowJs": true,
+    "noUnusedLocals": true,
+    "outDir": "ts-gen",
+    "typeRoots" : ["./node_modules/@types", "./spec/node_modules/@types"],
+    "paths": {
+      "@electron/internal/*": ["lib/*"],
+      "@node/*": ["../third_party/electron_node/*"]
+    }
+  },
+  "exclude": [
+    "electron.d.ts"
+  ],
+}
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  84651 total
+   7233 ./spec/api-browser-window-spec.ts
+   4525 ./spec/chromium-spec.ts
+   3444 ./spec/api-web-contents-spec.ts
+   2369 ./spec/api-app-spec.ts
+   2232 ./spec/webview-spec.ts
+   2135 ./spec/api-session-spec.ts
+   1802 ./spec/api-protocol-spec.ts
+   1769 ./spec/asar-spec.ts
+   1748 ./spec/api-net-spec.ts
+   1508 ./spec/api-context-bridge-spec.ts
+
+=== END SIGNALS ===

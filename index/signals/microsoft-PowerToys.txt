@@ -1,0 +1,315 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/microsoft-PowerToys
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md (165 lines)
+---
+description: 'Top-level AI contributor guidance for developing PowerToys - a collection of Windows productivity utilities'
+applyTo: '**'
+---
+
+# PowerToys – AI Contributor Guide
+
+This is the top-level guidance for AI contributions to PowerToys. Keep changes atomic, follow existing patterns, and cite exact paths in PRs.
+
+## Overview
+
+PowerToys is a set of utilities for power users to tune and streamline their Windows experience.
+
+| Area | Location | Description |
+|------|----------|-------------|
+| Runner | `src/runner/` | Main executable, tray icon, module loader, hotkey management |
+| Settings UI | `src/settings-ui/` | WinUI/WPF configuration app communicating via named pipes |
+| Modules | `src/modules/` | Individual PowerToys utilities (each in its own subfolder) |
+| Common Libraries | `src/common/` | Shared code: logging, IPC, settings, DPI, telemetry, utilities |
+| Build Tools | `tools/build/` | Build scripts and automation |
+| Documentation | `doc/devdocs/` | Developer documentation |
+| Installer | `installer/` | WiX-based installer projects |
+
+For architecture details and module types, see [Architecture Overview](doc/devdocs/core/architecture.md).
+
+## Conventions
+
+For detailed coding conventions, see:
+- [Coding Guidelines](doc/devdocs/development/guidelines.md) – Dependencies, testing, PR management
+- [Coding Style](doc/devdocs/development/style.md) – Formatting, C++/C#/XAML style rules
+- [Logging](doc/devdocs/development/logging.md) – C++ spdlog and C# Logger usage
+
+### Component-Specific Instructions
+
+These instruction files are automatically applied when working in their respective areas:
+- [Runner & Settings UI](.github/instructions/runner-settings-ui.instructions.md) – IPC contracts, schema migrations
+- [Common Libraries](.github/instructions/common-libraries.instructions.md) – ABI stability, shared code guidelines
+
+## Build
+
+### Prerequisites
+
+- Visual Studio 2022 17.4+ or Visual Studio 2026
+- Windows 10 1803+ (April 2018 Update or newer)
+- Initialize submodules once: `git submodule update --init --recursive`
+
+### Build Commands
+
+| Task | Command |
+|------|---------|
+| First build / NuGet restore | `tools\build\build-essentials.cmd` |
+| Build current folder | `tools\build\build.cmd` |
+| Build with options | `build.ps1 -Platform x64 -Configuration Release` |
+
+### Build Discipline
+
+1. One terminal per operation (build → test). Do not switch or open new ones mid-flow
+2. After making changes, `cd` to the project folder that changed (`.csproj`/`.vcxproj`)
+3. Use scripts to build: `tools/build/build.ps1` or `tools/build/build.cmd`
+4. For first build or missing NuGet packages, run `build-essentials.cmd` first
+5. **Exit code 0 = success; non-zero = failure** – treat this as absolute
+6. On failure, read the errors log: `build.<config>.<platform>.errors.log`
+7. Do not start tests or launch Runner until the build succeeds
+
+### Build Logs
+
+Located next to the solution/project being built:
+- `build.<configuration>.<platform>.errors.log` – errors only (check this first)
+- `build.<configuration>.<platform>.all.log` – full log
+- `build.<configuration>.<platform>.trace.binlog` – for MSBuild Structured Log Viewer
+
+For complete details, see [Build Guidelines](tools/build/BUILD-GUIDELINES.md).
+
+## Tests
+
+### Test Discovery
+
+- Find test projects by product code prefix (e.g., `FancyZones`, `AdvancedPaste`)
+- Look for sibling folders or 1-2 levels up named `<Product>*UnitTests` or `<Product>*UITests`
+
+### Running Tests
+
+1. **Build the test project first**, wait for exit code 0
+2. Run via VS Test Explorer (`Ctrl+E, T`) or `vstest.console.exe` with filters
+3. **Avoid `dotnet test`** in this repo – use VS Test Explorer or vstest.console.exe
+
+### Test Types
+
+| Type | Requirements | Setup |
+|------|--------------|-------|
+| Unit Tests | Standard dev environment | None |
+| UI Tests | WinAppDriver v1.2.1, Developer Mode | Install from [WinAppDriver releases](https://github.com/microsoft/WinAppDriver/releases/tag/v1.2.1) |
+| Fuzz Tests | OneFuzz, .NET 8 | See [Fuzzing Tests](doc/devdocs/tools/fuzzingtesting.md) |
+
+### Test Discipline
+
+1. Add or adjust tests when changing behavior
+2. If tests skipped, state why (e.g., comment-only change, string rename)
+3. New modules handling file I/O or user input **must** implement fuzzing tests
+
+---END---
+FILE: .claude/CLAUDE.md (35 lines)
+---
+description: 'PowerToys AI contributor guidance'
+---
+
+# PowerToys – Copilot Instructions
+
+Concise guidance for AI contributions. For complete details, see [AGENTS.md](../AGENTS.md).
+
+## Key Rules
+
+- Atomic PRs: one logical change, no drive-by refactors
+- Add tests when changing behavior
+- Keep hot paths quiet (no logging in hooks/tight loops)
+
+## Style Enforcement
+
+- C#: `src/.editorconfig`, StyleCop.Analyzers
+- C++: `src/.clang-format`
+- XAML: XamlStyler
+
+## When to Ask for Clarification
+
+- Ambiguous spec after scanning docs
+- Cross-module impact unclear
+- Security, elevation, or installer changes
+
+## Component-Specific Instructions
+
+These are auto-applied based on file location:
+- [Runner & Settings UI](.github/instructions/runner-settings-ui.instructions.md)
+- [Common Libraries](.github/instructions/common-libraries.instructions.md)
+
+## Detailed Documentation
+
+- [Architecture](../doc/devdocs/core/architecture.md)
+- [Coding Style](../doc/devdocs/development/style.md)---END---
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (35 lines)
+---
+description: 'PowerToys AI contributor guidance'
+---
+
+# PowerToys – Copilot Instructions
+
+Concise guidance for AI contributions. For complete details, see [AGENTS.md](../AGENTS.md).
+
+## Key Rules
+
+- Atomic PRs: one logical change, no drive-by refactors
+- Add tests when changing behavior
+- Keep hot paths quiet (no logging in hooks/tight loops)
+
+## Style Enforcement
+
+- C#: `src/.editorconfig`, StyleCop.Analyzers
+- C++: `src/.clang-format`
+- XAML: XamlStyler
+
+## When to Ask for Clarification
+
+- Ambiguous spec after scanning docs
+- Cross-module impact unclear
+- Security, elevation, or installer changes
+
+## Component-Specific Instructions
+
+These are auto-applied based on file location:
+- [Runner & Settings UI](.github/instructions/runner-settings-ui.instructions.md)
+- [Common Libraries](.github/instructions/common-libraries.instructions.md)
+
+## Detailed Documentation
+
+- [Architecture](../doc/devdocs/core/architecture.md)
+- [Coding Style](../doc/devdocs/development/style.md)---END---
+
+### Subdirectory agent docs
+
+### .claude/ contents
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+CODE_OF_CONDUCT.md
+COMMUNITY.md
+CONTRIBUTING.md
+Cpp.Build.props
+CppRuleSet.ruleset
+DATA_AND_PRIVACY.md
+deps
+Directory.Build.props
+Directory.Build.targets
+Directory.Packages.props
+doc
+installer
+LICENSE
+NOTICE.md
+nuget.config
+packages.config
+PowerToys.slnx
+README.md
+SECURITY.md
+src
+SUPPORT.md
+tools
+
+### README
+FILE: README.md
+<p align="center">
+    <picture>
+      <source media="(prefers-color-scheme: light)" srcset="./doc/images/readme/pt-hero.light.png" />
+      <img src="./doc/images/readme/pt-hero.dark.png" />
+  </picture>
+</p>
+<h1 align="center">
+  <span>Microsoft PowerToys</span>
+</h1>
+<p align="center">
+  <span align="center">Microsoft PowerToys is a collection of utilities that help you customize Windows and streamline everyday tasks.</span>
+</p>
+<h3 align="center">
+  <a href="#-installation">Installation</a>
+  <span> · </span>
+  <a href="https://aka.ms/powertoys-docs">Documentation</a>
+  <span> · </span>
+  <a href="https://aka.ms/powertoys-releaseblog">Blog</a>
+  <span> · </span>
+  <a href="#-whats-new">Release notes</a>
+</h3>
+<br/><br/>
+
+## 🔨 Utilities
+
+PowerToys includes over 25 utilities to help you customize and optimize your Windows experience:
+
+|   |   |   |
+|---|---|---|
+| [<img src="doc/images/icons/AdvancedPaste.png" alt="Advanced Paste icon" height="16"> Advanced Paste](https://aka.ms/PowerToysOverview_AdvancedPaste) | [<img src="doc/images/icons/Always%20On%20Top.png" alt="Always on Top icon" height="16"> Always on Top](https://aka.ms/PowerToysOverview_AoT) | [<img src="doc/images/icons/Awake.png" alt="Awake icon" height="16"> Awake](https://aka.ms/PowerToysOverview_Awake) |
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 5
+ci_workflow_count: 6
+automatic-issue-deduplication.yml
+dependency-review.yml
+manual-batch-issue-deduplication.yml
+msstore-submissions.yml
+package-submissions.yml
+spelling2.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 72 lines
+# PowerToys Contributor's Guide
+
+Below is our guidance for reporting issues, proposing new features, and submitting contributions via Pull Requests (PRs). Our philosophy is to understand the problem and scenarios first, which is why we follow this pattern before work starts.
+
+1. There is an issue.
+2. There has been a conversation.
+3. There is agreement on the problem, the fit for PowerToys, and the solution to the problem (implementation).
+
+## Filing an Issue
+
+**Importance of Filing an Issue First**
+
+Please follow this rule to help eliminate wasted effort and frustration, and to ensure an efficient and effective use of everyone’s time:
+
+> 👉 If you have a question, think you've discovered an issue, or would like to propose a new feature, please find/file an issue **BEFORE** starting work to fix/implement it.
+
+When requesting new features or enhancements, providing additional evidence, data, tweets, blog posts, or research is extremely helpful. This information gives context to the scenario that may otherwise be lost.
+
+* Unsure whether it’s an issue or feature request? File an issue.
+* Have a question that isn't answered in the docs, videos, etc.? File an issue.
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  200603 total
+   37016 ./src/Monaco/monacoSRC/min/vs/language/typescript/tsWorker.js
+   18013 ./src/modules/ZoomIt/ZoomIt/PanoramaCapture.cpp
+   11755 ./src/modules/ZoomIt/ZoomIt/Zoomit.cpp
+    5442 ./src/modules/ZoomIt/ZoomIt/VideoRecordingSession.cpp
+    2375 ./src/modules/MouseUtils/CursorWrap/CursorWrapTests/WrapSimulator/wrap_simulator.py
+    2374 ./src/modules/keyboardmanager/KeyboardManagerEngineTest/OSLevelShortcutRemappingTests.cpp
+    1828 ./installer/PowerToysSetupCustomActionsVNext/CustomAction.cpp
+    1804 ./src/modules/keyboardmanager/KeyboardManagerEngineLibrary/KeyboardEventHandlers.cpp
+    1452 ./src/modules/fancyzones/FancyZonesTests/UnitTests/WindowKeyboardSnap.Spec.cpp
+    1445 ./src/modules/ZoomIt/ZoomIt/DemoType.cpp
+
+=== END SIGNALS ===

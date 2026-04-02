@@ -1,0 +1,83 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/massgravel-Microsoft-Activation-Scripts
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+LICENSE
+MAS
+README.md
+
+### README
+FILE: README.md
+<p align="center"><img src="https://massgrave.dev/img/logo_small.png" alt="MAS Logo"></p>
+
+<h1 align="center">Microsoft  Activation  Scripts (MAS)</h1>
+
+<p align="center">Open-source Windows and Office activator featuring HWID, Ohook, TSforge, and Online KMS activation methods, along with advanced troubleshooting.</p>
+
+<hr>
+  
+## How to Activate Windows / Office / Extended Security Updates (ESU)?
+
+### Method 1 - PowerShell ❤️
+
+1. Click the **Start Menu**, type `PowerShell`, and open it.
+
+2. Copy and paste the code below and press **Enter.**  
+   - For **Windows 8.1, 10 and 11**:
+     ```
+     irm https://get.activated.win | iex
+     ```
+	 If the above is blocked (by ISP/DNS), try this (needs updated Windows 10 or 11):  
+	 ```
+	 iex (curl.exe -s --doh-url https://1.1.1.1/dns-query https://get.activated.win | Out-String)
+	 ```
+	- **Script not launching? Use the below-listed Method 2.**
+
+3. In the menu that appears, type the number corresponding to one of the **Green** options.
+
+---
+
+### Method 2 - Traditional (Windows Vista and later)
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 0
+ci: DOES NOT EXIST
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+0
+
+=== END SIGNALS ===

@@ -1,0 +1,159 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/mrdoob-three.js
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+build
+docs
+editor
+eslint.config.js
+examples
+files
+icon.png
+LICENSE
+llms.txt
+manual
+package.json
+package-lock.json
+README.md
+SECURITY.md
+src
+test
+utils
+
+### README
+FILE: README.md
+# three.js
+
+[![NPM Package][npm]][npm-url]
+[![Build Size][build-size]][build-size-url]
+[![NPM Downloads][npm-downloads]][npmtrends-url]
+[![jsDelivr Downloads][jsdelivr-downloads]][jsdelivr-url]
+[![Discord][discord]][discord-url]
+
+#### JavaScript 3D library
+
+The aim of the project is to create an easy-to-use, lightweight, cross-browser, general-purpose 3D library. The current builds only include WebGL and WebGPU renderers but SVG and CSS3D renderers are also available as addons.
+
+[Examples](https://threejs.org/examples/) &mdash;
+[Docs](https://threejs.org/docs/) &mdash;
+[Manual](https://threejs.org/manual/) &mdash;
+[Wiki](https://github.com/mrdoob/three.js/wiki) &mdash;
+[Migrating](https://github.com/mrdoob/three.js/wiki/Migration-Guide) &mdash;
+[Questions](https://stackoverflow.com/questions/tagged/three.js) &mdash;
+[Forum](https://discourse.threejs.org/) &mdash;
+[Discord](https://discord.gg/56GBJwAnUS)
+
+### Usage
+
+This code creates a scene, a camera, and a geometric cube, and it adds the cube to the scene. It then creates a `WebGL` renderer for the scene and camera, and it adds that viewport to the `document.body` element. Finally, it animates the cube within the scene for the camera.
+
+```javascript
+import * as THREE from 'three';
+
+const width = window.innerWidth, height = window.innerHeight;
+
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "three",
+  "version": "0.183.1",
+  "description": "JavaScript 3D library",
+  "type": "module",
+  "main": "./build/three.cjs",
+  "module": "./build/three.module.js",
+  "exports": {
+    ".": {
+      "import": "./build/three.module.js",
+      "require": "./build/three.cjs"
+    },
+    "./examples/fonts/*": "./examples/fonts/*",
+    "./examples/jsm/*": "./examples/jsm/*",
+    "./addons": "./examples/jsm/Addons.js",
+    "./addons/*": "./examples/jsm/*",
+    "./src/*": "./src/*",
+    "./webgpu": "./build/three.webgpu.js",
+    "./tsl": "./build/three.tsl.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mrdoob/three.js"
+  },
+  "sideEffects": [
+    "./src/nodes/**/*"
+  ],
+  "files": [
+    "build",
+    "examples/jsm",
+    "examples/fonts",
+    "LICENSE",
+    "package.json",
+    "README.md",
+    "src"
+  ],
+  "directories": {
+    "doc": "docs",
+    "example": "examples",
+    "test": "test"
+---END---
+### Lock files
+package-lock.json: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 24
+ci_workflow_count: 5
+ci.yml
+codeql-code-scanning.yml
+protected-folders.yml
+read-size.yml
+report-size.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.js: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "dev": "node utils/build/dev.js && node utils/server.js -p 8080",
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 303144 total
+   4860 ./examples/jsm/loaders/GLTFLoader.js
+   4594 ./examples/jsm/loaders/usd/USDComposer.js
+   4380 ./examples/jsm/loaders/FBXLoader.js
+   3680 ./src/renderers/common/Renderer.js
+   3646 ./examples/jsm/loaders/VRMLLoader.js
+   3638 ./src/renderers/WebGLRenderer.js
+   3539 ./examples/jsm/controls/ArcballControls.js
+   3433 ./examples/jsm/loaders/EXRLoader.js
+   3299 ./src/nodes/core/NodeBuilder.js
+   3267 ./examples/jsm/loaders/SVGLoader.js
+
+=== END SIGNALS ===

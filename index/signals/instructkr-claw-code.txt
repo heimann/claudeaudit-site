@@ -1,0 +1,97 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/instructkr-claw-code
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+assets
+CLAW.md
+PARITY.md
+README.md
+rust
+src
+tests
+
+### README
+FILE: README.md
+# Rewriting Project Claw Code
+
+<p align="center">
+  <strong>⭐ The fastest repo in history to surpass 50K stars, reaching the milestone in just 2 hours after publication ⭐</strong>
+</p>
+
+<p align="center">
+  <a href="https://star-history.com/#instructkr/claw-code&Date">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=instructkr/claw-code&type=Date&theme=dark" />
+      <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=instructkr/claw-code&type=Date" />
+      <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=instructkr/claw-code&type=Date" width="600" />
+    </picture>
+  </a>
+</p>
+
+<p align="center">
+  <img src="assets/clawd-hero.jpeg" alt="Claw" width="300" />
+</p>
+
+<p align="center">
+  <strong>Better Harness Tools, not merely storing the archive of leaked Claw Code</strong>
+</p>
+
+<p align="center">
+  <a href="https://github.com/sponsors/instructkr"><img src="https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github&style=for-the-badge" alt="Sponsor on GitHub" /></a>
+</p>
+
+> [!IMPORTANT]
+> **Rust port is now in progress** on the [`dev/rust`](https://github.com/instructkr/claw-code/tree/dev/rust) branch and is expected to be merged into main today. The Rust implementation aims to deliver a faster, memory-safe harness runtime. Stay tuned — this will be the definitive version of the project.
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 1
+ci: DOES NOT EXIST
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  36451 total
+   4786 ./rust/crates/claw-cli/src/main.rs
+   4469 ./rust/crates/tools/src/lib.rs
+   2943 ./rust/crates/plugins/src/lib.rs
+   2511 ./rust/crates/commands/src/lib.rs
+   1720 ./rust/crates/runtime/src/mcp_stdio.rs
+   1294 ./rust/crates/runtime/src/config.rs
+   1119 ./rust/crates/claw-cli/src/input.rs
+   1050 ./rust/crates/api/src/providers/openai_compat.rs
+   1046 ./rust/crates/api/src/providers/claw_provider.rs
+    801 ./rust/crates/runtime/src/conversation.rs
+
+=== END SIGNALS ===

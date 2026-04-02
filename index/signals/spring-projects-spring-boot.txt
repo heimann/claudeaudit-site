@@ -1,0 +1,98 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/spring-projects-spring-boot
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+antora
+build.gradle
+buildpack
+build-plugin
+buildSrc
+cli
+config
+configuration-metadata
+CONTRIBUTING.adoc
+core
+documentation
+eclipse
+git
+gradle
+gradle.properties
+gradlew
+gradlew.bat
+integration-test
+LICENSE.txt
+loader
+module
+platform
+README.adoc
+settings.gradle
+smoke-test
+starter
+SUPPORT.adoc
+system-test
+test-support
+
+### README
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 69
+ci_workflow_count: 10
+build-and-deploy-snapshot.yml
+build-pull-request.yml
+ci.yml
+distribute.yml
+release-milestone.yml
+release.yml
+run-codeql-analysis.yml
+run-system-tests.yml
+trigger-docs-build.yml
+verify.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 131873 total
+   3380 ./core/spring-boot/src/test/java/org/springframework/boot/context/properties/ConfigurationPropertiesTests.java
+   2164 ./core/spring-boot/src/test/java/org/springframework/boot/SpringApplicationTests.java
+   1401 ./core/spring-boot/src/test/java/org/springframework/boot/context/config/ConfigDataEnvironmentPostProcessorIntegrationTests.java
+   1297 ./core/spring-boot-test/src/test/java/org/springframework/boot/test/json/JsonContentAssertTests.java
+   1278 ./core/spring-boot/src/test/java/org/springframework/boot/context/properties/bind/JavaBeanBinderTests.java
+   1235 ./core/spring-boot/src/test/java/org/springframework/boot/logging/logback/LogbackLoggingSystemTests.java
+   1173 ./core/spring-boot-test/src/main/java/org/springframework/boot/test/json/JsonContentAssert.java
+   1172 ./core/spring-boot-autoconfigure/src/test/java/org/springframework/boot/autoconfigure/condition/ConditionalOnMissingBeanTests.java
+   1015 ./core/spring-boot/src/test/java/org/springframework/boot/context/properties/bind/ValueObjectBinderTests.java
+    998 ./core/spring-boot/src/test/java/org/springframework/boot/json/JsonWriterTests.java
+
+=== END SIGNALS ===

@@ -1,0 +1,409 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/nvm-sh-nvm
+
+## Agent Documentation
+FILE: CLAUDE.md (447 lines)
+# nvm Coding Agent Instructions
+
+This document provides guidance for AI coding agents when working with the Node Version Manager (nvm) codebase.
+
+## Overview
+
+nvm is a version manager for Node.js, implemented as a POSIX-compliant function that works across multiple shells (sh, dash, bash, ksh, zsh). The codebase is primarily written in shell script and emphasizes portability and compatibility.
+
+### Core Architecture
+
+- **Main script**: `nvm.sh` - Contains all core functionality and the main `nvm()` function
+- **Installation script**: `install.sh` - Handles downloading and installing nvm itself
+- **Execution wrapper**: `nvm-exec` - Allows running commands with specific Node.js versions
+- **Bash completion**: `bash_completion` - Provides tab completion for bash users
+- **Tests**: Comprehensive test suite in `test/` directory using the [urchin](https://www.npmjs.com/package/urchin) test framework
+
+## Key Files and Their Purposes
+
+### `nvm.sh`
+The core functionality file containing:
+- Main `nvm()` function (starts around line 3000)
+- All internal helper functions (prefixed with `nvm_`)
+- Command implementations for install, use, ls, etc.
+- Shell compatibility logic
+- POSIX compliance utilities
+
+### `install.sh`
+Handles nvm installation via curl/wget/git:
+- Downloads nvm from GitHub
+- Sets up directory structure
+- Configures shell integration
+- Supports both git clone and script download methods
+
+### `nvm-exec`
+Simple wrapper script that:
+- Sources nvm.sh with `--no-use` flag
+- Switches to specified Node version via `NODE_VERSION` env var or `.nvmrc`
+- Executes the provided command with that Node version
+
+## Top-Level nvm Commands and Internal Functions
+
+### Core Commands
+
+#### `nvm install [version]`
+- **Internal functions**: `nvm_install_binary()`, `nvm_install_source()`, `nvm_download_artifact()`
+- Downloads and installs specified Node.js version
+- Automatically `nvm use`s that version after installation
+- Supports LTS versions, version ranges, and built-in aliases (like `node`, `stable`) and user-defined aliases
+- Can install from binary or compile from source
+- When compiling from source, accepts additional arguments that are passed to the compilation task
+
+#### `nvm use [version]`
+- **Internal functions**: `nvm_resolve_alias()`, `nvm_version_path()`, `nvm_change_path()`
+- Switches current shell to use specified Node.js version
+- Updates PATH environment variable
+- Supports `.nvmrc` file integration
+
+#### `nvm ls [pattern]`
+- **Internal functions**: `nvm_ls()`, `nvm_tree_contains_path()`
+- Lists installed Node.js versions
+- Supports pattern matching and filtering
+- Shows current version and aliases
+
+#### `nvm ls-remote [pattern]`
+- **Internal functions**: `nvm_ls_remote()`, `nvm_download()`, `nvm_ls_remote_index_tab()`
+- Lists available Node.js versions from nodejs.org and iojs.org, or the env-var-configured mirrors
+- Supports LTS filtering and pattern matching
+- Downloads version index on-demand
+
+#### `nvm alias [name] [version]`
+- **Internal functions**: `nvm_alias()`, `nvm_alias_path()`
+- Creates text files containing the mapped version, named as the alias name
+- Special aliases: `default`, `node`, `iojs`, `stable`, `unstable` (note: `stable` and `unstable` are deprecated, from node's pre-v1 release plan)
+- Stored in `$NVM_DIR/alias/` directory
+
+#### `nvm current`
+- **Internal functions**: `nvm_ls_current()`
+- Shows currently active Node.js version
+- Returns "system" if using system Node.js
+
+#### `nvm which [version]`
+- **Internal functions**: `nvm_version_path()`, `nvm_resolve_alias()`
+- Shows path to specified Node.js version
+- Resolves aliases and version strings
+
+### Utility Commands
+
+#### `nvm cache clear|dir`
+- Cache management for downloaded binaries and source code
+- Clears or shows cache directory path
+
+#### `nvm debug`
+- Diagnostic information for troubleshooting
+- Shows environment, tool versions, and paths
+
+#### `nvm deactivate`
+- Removes nvm modifications from current shell
+- Restores original PATH
+
+#### `nvm unload`
+---END---
+FILE: AGENTS.md (447 lines)
+# nvm Coding Agent Instructions
+
+This document provides guidance for AI coding agents when working with the Node Version Manager (nvm) codebase.
+
+## Overview
+
+nvm is a version manager for Node.js, implemented as a POSIX-compliant function that works across multiple shells (sh, dash, bash, ksh, zsh). The codebase is primarily written in shell script and emphasizes portability and compatibility.
+
+### Core Architecture
+
+- **Main script**: `nvm.sh` - Contains all core functionality and the main `nvm()` function
+- **Installation script**: `install.sh` - Handles downloading and installing nvm itself
+- **Execution wrapper**: `nvm-exec` - Allows running commands with specific Node.js versions
+- **Bash completion**: `bash_completion` - Provides tab completion for bash users
+- **Tests**: Comprehensive test suite in `test/` directory using the [urchin](https://www.npmjs.com/package/urchin) test framework
+
+## Key Files and Their Purposes
+
+### `nvm.sh`
+The core functionality file containing:
+- Main `nvm()` function (starts around line 3000)
+- All internal helper functions (prefixed with `nvm_`)
+- Command implementations for install, use, ls, etc.
+- Shell compatibility logic
+- POSIX compliance utilities
+
+### `install.sh`
+Handles nvm installation via curl/wget/git:
+- Downloads nvm from GitHub
+- Sets up directory structure
+- Configures shell integration
+- Supports both git clone and script download methods
+
+### `nvm-exec`
+Simple wrapper script that:
+- Sources nvm.sh with `--no-use` flag
+- Switches to specified Node version via `NODE_VERSION` env var or `.nvmrc`
+- Executes the provided command with that Node version
+
+## Top-Level nvm Commands and Internal Functions
+
+### Core Commands
+
+#### `nvm install [version]`
+- **Internal functions**: `nvm_install_binary()`, `nvm_install_source()`, `nvm_download_artifact()`
+- Downloads and installs specified Node.js version
+- Automatically `nvm use`s that version after installation
+- Supports LTS versions, version ranges, and built-in aliases (like `node`, `stable`) and user-defined aliases
+- Can install from binary or compile from source
+- When compiling from source, accepts additional arguments that are passed to the compilation task
+
+#### `nvm use [version]`
+- **Internal functions**: `nvm_resolve_alias()`, `nvm_version_path()`, `nvm_change_path()`
+- Switches current shell to use specified Node.js version
+- Updates PATH environment variable
+- Supports `.nvmrc` file integration
+
+#### `nvm ls [pattern]`
+- **Internal functions**: `nvm_ls()`, `nvm_tree_contains_path()`
+- Lists installed Node.js versions
+- Supports pattern matching and filtering
+- Shows current version and aliases
+
+#### `nvm ls-remote [pattern]`
+- **Internal functions**: `nvm_ls_remote()`, `nvm_download()`, `nvm_ls_remote_index_tab()`
+- Lists available Node.js versions from nodejs.org and iojs.org, or the env-var-configured mirrors
+- Supports LTS filtering and pattern matching
+- Downloads version index on-demand
+
+#### `nvm alias [name] [version]`
+- **Internal functions**: `nvm_alias()`, `nvm_alias_path()`
+- Creates text files containing the mapped version, named as the alias name
+- Special aliases: `default`, `node`, `iojs`, `stable`, `unstable` (note: `stable` and `unstable` are deprecated, from node's pre-v1 release plan)
+- Stored in `$NVM_DIR/alias/` directory
+
+#### `nvm current`
+- **Internal functions**: `nvm_ls_current()`
+- Shows currently active Node.js version
+- Returns "system" if using system Node.js
+
+#### `nvm which [version]`
+- **Internal functions**: `nvm_version_path()`, `nvm_resolve_alias()`
+- Shows path to specified Node.js version
+- Resolves aliases and version strings
+
+### Utility Commands
+
+#### `nvm cache clear|dir`
+- Cache management for downloaded binaries and source code
+- Clears or shows cache directory path
+
+#### `nvm debug`
+- Diagnostic information for troubleshooting
+- Shows environment, tool versions, and paths
+
+#### `nvm deactivate`
+- Removes nvm modifications from current shell
+- Restores original PATH
+
+#### `nvm unload`
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+bash_completion
+CLAUDE.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+Dockerfile
+GOVERNANCE.md
+install.sh
+LICENSE.md
+Makefile
+nvm-exec
+nvm.sh
+package.json
+PROJECT_CHARTER.md
+README.md
+rename_test.sh
+ROADMAP.md
+test
+update_test_mocks.sh
+
+### README
+FILE: README.md
+<a href="https://github.com/nvm-sh/logos">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/nvm-sh/logos/HEAD/nvm-logo-white.svg" />
+    <img src="https://raw.githubusercontent.com/nvm-sh/logos/HEAD/nvm-logo-color.svg" height="50" alt="nvm project logo" />
+  </picture>
+</a>
+
+
+# Node Version Manager [![Tests](https://github.com/nvm-sh/nvm/actions/workflows/tests-fast.yml/badge.svg?branch=master)][3] [![nvm version](https://img.shields.io/badge/version-v0.40.4-yellow.svg)][4] [![CII Best Practices](https://bestpractices.dev/projects/684/badge)](https://bestpractices.dev/projects/684)
+
+<!-- To update this table of contents, ensure you have run `npm install` then `npm run doctoc` -->
+<!-- START doctoc generated TOC please keep comment here to allow auto update -->
+<!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
+## Table of Contents
+
+- [Intro](#intro)
+- [About](#about)
+- [Installing and Updating](#installing-and-updating)
+  - [Install & Update Script](#install--update-script)
+    - [Additional Notes](#additional-notes)
+    - [Installing in Docker](#installing-in-docker)
+      - [Installing in Docker for CICD-Jobs](#installing-in-docker-for-cicd-jobs)
+    - [Troubleshooting on Linux](#troubleshooting-on-linux)
+    - [Troubleshooting on macOS](#troubleshooting-on-macos)
+    - [Ansible](#ansible)
+  - [Verify Installation](#verify-installation)
+  - [Important Notes](#important-notes)
+  - [Git Install](#git-install)
+  - [Manual Install](#manual-install)
+  - [Manual Upgrade](#manual-upgrade)
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "nvm",
+  "version": "0.40.4",
+  "description": "Node Version Manager - Simple bash script to manage multiple active node.js versions",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "shell=$(basename -- $(ps -o comm= $(ps -o ppid= -p $PPID)) | sed 's/^-//'); make test-$shell",
+    "test/fast": "shell=$(basename -- $(ps -o comm= $(ps -o ppid= -p $PPID)) | sed 's/^-//'); env -i TERM=\"$TERM\" bash -lc \"make TEST_SUITE=fast test-$shell\"",
+    "test/slow": "shell=$(basename -- $(ps -o comm= $(ps -o ppid= -p $PPID)) | sed 's/^-//'); make TEST_SUITE=slow test-$shell",
+    "test/install_script": "shell=$(basename -- $(ps -o comm= $(ps -o ppid= -p $PPID)) | sed 's/^-//'); make TEST_SUITE=install_script test-$shell",
+    "test/installation": "npm run --silent test/installation/node && npm run --silent test/installation/iojs",
+    "test/installation/node": "shell=$(basename -- $(ps -o comm= $(ps -o ppid= -p $PPID)) | sed 's/^-//'); make TEST_SUITE=installation_node test-$shell",
+    "test/installation/iojs": "shell=$(basename -- $(ps -o comm= $(ps -o ppid= -p $PPID)) | sed 's/^-//'); make TEST_SUITE=installation_iojs test-$shell",
+    "test/sourcing": "shell=$(basename -- $(ps -o comm= $(ps -o ppid= -p $PPID)) | sed 's/^-//'); make TEST_SUITE=sourcing test-$shell",
+    "test:check-exec": "(IFS=$'\\n'; for file in $(git ls-files test); do if [ ! -x \"$file\" ] && [[ \"$file\" != *.* ]] && [[ \"$file\" != test/fixtures/* ]]; then echo \"$file\"; fi; done) | tee /dev/stderr | awk 'END {if (NR > 0) exit 1}'",
+    "test:check-nonexec": "(IFS=$'\\n'; for file in $(git ls-files test); do if [ -x \"$file\" ] && [ ! -d \"$file\" ] && { [[ \"$file\" =~ '\\.(json|txt|sh|js|log)$' ]] || [[ \"$file\" =~ '^test/(mocks|fixtures)/.*' ]]; }; then echo \"$file\"; fi; done) | tee /dev/stderr | awk 'END {if (NR > 0) exit 1}'",
+    "doctoc": "doctoc --title='## Table of Contents' --github README.md",
+    "predoctoc:check": "cp README.md v-README.md.orig && npm run doctoc",
+    "doctoc:check": "diff -q README.md v-README.md.orig",
+    "postdoctoc:check": "mv v-README.md.orig README.md",
+    "eclint": "eclint check $(git ls-tree --name-only HEAD | xargs)",
+    "dockerfile_lint": "dockerfile_lint",
+    "markdown-link-check": "git ls-files | command grep -E '\\.md$' | xargs -n 1 markdown-link-check -p"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/nvm-sh/nvm.git"
+  },
+  "keywords": [
+    "nvm",
+    "node",
+    "iojs",
+    "version",
+    "manager"
+  ],
+  "author": "Tim Caswell <tim@creationix.com>",
+  "license": "MIT",
+  "bugs": {
+---END---
+### Lock files
+### Setup
+FILE: Makefile (first 30 lines)
+	# Since we rely on paths relative to the makefile location, abort if make isn't being run from there.
+$(if $(findstring /,$(MAKEFILE_LIST)),$(error Please only invoke this makefile from the directory it resides in))
+	# Note: With Travis CI:
+	#  - the path to urchin is passed via the command line.
+	#  - the other utilities are NOT needed, so we skip the test for their existence.
+URCHIN := urchin
+ifeq ($(findstring /,$(URCHIN)),) # urchin path was NOT passed in.
+		# Add the local npm packages' bin folder to the PATH, so that `make` can find them, when invoked directly.
+		# Note that rather than using `$(npm bin)` the 'node_modules/.bin' path component is hard-coded, so that invocation works even from an environment
+		# where npm is (temporarily) unavailable due to having deactivated an nvm instance loaded into the calling shell in order to avoid interference with tests.
+	export PATH := $(shell printf '%s' "$$PWD/node_modules/.bin:$$PATH")
+		# The list of all supporting utilities, installed with `npm install`.
+	UTILS := $(URCHIN) replace semver
+		# Make sure that all required utilities can be located.
+	UTIL_CHECK := $(or $(shell PATH="$(PATH)" which $(UTILS) >/dev/null && echo 'ok'),$(error Did you forget to run `npm install` after cloning the repo? At least one of the required supporting utilities not found: $(UTILS)))
+endif
+	# The files that need updating when incrementing the version number.
+VERSIONED_FILES := nvm.sh install.sh README.md package.json
+	# Define all shells to test with. Can be overridden with `make SHELLS=... <target>`.
+SHELLS := sh bash dash zsh # ksh (#574)
+	# Generate 'test-<shell>' target names from specified shells.
+	# The embedded shell names are extracted on demand inside the recipes.
+SHELL_TARGETS := $(addprefix test-,$(SHELLS))
+	# Define the default test suite(s). This can be overridden with `make TEST_SUITE=<...>  <target>`.
+	# Test suites are the names of subfolders of './test'.
+TEST_SUITE := $(shell find ./test/* -type d -prune -exec basename {} \;)
+
+
+# Default target (by virtue of being the first non '.'-prefixed in the file).
+.PHONY: _no-target-specified
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 1
+ci_workflow_count: 16
+codeql-analysis.yml
+latest-npm.yml
+lint.yml
+nodejs-org.yml
+nvm-install-test.yml
+rebase.yml
+release.yml
+require-allow-edits.yml
+shellcheck.yml
+tests-fast.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 123 lines
+# Contributing
+
+:+1::tada: First off, thanks for taking the time to contribute to `nvm`! :tada::+1:
+
+We love pull requests and issues, they're our favorite.
+
+The following is a set of guidelines for contributing to `nvm` managed by [@LJHarb](https://github.com/ljharb), which is hosted on GitHub. These are mostly guidelines, not rules. Use your best judgment, and feel free to propose changes to this document in a pull request.
+
+However, before submitting, please review the following:
+
+# How Can I Contribute?
+
+There are lots of ways to get involved. Here are some suggestions of things we'd love some help with.
+
+## Resolving existing issues
+
+You can consider helping out with issues already requiring attention - look for a "help wanted" label.
+
+### How Do I Submit a (Good) Bug Report? :bug:
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+0 total
+
+=== END SIGNALS ===

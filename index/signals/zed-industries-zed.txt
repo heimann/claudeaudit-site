@@ -1,0 +1,463 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/zed-industries-zed
+
+## Agent Documentation
+FILE: CLAUDE.md (190 lines)
+# Rust coding guidelines
+
+* Prioritize code correctness and clarity. Speed and efficiency are secondary priorities unless otherwise specified.
+* Do not write organizational or comments that summarize the code. Comments should only be written in order to explain "why" the code is written in some way in the case there is a reason that is tricky / non-obvious.
+* Prefer implementing functionality in existing files unless it is a new logical component. Avoid creating many small files.
+* Avoid using functions that panic like `unwrap()`, instead use mechanisms like `?` to propagate errors.
+* Be careful with operations like indexing which may panic if the indexes are out of bounds.
+* Never silently discard errors with `let _ =` on fallible operations. Always handle errors appropriately:
+  - Propagate errors with `?` when the calling function should handle them
+  - Use `.log_err()` or similar when you need to ignore errors but want visibility
+  - Use explicit error handling with `match` or `if let Err(...)` when you need custom logic
+  - Example: avoid `let _ = client.request(...).await?;` - use `client.request(...).await?;` instead
+* When implementing async operations that may fail, ensure errors propagate to the UI layer so users get meaningful feedback.
+* Never create files with `mod.rs` paths - prefer `src/some_module.rs` instead of `src/some_module/mod.rs`.
+* When creating new crates, prefer specifying the library root path in `Cargo.toml` using `[lib] path = "...rs"` instead of the default `lib.rs`, to maintain consistent and descriptive naming (e.g., `gpui.rs` or `main.rs`).
+* Avoid creative additions unless explicitly requested
+* Use full words for variable names (no abbreviations like "q" for "queue")
+* Use variable shadowing to scope clones in async contexts for clarity, minimizing the lifetime of borrowed references.
+  Example:
+  ```rust
+  executor.spawn({
+      let task_ran = task_ran.clone();
+      async move {
+          *task_ran.borrow_mut() = true;
+      }
+  });
+  ```
+
+# Timers in tests
+
+* In GPUI tests, prefer GPUI executor timers over `smol::Timer::after(...)` when you need timeouts, delays, or to drive `run_until_parked()`:
+  - Use `cx.background_executor().timer(duration).await` (or `cx.background_executor.timer(duration).await` in `TestAppContext`) so the work is scheduled on GPUI's dispatcher.
+  - Avoid `smol::Timer::after(...)` for test timeouts when you rely on `run_until_parked()`, because it may not be tracked by GPUI's scheduler and can lead to "nothing left to run" when pumping.
+
+# GPUI
+
+GPUI is a UI framework which also provides primitives for state and concurrency management.
+
+## Context
+
+Context types allow interaction with global state, windows, entities, and system services. They are typically passed to functions as the argument named `cx`. When a function takes callbacks they come after the `cx` parameter.
+
+* `App` is the root context type, providing access to global state and read and update of entities.
+* `Context<T>` is provided when updating an `Entity<T>`. This context dereferences into `App`, so functions which take `&App` can also take `&Context<T>`.
+* `AsyncApp` and `AsyncWindowContext` are provided by `cx.spawn` and `cx.spawn_in`. These can be held across await points.
+
+## `Window`
+
+`Window` provides access to the state of an application window. It is passed to functions as an argument named `window` and comes before `cx` when present. It is used for managing focus, dispatching actions, directly drawing, getting user input state, etc.
+
+## Entities
+
+An `Entity<T>` is a handle to state of type `T`. With `thing: Entity<T>`:
+
+* `thing.entity_id()` returns `EntityId`
+* `thing.downgrade()` returns `WeakEntity<T>`
+* `thing.read(cx: &App)` returns `&T`.
+* `thing.read_with(cx, |thing: &T, cx: &App| ...)` returns the closure's return value.
+* `thing.update(cx, |thing: &mut T, cx: &mut Context<T>| ...)` allows the closure to mutate the state, and provides a `Context<T>` for interacting with the entity. It returns the closure's return value.
+* `thing.update_in(cx, |thing: &mut T, window: &mut Window, cx: &mut Context<T>| ...)` takes a `AsyncWindowContext` or `VisualTestContext`. It's the same as `update` while also providing the `Window`.
+
+Within the closures, the inner `cx` provided to the closure must be used instead of the outer `cx` to avoid issues with multiple borrows.
+
+Trying to update an entity while it's already being updated must be avoided as this will cause a panic.
+
+When  `read_with`, `update`, or `update_in` are used with an async context, the closure's return value is wrapped in an `anyhow::Result`.
+
+`WeakEntity<T>` is a weak handle. It has `read_with`, `update`, and `update_in` methods that work the same, but always return an `anyhow::Result` so that they can fail if the entity no longer exists. This can be useful to avoid memory leaks - if entities have mutually recursive handles to each other they will never be dropped.
+
+## Concurrency
+
+All use of entities and UI rendering occurs on a single foreground thread.
+
+`cx.spawn(async move |cx| ...)` runs an async closure on the foreground thread. Within the closure, `cx` is `&mut AsyncApp`.
+
+When the outer cx is a `Context<T>`, the use of `spawn` instead looks like `cx.spawn(async move |this, cx| ...)`, where `this: WeakEntity<T>` and `cx: &mut AsyncApp`.
+
+To do work on other threads, `cx.background_spawn(async move { ... })` is used. Often this background task is awaited on by a foreground task which uses the results to update state.
+
+Both `cx.spawn` and `cx.background_spawn` return a `Task<R>`, which is a future that can be awaited upon. If this task is dropped, then its work is cancelled. To prevent this one of the following must be done:
+
+* Awaiting the task in some other async context.
+* Detaching the task via `task.detach()` or `task.detach_and_log_err(cx)`, allowing it to run indefinitely.
+* Storing the task in a field, if the work should be halted when the struct is dropped.
+
+A task which doesn't do anything but provide a value can be created with `Task::ready(value)`.
+
+## Elements
+
+The `Render` trait is used to render some state into an element tree that is laid out using flexbox layout. An `Entity<T>` where `T` implements `Render` is sometimes called a "view".
+
+Example:
+
+```
+struct TextWithBorder(SharedString);
+
+impl Render for TextWithBorder {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        div().border_1().child(self.0.clone())
+    }
+---END---
+FILE: AGENTS.md (190 lines)
+# Rust coding guidelines
+
+* Prioritize code correctness and clarity. Speed and efficiency are secondary priorities unless otherwise specified.
+* Do not write organizational or comments that summarize the code. Comments should only be written in order to explain "why" the code is written in some way in the case there is a reason that is tricky / non-obvious.
+* Prefer implementing functionality in existing files unless it is a new logical component. Avoid creating many small files.
+* Avoid using functions that panic like `unwrap()`, instead use mechanisms like `?` to propagate errors.
+* Be careful with operations like indexing which may panic if the indexes are out of bounds.
+* Never silently discard errors with `let _ =` on fallible operations. Always handle errors appropriately:
+  - Propagate errors with `?` when the calling function should handle them
+  - Use `.log_err()` or similar when you need to ignore errors but want visibility
+  - Use explicit error handling with `match` or `if let Err(...)` when you need custom logic
+  - Example: avoid `let _ = client.request(...).await?;` - use `client.request(...).await?;` instead
+* When implementing async operations that may fail, ensure errors propagate to the UI layer so users get meaningful feedback.
+* Never create files with `mod.rs` paths - prefer `src/some_module.rs` instead of `src/some_module/mod.rs`.
+* When creating new crates, prefer specifying the library root path in `Cargo.toml` using `[lib] path = "...rs"` instead of the default `lib.rs`, to maintain consistent and descriptive naming (e.g., `gpui.rs` or `main.rs`).
+* Avoid creative additions unless explicitly requested
+* Use full words for variable names (no abbreviations like "q" for "queue")
+* Use variable shadowing to scope clones in async contexts for clarity, minimizing the lifetime of borrowed references.
+  Example:
+  ```rust
+  executor.spawn({
+      let task_ran = task_ran.clone();
+      async move {
+          *task_ran.borrow_mut() = true;
+      }
+  });
+  ```
+
+# Timers in tests
+
+* In GPUI tests, prefer GPUI executor timers over `smol::Timer::after(...)` when you need timeouts, delays, or to drive `run_until_parked()`:
+  - Use `cx.background_executor().timer(duration).await` (or `cx.background_executor.timer(duration).await` in `TestAppContext`) so the work is scheduled on GPUI's dispatcher.
+  - Avoid `smol::Timer::after(...)` for test timeouts when you rely on `run_until_parked()`, because it may not be tracked by GPUI's scheduler and can lead to "nothing left to run" when pumping.
+
+# GPUI
+
+GPUI is a UI framework which also provides primitives for state and concurrency management.
+
+## Context
+
+Context types allow interaction with global state, windows, entities, and system services. They are typically passed to functions as the argument named `cx`. When a function takes callbacks they come after the `cx` parameter.
+
+* `App` is the root context type, providing access to global state and read and update of entities.
+* `Context<T>` is provided when updating an `Entity<T>`. This context dereferences into `App`, so functions which take `&App` can also take `&Context<T>`.
+* `AsyncApp` and `AsyncWindowContext` are provided by `cx.spawn` and `cx.spawn_in`. These can be held across await points.
+
+## `Window`
+
+`Window` provides access to the state of an application window. It is passed to functions as an argument named `window` and comes before `cx` when present. It is used for managing focus, dispatching actions, directly drawing, getting user input state, etc.
+
+## Entities
+
+An `Entity<T>` is a handle to state of type `T`. With `thing: Entity<T>`:
+
+* `thing.entity_id()` returns `EntityId`
+* `thing.downgrade()` returns `WeakEntity<T>`
+* `thing.read(cx: &App)` returns `&T`.
+* `thing.read_with(cx, |thing: &T, cx: &App| ...)` returns the closure's return value.
+* `thing.update(cx, |thing: &mut T, cx: &mut Context<T>| ...)` allows the closure to mutate the state, and provides a `Context<T>` for interacting with the entity. It returns the closure's return value.
+* `thing.update_in(cx, |thing: &mut T, window: &mut Window, cx: &mut Context<T>| ...)` takes a `AsyncWindowContext` or `VisualTestContext`. It's the same as `update` while also providing the `Window`.
+
+Within the closures, the inner `cx` provided to the closure must be used instead of the outer `cx` to avoid issues with multiple borrows.
+
+Trying to update an entity while it's already being updated must be avoided as this will cause a panic.
+
+When  `read_with`, `update`, or `update_in` are used with an async context, the closure's return value is wrapped in an `anyhow::Result`.
+
+`WeakEntity<T>` is a weak handle. It has `read_with`, `update`, and `update_in` methods that work the same, but always return an `anyhow::Result` so that they can fail if the entity no longer exists. This can be useful to avoid memory leaks - if entities have mutually recursive handles to each other they will never be dropped.
+
+## Concurrency
+
+All use of entities and UI rendering occurs on a single foreground thread.
+
+`cx.spawn(async move |cx| ...)` runs an async closure on the foreground thread. Within the closure, `cx` is `&mut AsyncApp`.
+
+When the outer cx is a `Context<T>`, the use of `spawn` instead looks like `cx.spawn(async move |this, cx| ...)`, where `this: WeakEntity<T>` and `cx: &mut AsyncApp`.
+
+To do work on other threads, `cx.background_spawn(async move { ... })` is used. Often this background task is awaited on by a foreground task which uses the results to update state.
+
+Both `cx.spawn` and `cx.background_spawn` return a `Task<R>`, which is a future that can be awaited upon. If this task is dropped, then its work is cancelled. To prevent this one of the following must be done:
+
+* Awaiting the task in some other async context.
+* Detaching the task via `task.detach()` or `task.detach_and_log_err(cx)`, allowing it to run indefinitely.
+* Storing the task in a field, if the work should be halted when the struct is dropped.
+
+A task which doesn't do anything but provide a value can be created with `Task::ready(value)`.
+
+## Elements
+
+The `Render` trait is used to render some state into an element tree that is laid out using flexbox layout. An `Entity<T>` where `T` implements `Render` is sometimes called a "view".
+
+Example:
+
+```
+struct TextWithBorder(SharedString);
+
+impl Render for TextWithBorder {
+    fn render(&mut self, _window: &mut Window, _cx: &mut Context<Self>) -> impl IntoElement {
+        div().border_1().child(self.0.clone())
+    }
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+FILE: docs/AGENTS.md (407 lines)
+# Documentation Automation Agent Guidelines
+
+This file governs automated documentation updates triggered by code changes. All automation phases must comply with these rules.
+
+## Documentation System
+
+This documentation uses **mdBook** (https://rust-lang.github.io/mdBook/).
+
+### Key Files
+
+- **`docs/src/SUMMARY.md`**: Table of contents following mdBook format (https://rust-lang.github.io/mdBook/format/summary.html)
+- **`docs/book.toml`**: mdBook configuration
+- **`docs/.prettierrc`**: Prettier config (80 char line width)
+
+### SUMMARY.md Format
+
+The `SUMMARY.md` file defines the book structure. Format rules:
+
+- Chapter titles are links: `[Title](./path/to/file.md)`
+- Nesting via indentation (2 spaces per level)
+- Separators: `---` for horizontal rules between sections
+- Draft chapters: `[Title]()` (empty parens, not yet written)
+
+Example:
+
+```markdown
+# Section Title
+
+- [Chapter](./chapter.md)
+  - [Nested Chapter](./nested.md)
+
+---
+
+# Another Section
+```
+
+### Custom Preprocessor
+
+The docs use a custom preprocessor (`docs_preprocessor`) that expands special commands:
+
+| Syntax                        | Purpose                               | Example                         |
+| ----------------------------- | ------------------------------------- | ------------------------------- |
+| `{#kb action::ActionName}`    | Keybinding for action                 | `{#kb agent::ToggleFocus}`      |
+| `{#action agent::ActionName}` | Action reference (renders as command) | `{#action agent::OpenSettings}` |
+
+**Rules:**
+
+- Always use preprocessor syntax for keybindings instead of hardcoding
+- Action names use `snake_case` in the namespace, `PascalCase` for the action
+- Common namespaces: `agent::`, `editor::`, `assistant::`, `vim::`
+---END---
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+assets
+Cargo.lock
+Cargo.toml
+ci
+CLAUDE.md
+clippy.toml
+CODE_OF_CONDUCT.md
+compose.yml
+CONTRIBUTING.md
+crates
+debug.plist
+default.nix
+Dockerfile-collab
+Dockerfile-collab.dockerignore
+Dockerfile-cross.dockerignore
+Dockerfile-distros
+Dockerfile-distros.dockerignore
+docs
+extensions
+flake.lock
+flake.nix
+GEMINI.md
+legal
+LICENSE-AGPL
+LICENSE-APACHE
+LICENSE-GPL
+livekit.yaml
+lychee.toml
+nix
+Procfile
+Procfile.all
+Procfile.web
+README.md
+renovate.json
+REVIEWERS.conl
+rustfmt.toml
+rust-toolchain.toml
+script
+shell.nix
+tooling
+typos.toml
+
+### README
+FILE: README.md
+# Zed
+
+[![Zed](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/zed-industries/zed/main/assets/badge/v0.json)](https://zed.dev)
+[![CI](https://github.com/zed-industries/zed/actions/workflows/run_tests.yml/badge.svg)](https://github.com/zed-industries/zed/actions/workflows/run_tests.yml)
+
+Welcome to Zed, a high-performance, multiplayer code editor from the creators of [Atom](https://github.com/atom/atom) and [Tree-sitter](https://github.com/tree-sitter/tree-sitter).
+
+---
+
+### Installation
+
+On macOS, Linux, and Windows you can [download Zed directly](https://zed.dev/download) or install Zed via your local package manager ([macOS](https://zed.dev/docs/installation#macos)/[Linux](https://zed.dev/docs/linux#installing-via-a-package-manager)/[Windows](https://zed.dev/docs/windows#package-managers)).
+
+Other platforms are not yet available:
+
+- Web ([tracking issue](https://github.com/zed-industries/zed/issues/5396))
+
+### Developing Zed
+
+- [Building Zed for macOS](./docs/src/development/macos.md)
+- [Building Zed for Linux](./docs/src/development/linux.md)
+- [Building Zed for Windows](./docs/src/development/windows.md)
+
+### Contributing
+
+See [CONTRIBUTING.md](./CONTRIBUTING.md) for ways you can contribute to Zed.
+
+Also... we're hiring! Check out our [jobs](https://zed.dev/jobs) page for open roles.
+
+### Licensing
+---END---
+
+## Dependencies
+FILE: Cargo.toml
+[workspace]
+resolver = "2"
+members = [
+    "crates/acp_thread",
+    "crates/acp_tools",
+    "crates/action_log",
+    "crates/activity_indicator",
+    "crates/agent",
+    "crates/agent_servers",
+    "crates/agent_settings",
+    "crates/agent_ui",
+    "crates/ai_onboarding",
+    "crates/anthropic",
+    "crates/askpass",
+    "crates/assets",
+    "crates/audio",
+    "crates/auto_update",
+    "crates/auto_update_helper",
+    "crates/auto_update_ui",
+    "crates/aws_http_client",
+    "crates/bedrock",
+    "crates/breadcrumbs",
+    "crates/buffer_diff",
+    "crates/call",
+    "crates/channel",
+    "crates/cli",
+    "crates/client",
+    "crates/clock",
+    "crates/cloud_api_client",
+    "crates/cloud_api_types",
+    "crates/cloud_llm_client",
+    "crates/codestral",
+    "crates/collab",
+    "crates/collab_ui",
+    "crates/collections",
+    "crates/command_palette",
+    "crates/command_palette_hooks",
+    "crates/component",
+    "crates/component_preview",
+    "crates/context_server",
+---END---
+### Lock files
+Cargo.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 319
+ci_workflow_count: 39
+add_commented_closed_issue_to_project.yml
+after_release.yml
+assign-reviewers.yml
+autofix_pr.yml
+background_agent_mvp.yml
+bump_collab_staging.yml
+bump_patch_version.yml
+catch_blank_issues.yml
+cherry_pick.yml
+comment_on_potential_duplicate_issues.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.prettierrc: EXISTS
+rustfmt.toml: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 156 lines
+# Contributing to Zed
+
+Thank you for helping us make Zed better!
+
+All activity in Zed forums is subject to our [Code of
+Conduct](https://zed.dev/code-of-conduct). Additionally, contributors must sign
+our [Contributor License Agreement](https://zed.dev/cla) before their
+contributions can be merged.
+
+## Contribution ideas
+
+Zed is a large project with a number of priorities. We spend most of
+our time working on what we believe the product needs, but we also love working
+with the community to improve the product in ways we haven't thought of (or had time to get to yet!)
+
+In particular we love PRs that are:
+
+- Fixing or extending the docs.
+- Fixing bugs.
+- Small enhancements to existing features to make them work for more people (making things work on more platforms/modes/whatever).
+---END---
+
+## Scalability
+Cargo.toml:647:pet-reporter = { git = "https://github.com/microsoft/python-environment-tools.git", rev = "9e61a22af989fe54937bf07c9f9cff1bc53d9056" }
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  802469 total
+   21344 ./crates/agent/src/edit_agent/evals/fixtures/disable_cursor_blinking/before.rs
+   21343 ./crates/agent/src/tools/evals/fixtures/disable_cursor_blinking/before.rs
+   14805 ./crates/workspace/src/workspace.rs
+   14655 ./crates/project/src/lsp_store.rs
+   12917 ./crates/project/tests/integration/project_tests.rs
+   10627 ./crates/project_panel/src/project_panel_tests.rs
+    9321 ./crates/settings_ui/src/page_data.rs
+    8928 ./crates/workspace/src/pane.rs
+    8813 ./crates/agent_ui/src/conversation_view/thread_view.rs
+    8242 ./crates/multi_buffer/src/multi_buffer.rs
+
+=== END SIGNALS ===

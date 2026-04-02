@@ -1,0 +1,204 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/kubernetes-kubernetes
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+api
+build
+CHANGELOG
+CHANGELOG.md
+cluster
+cmd
+code-of-conduct.md
+CONTRIBUTING.md
+docs
+go.mod
+go.sum
+go.work
+go.work.sum
+hack
+LICENSE
+LICENSES
+logo
+Makefile
+OWNERS
+OWNERS_ALIASES
+pkg
+plugin
+README.md
+SECURITY_CONTACTS
+staging
+SUPPORT.md
+test
+third_party
+vendor
+
+### README
+FILE: README.md
+# Kubernetes (K8s)
+
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/569/badge)](https://bestpractices.coreinfrastructure.org/projects/569) [![Go Report Card](https://goreportcard.com/badge/github.com/kubernetes/kubernetes)](https://goreportcard.com/report/github.com/kubernetes/kubernetes) ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/kubernetes/kubernetes?sort=semver)
+
+<img src="https://github.com/kubernetes/kubernetes/raw/master/logo/logo.png" width="100">
+
+----
+
+Kubernetes, also known as K8s, is an open source system for managing [containerized applications]
+across multiple hosts. It provides basic mechanisms for the deployment, maintenance,
+and scaling of applications.
+
+Kubernetes builds upon a decade and a half of experience at Google running
+production workloads at scale using a system called [Borg],
+combined with best-of-breed ideas and practices from the community.
+
+Kubernetes is hosted by the Cloud Native Computing Foundation ([CNCF]).
+If your company wants to help shape the evolution of
+technologies that are container-packaged, dynamically scheduled,
+and microservices-oriented, consider joining the CNCF.
+For details about who's involved and how Kubernetes plays a role,
+read the CNCF [announcement].
+
+----
+
+## To start using K8s
+
+See our documentation on [kubernetes.io].
+
+Take a free course on [Scalable Microservices with Kubernetes].
+---END---
+
+## Dependencies
+FILE: go.mod
+// This is a generated file. Do not edit directly.
+// Ensure you've carefully read
+// https://git.k8s.io/community/contributors/devel/sig-architecture/vendor.md
+// Run hack/pin-dependency.sh to change pinned dependency versions.
+// Run hack/update-vendor.sh to update go.mod files and the vendor directory.
+
+module k8s.io/kubernetes
+
+go 1.26.0
+
+godebug default=go1.26
+
+require (
+	bitbucket.org/bertimus9/systemstat v0.5.0
+	github.com/JeffAshton/win_pdh v0.0.0-20161109143554-76bb4ee9f0ab
+	github.com/Microsoft/go-winio v0.6.2
+	github.com/Microsoft/hnslib v0.1.2
+	github.com/blang/semver/v4 v4.0.0
+	github.com/container-storage-interface/spec v1.9.0
+	github.com/coredns/corefile-migration v1.0.31
+	github.com/coreos/go-oidc v2.5.0+incompatible
+	github.com/coreos/go-systemd/v22 v22.7.0
+	github.com/cpuguy83/go-md2man/v2 v2.0.6
+	github.com/cyphar/filepath-securejoin v0.6.1
+	github.com/distribution/reference v0.6.0
+	github.com/docker/go-units v0.5.0
+	github.com/emicklei/go-restful/v3 v3.13.0
+	github.com/fsnotify/fsnotify v1.9.0
+	github.com/go-logr/logr v1.4.3
+	github.com/go-openapi/jsonreference v0.20.2
+	github.com/godbus/dbus/v5 v5.2.2
+	github.com/google/cadvisor v0.56.2
+	github.com/google/cel-go v0.26.0
+	github.com/google/gnostic-models v0.7.0
+	github.com/google/go-cmp v0.7.0
+	github.com/google/uuid v1.6.0
+	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674
+	github.com/ishidawataru/sctp v0.0.0-20250521072954-ae8eb7fa7995
+	github.com/lithammer/dedent v1.1.0
+	github.com/moby/ipvs v1.1.0
+---END---
+### Lock files
+go.sum: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+# Copyright 2016 The Kubernetes Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+DBG_MAKEFILE ?=
+ifeq ($(DBG_MAKEFILE),1)
+    $(warning ***** starting Makefile for goal(s) "$(MAKECMDGOALS)")
+    $(warning ***** $(shell date))
+else
+    # If we're not debugging the Makefile, don't echo recipes.
+    MAKEFLAGS += -s
+endif
+
+
+# Old-skool build tools.
+#
+# Commonly used targets (see each target for more information):
+#   all: Build code.
+#   test: Run tests.
+#   clean: Clean up.
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 3028
+ci: DOES NOT EXIST
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 9 lines
+# Contributing
+
+Welcome to Kubernetes! To learn more about contributing to the [Kubernetes code repo](README.md), check out the [Contributor's Guide](https://git.k8s.io/community/contributors/guide/).
+
+The [Kubernetes community repo](https://github.com/kubernetes/community) contains information about how to get started, how the community organizes, and more.
+
+## Sign the CLA
+
+You must sign the [Contributor License Agreement](https://git.k8s.io/community/contributors/guide/README.md#sign-the-cla) in order to contribute.
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 298
+### Largest source files
+  434866 total
+   74322 ./pkg/generated/openapi/zz_generated.openapi.go
+   31116 ./pkg/apis/core/validation/validation_test.go
+   11874 ./pkg/registry/core/service/storage/storage_test.go
+    9756 ./pkg/apis/core/validation/validation.go
+    9500 ./pkg/apis/core/v1/zz_generated.conversion.go
+    8493 ./pkg/printers/internalversion/printers_test.go
+    7566 ./pkg/api/pod/util_test.go
+    7241 ./pkg/apis/core/types.go
+    6971 ./pkg/apis/core/zz_generated.deepcopy.go
+    6156 ./pkg/apis/admissionregistration/validation/validation_test.go
+
+=== END SIGNALS ===

@@ -1,0 +1,164 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/coder-code-server
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+CHANGELOG.md
+ci
+docs
+eslint.config.mjs
+flake.lock
+flake.nix
+install.sh
+lib
+LICENSE
+package.json
+package-lock.json
+patches
+renovate.json
+src
+test
+ThirdPartyNotices.txt
+tsconfig.json
+typings
+
+### README
+
+## Dependencies
+FILE: package.json
+{
+  "name": "code-server",
+  "license": "MIT",
+  "version": "0.0.0",
+  "description": "Run VS Code on a remote server.",
+  "homepage": "https://github.com/coder/code-server",
+  "bugs": {
+    "url": "https://github.com/coder/code-server/issues"
+  },
+  "repository": "https://github.com/coder/code-server",
+  "scripts": {
+    "clean": "./ci/build/clean.sh",
+    "build": "./ci/build/build-code-server.sh",
+    "build:vscode": "./ci/build/build-vscode.sh",
+    "doctoc": "./ci/dev/doctoc.sh",
+    "release": "./ci/build/build-release.sh",
+    "release:prep": "./ci/build/release-prep.sh",
+    "test:e2e": "VSCODE_IPC_HOOK_CLI= ./ci/dev/test-e2e.sh",
+    "test:e2e:proxy": "USE_PROXY=1 ./ci/dev/test-e2e.sh",
+    "test:unit": "./ci/dev/test-unit.sh --forceExit --detectOpenHandles",
+    "test:integration": "./ci/dev/test-integration.sh",
+    "test:native": "./ci/dev/test-native.sh",
+    "test:scripts": "./ci/dev/test-scripts.sh",
+    "package": "./ci/build/build-packages.sh",
+    "prettier": "prettier --write --log-level=warn --cache .",
+    "preinstall": "node ./ci/dev/preinstall.js",
+    "postinstall": "./ci/dev/postinstall.sh",
+    "publish:npm": "./ci/steps/publish-npm.sh",
+    "publish:docker": "./ci/steps/docker-buildx-push.sh",
+    "fmt": "npm run prettier && ./ci/dev/doctoc.sh",
+    "lint:scripts": "./ci/dev/lint-scripts.sh",
+    "lint:ts": "eslint --max-warnings=0 --fix $(git ls-files '*.ts' '*.js' | grep -v 'lib/vscode')",
+    "test": "echo 'Run npm run test:unit or npm run test:e2e' && exit 1",
+    "watch": "VSCODE_DEV=1 VSCODE_IPC_HOOK_CLI= NODE_OPTIONS='--max_old_space_size=32384 --trace-warnings' ts-node ./ci/dev/watch.ts",
+    "icons": "./ci/dev/gen_icons.sh"
+  },
+  "main": "out/node/entry.js",
+  "devDependencies": {
+    "@eslint/compat": "^1.2.0",
+    "@eslint/eslintrc": "^3.1.0",
+---END---
+### Lock files
+package-lock.json: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+.nvmrc: 22.22.1
+.node-version: 22.22.1
+
+## Tests
+test_file_count: 36
+ci_workflow_count: 7
+build.yaml
+installer.yaml
+publish.yaml
+release.yaml
+scripts.yaml
+security.yaml
+trivy-docker.yaml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.mjs: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: CLI tool (has bin in package.json)
+
+## Ergonomics
+### npm scripts with watch/dev
+    "watch": "VSCODE_DEV=1 VSCODE_IPC_HOOK_CLI= NODE_OPTIONS='--max_old_space_size=32384 --trace-warnings' ts-node ./ci/dev/watch.ts",
+### tsconfig.json
+{
+  "compilerOptions": {
+    "target": "es6",
+    "lib": ["es2020", "dom", "dom.iterable"],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "strict": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "forceConsistentCasingInFileNames": true,
+    "outDir": "./out",
+    "declaration": false,
+    "experimentalDecorators": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "sourceMap": true,
+    "tsBuildInfoFile": "./.cache/tsbuildinfo",
+    "incremental": true,
+    "typeRoots": [
+      "./node_modules/@types",
+      "./typings",
+      "./test/node_modules/@types",
+      "./lib/vscode/src/vs/server/@types"
+    ],
+    "downlevelIteration": true,
+    "resolveJsonModule": true
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["/test", "/lib", "/ci", "/doc"]
+}
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 1
+### Largest source files
+ 11015 total
+  1095 ./test/unit/node/cli.test.ts
+   927 ./src/node/cli.ts
+   625 ./test/unit/node/util.test.ts
+   597 ./test/e2e/models/CodeServer.ts
+   513 ./src/node/util.ts
+   439 ./src/node/http.ts
+   397 ./src/node/wrapper.ts
+   347 ./test/unit/node/proxy.test.ts
+   277 ./test/unit/node/vscodeSocket.test.ts
+   271 ./test/unit/node/update.test.ts
+
+=== END SIGNALS ===

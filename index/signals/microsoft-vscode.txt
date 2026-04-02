@@ -1,0 +1,457 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/microsoft-vscode
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md (5 lines)
+# VS Code Agents Instructions
+
+This file provides instructions for AI coding agents working with the VS Code codebase.
+
+For detailed project overview, architecture, coding guidelines, and validation steps, see the [Copilot Instructions](.github/copilot-instructions.md).
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (152 lines)
+# VS Code Copilot Instructions
+
+## Project Overview
+
+Visual Studio Code is built with a layered architecture using TypeScript, web APIs and Electron, combining web technologies with native app capabilities. The codebase is organized into key architectural layers:
+
+### Root Folders
+- `src/`: Main TypeScript source code with unit tests in `src/vs/*/test/` folders
+- `build/`: Build scripts and CI/CD tools
+- `extensions/`: Built-in extensions that ship with VS Code
+- `test/`: Integration tests and test infrastructure
+- `scripts/`: Development and build scripts
+- `resources/`: Static resources (icons, themes, etc.)
+- `out/`: Compiled JavaScript output (generated during build)
+
+### Core Architecture (`src/` folder)
+- `src/vs/base/` - Foundation utilities and cross-platform abstractions
+- `src/vs/platform/` - Platform services and dependency injection infrastructure
+- `src/vs/editor/` - Text editor implementation with language services, syntax highlighting, and editing features
+- `src/vs/workbench/` - Main application workbench for web and desktop
+  - `workbench/browser/` - Core workbench UI components (parts, layout, actions)
+  - `workbench/services/` - Service implementations
+  - `workbench/contrib/` - Feature contributions (git, debug, search, terminal, etc.)
+  - `workbench/api/` - Extension host and VS Code API implementation
+- `src/vs/code/` - Electron main process specific implementation
+- `src/vs/server/` - Server specific implementation
+- `src/vs/sessions/` - Agent sessions window, a dedicated workbench layer for agentic workflows (sits alongside `vs/workbench`, may import from it but not vice versa)
+
+The core architecture follows these principles:
+- **Layered architecture** - from `base`, `platform`, `editor`, to `workbench`
+- **Dependency injection** - Services are injected through constructor parameters
+    - If non-service parameters are needed, they need to come after the service parameters
+- **Contribution model** - Features contribute to registries and extension points
+- **Cross-platform compatibility** - Abstractions separate platform-specific code
+
+### Built-in Extensions (`extensions/` folder)
+The `extensions/` directory contains first-party extensions that ship with VS Code:
+- **Language support** - `typescript-language-features/`, `html-language-features/`, `css-language-features/`, etc.
+- **Core features** - `git/`, `debug-auto-launch/`, `emmet/`, `markdown-language-features/`
+- **Themes** - `theme-*` folders for default color themes
+- **Development tools** - `extension-editing/`, `vscode-api-tests/`
+
+Each extension follows the standard VS Code extension structure with `package.json`, TypeScript sources, and contribution points to extend the workbench through the Extension API.
+
+### Finding Related Code
+1. **Semantic search first**: Use file search for general concepts
+2. **Grep for exact strings**: Use grep for error messages or specific function names
+3. **Follow imports**: Check what files import the problematic module
+4. **Check test files**: Often reveal usage patterns and expected behavior
+
+## Validating TypeScript changes
+
+MANDATORY: Always check for compilation errors before running any tests or validation scripts, or declaring work complete, then fix all compilation errors before moving forward.
+
+- NEVER run tests if there are compilation errors
+- NEVER use `npm run compile` to compile TypeScript files
+
+### TypeScript compilation steps
+- If the `#runTasks/getTaskOutput` tool is available, check the `VS Code - Build` watch task output for compilation errors. This task runs `Core - Build` and `Ext - Build` to incrementally compile VS Code TypeScript sources and built-in extensions. Start the task if it's not already running in the background.
+- If the tool is not available (e.g. in CLI environments) and you only changed code under `src/`, run `npm run compile-check-ts-native` after making changes to type-check the main VS Code sources (it validates `./src/tsconfig.json`).
+- If you changed built-in extensions under `extensions/` and the tool is not available, run the corresponding gulp task `npm run gulp compile-extensions` instead so that TypeScript errors in extensions are also reported.
+- For TypeScript changes in the `build` folder, you can simply run `npm run typecheck` in the `build` folder.
+
+### TypeScript validation steps
+- Use the run test tool if you need to run tests. If that tool is not available, then you can use `scripts/test.sh` (or `scripts\test.bat` on Windows) for unit tests (add `--grep <pattern>` to filter tests) or `scripts/test-integration.sh` (or `scripts\test-integration.bat` on Windows) for integration tests (integration tests end with .integrationTest.ts or are in /extensions/).
+- Use `npm run valid-layers-check` to check for layering issues
+
+## Coding Guidelines
+
+### Indentation
+
+We use tabs, not spaces.
+
+### Naming Conventions
+
+- Use PascalCase for `type` names
+- Use PascalCase for `enum` values
+- Use camelCase for `function` and `method` names
+- Use camelCase for `property` names and `local variables`
+- Use whole words in names when possible
+
+### Types
+
+- Do not export `types` or `functions` unless you need to share it across multiple components
+- Do not introduce new `types` or `values` to the global namespace
+
+### Comments
+
+- Use JSDoc style comments for `functions`, `interfaces`, `enums`, and `classes`
+
+### Strings
+
+- Use "double quotes" for strings shown to the user that need to be externalized (localized)
+- Use 'single quotes' otherwise
+- All strings visible to the user need to be externalized using the `vs/nls` module
+- Externalized strings must not use string concatenation. Use placeholders instead (`{0}`).
+
+### UI labels
+- Use title-style capitalization for command labels, buttons and menu items (each word is capitalized).
+- Don't capitalize prepositions of four or fewer letters unless it's the first or last word (e.g. "in", "with", "for").
+---END---
+
+### Subdirectory agent docs
+FILE: src/vs/platform/agentHost/common/state/AGENTS.md (81 lines)
+# Protocol versioning instructions
+
+This directory contains the protocol version system. Read this before modifying any protocol types.
+
+## Overview
+
+The protocol has **living types** (in `sessionState.ts`, `sessionActions.ts`) and **version type snapshots** (in `versions/v1.ts`, etc.). The `versions/versionRegistry.ts` file contains compile-time checks that enforce backwards compatibility between them, plus a runtime map that tracks which action types belong to which version.
+
+The latest version file is the **tip** — it can be edited. Older version files are frozen.
+
+## Adding optional fields to existing types
+
+This is the most common change. No version bump needed.
+
+1. Add the optional field to the living type in `sessionState.ts` or `sessionActions.ts`:
+   ```typescript
+   export interface IToolCallState {
+       // ...existing fields...
+       readonly mcpServerName?: string; // new optional field
+   }
+   ```
+2. Add the same optional field to the corresponding type in the **tip** version file (currently `versions/v1.ts`):
+   ```typescript
+   export interface IV1_ToolCallState {
+       // ...existing fields...
+       readonly mcpServerName?: string;
+   }
+   ```
+3. Compile. If it passes, you're done. If it fails, you tried to do something incompatible.
+
+You can also skip step 2 — the tip is allowed to be a subset of the living type. But adding it to the tip documents that the field exists at this version.
+
+## Adding new action types
+
+Adding a new action type is backwards-compatible and does **not** require a version bump. Old clients at the same version ignore unknown action types (reducers return state unchanged). Old servers at the same version simply never produce the action.
+
+1. **Add the new action interface** to `sessionActions.ts` and include it in the `ISessionAction` or `IRootAction` union.
+2. **Add the action to `ACTION_INTRODUCED_IN`** in `versions/versionRegistry.ts` with the **current** version number. The compiler will force you to do this — if you add a type to the union without a map entry, it won't compile.
+3. **Add the type to the tip version file** (currently `versions/v1.ts`) and add an `AssertCompatible` check in `versions/versionRegistry.ts`.
+4. **Add a reducer case** in `sessionReducers.ts` to handle the new action.
+5. **Update `../../../protocol.md`** to document the new action.
+
+### When to bump the version
+
+Bump `PROTOCOL_VERSION` when you need a **capability boundary** — i.e., a client needs to check "does this server support feature X?" before sending commands or rendering UI. Examples:
+
+- A new **client-sendable** action that requires server-side support (the client must know the server can handle it before sending)
+- A group of related actions that form a new feature area (subagents, model selection, etc.)
+
+When bumping:
+---END---
+FILE: src/vs/workbench/contrib/imageCarousel/AGENTS.md (69 lines)
+# Image Carousel
+
+A generic workbench editor for viewing collections of images in a carousel/slideshow UI. Opens as a modal editor pane with navigation arrows, a caption, and a thumbnail strip.
+
+## Architecture
+
+The image carousel is a self-contained workbench contribution that follows the **custom editor** pattern:
+
+- **URI scheme**: `vscode-image-carousel` (registered in `Schemas` in `src/vs/base/common/network.ts`) — used for `EditorInput.resource` identity.
+- **Direct editor input**: Callers create `ImageCarouselEditorInput` with a collection and open it directly via `IEditorService.openEditor()`.
+- **Image extraction**: Chat integration builds a **sections-based** collection from chat request/response items. A section can include user-attached request images alongside response-derived images (tool invocations and inline references). For paired request/response items, the section title prefers the user's chat request message; pending requests with image attachments form their own section.
+
+## How to open the carousel
+
+### From code (generic)
+
+```ts
+const collection: IImageCarouselCollection = { id, title, sections: [{ title: '', images: [...] }] };
+const input = new ImageCarouselEditorInput(collection, startIndex);
+await editorService.openEditor(input, { pinned: true }, MODAL_GROUP);
+```
+
+### From chat (via click handler)
+
+Clicking an image attachment pill in chat (when `chat.imageCarousel.enabled` is true) executes the `workbench.action.chat.openImageInCarousel` command, which collects request attachment images together with response-derived images for the current chat session and opens them in the carousel. MIME types are resolved via `getMediaMime()` from `src/vs/base/common/mime.ts`.
+
+## Key design decisions
+
+### Editor & lifecycle
+
+- **Modal editor**: Opens in `MODAL_GROUP` (-4) as an overlay.
+- **Not restorable**: `canSerialize()` returns `false` — image data is in-memory only.
+- **Collection ID = chat session identity**: `sessionResource + '_carousel'` for stable dedup via `EditorInput.matches()`.
+- **Preview-gated**: `chat.imageCarousel.enabled` (default `false`, tagged `preview`). When off, clicks fall through to `openResource()`.
+- **Exact image matching**: Finds the clicked image within the constructed collection by URI first, then falls back to byte equality when needed.
+
+### DOM & rendering
+
+- **DOM construction**: Uses the `h()` helper from `vs/base/browser/dom` with `@name` references for declarative DOM — no imperative `document.createElement` calls.
+- **Bottom bar**: Caption and thumbnail sections are wrapped in a `div.bottom-bar` flex column below the image area.
+- **Stable DOM skeleton**: Builds DOM once per `setInput()`, updates only changing parts to avoid flash on navigation.
+- **Blob URL lifecycle**: Main image URLs tracked in `_imageDisposables` (revoked on nav), thumbnails in `_contentDisposables` (revoked on `clearInput()`).
+- **Focus border suppressed**: The slideshow container uses `outline: none !important` on `:focus` / `:focus-visible` to override the workbench's global `[tabindex="0"]` focus styles.
+
+### Keyboard & focus
+
+- **Keyboard parity**: Uses `registerOpenEditorListeners` (click, double-click, Enter, Space) matching other attachment widgets.
+- **Arrow key navigation**: Handled via DOM `keydown` listener with `stopPropagation()` — not Action2 keybindings, because the modal editor's `KEY_DOWN` handler blocks `workbench.*` commands not in its allowlist. The editor overrides `focus()` to forward focus to the slideshow container so arrow keys work immediately without clicking.
+
+### Zoom
+---END---
+
+### .agents/ contents
+FILE: .agents/skills/launch/SKILL.md (374 lines)
+---
+name: launch
+description: "Launch and automate VS Code (Code OSS) using agent-browser via Chrome DevTools Protocol. Use when you need to interact with the VS Code UI, automate the chat panel, test UI features, or take screenshots of VS Code. Triggers include 'automate VS Code', 'interact with chat', 'test the UI', 'take a screenshot', 'launch Code OSS with debugging'."
+metadata:
+  allowed-tools: Bash(agent-browser:*), Bash(npx agent-browser:*)
+---
+
+# VS Code Automation
+
+Automate VS Code (Code OSS) using agent-browser. VS Code is built on Electron/Chromium and exposes a Chrome DevTools Protocol (CDP) port that agent-browser can connect to, enabling the same snapshot-interact workflow used for web pages.
+
+## Prerequisites
+
+- **`agent-browser` must be installed.** It's listed in devDependencies — run `npm install` in the repo root. Use `npx agent-browser` if it's not on your PATH, or install globally with `npm install -g agent-browser`.
+- **For Code OSS (VS Code dev build):** The repo must be built before launching. `./scripts/code.sh` runs the build automatically if needed, or set `VSCODE_SKIP_PRELAUNCH=1` to skip the compile step if you've already built.
+- **CSS selectors are internal implementation details.** Selectors like `.interactive-input-part`, `.interactive-input-editor`, and `.part.auxiliarybar` used in `eval` commands are VS Code internals that may change across versions. If they stop working, use `agent-browser snapshot -i` to re-discover the current DOM structure.
+
+## Core Workflow
+
+1. **Launch** Code OSS with remote debugging enabled
+2. **Connect** agent-browser to the CDP port
+3. **Snapshot** to discover interactive elements
+4. **Interact** using element refs
+5. **Re-snapshot** after navigation or state changes
+
+> **📸 Take screenshots for a paper trail.** Use `agent-browser screenshot <path>` at key moments — after launch, before/after interactions, and when something goes wrong. Screenshots provide visual proof of what the UI looked like and are invaluable for debugging failures or documenting what was accomplished.
+>
+> Save screenshots inside a timestamped subfolder so each run is isolated and nothing gets overwritten:
+>
+> ```bash
+> # Create a timestamped folder for this run's screenshots
+> SCREENSHOT_DIR="/tmp/code-oss-screenshots/$(date +%Y-%m-%dT%H-%M-%S)"
+> mkdir -p "$SCREENSHOT_DIR"
+>
+> # Save a screenshot (path is a positional argument — use ./ or absolute paths)
+> # Bare filenames without ./ may be misinterpreted as CSS selectors
+> agent-browser screenshot "$SCREENSHOT_DIR/after-launch.png"
+> ```
+
+```bash
+# Launch Code OSS with remote debugging
+./scripts/code.sh --remote-debugging-port=9224
+
+# Wait for Code OSS to start, retry until connected
+for i in 1 2 3 4 5; do agent-browser connect 9224 2>/dev/null && break || sleep 3; done
+
+# Verify you're connected to the right target (not about:blank)
+# If `tab` shows the wrong target, run `agent-browser close` and reconnect
+agent-browser tab
+
+---END---
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+build
+cglicenses.json
+cgmanifest.json
+cli
+CodeQL.yml
+CONTRIBUTING.md
+eslint.config.js
+extensions
+gulpfile.mjs
+LICENSE.txt
+package.json
+package-lock.json
+product.json
+README.md
+remote
+resources
+scripts
+SECURITY.md
+src
+test
+ThirdPartyNotices.txt
+tsfmt.json
+
+### README
+FILE: README.md
+# Visual Studio Code - Open Source ("Code - OSS")
+[![Feature Requests](https://img.shields.io/github/issues/microsoft/vscode/feature-request.svg)](https://github.com/microsoft/vscode/issues?q=is%3Aopen+is%3Aissue+label%3Afeature-request+sort%3Areactions-%2B1-desc)
+[![Bugs](https://img.shields.io/github/issues/microsoft/vscode/bug.svg)](https://github.com/microsoft/vscode/issues?utf8=✓&q=is%3Aissue+is%3Aopen+label%3Abug)
+[![Gitter](https://img.shields.io/badge/chat-on%20gitter-yellow.svg)](https://gitter.im/Microsoft/vscode)
+
+## The Repository
+
+This repository ("`Code - OSS`") is where we (Microsoft) develop the [Visual Studio Code](https://code.visualstudio.com) product together with the community. Not only do we work on code and issues here, we also publish our [roadmap](https://github.com/microsoft/vscode/wiki/Roadmap), [monthly iteration plans](https://github.com/microsoft/vscode/wiki/Iteration-Plans), and our [endgame plans](https://github.com/microsoft/vscode/wiki/Running-the-Endgame). This source code is available to everyone under the standard [MIT license](https://github.com/microsoft/vscode/blob/main/LICENSE.txt).
+
+## Visual Studio Code
+
+<p align="center">
+  <img alt="VS Code in action" src="https://user-images.githubusercontent.com/35271042/118224532-3842c400-b438-11eb-923d-a5f66fa6785a.png">
+</p>
+
+[Visual Studio Code](https://code.visualstudio.com) is a distribution of the `Code - OSS` repository with Microsoft-specific customizations released under a traditional [Microsoft product license](https://code.visualstudio.com/License/).
+
+[Visual Studio Code](https://code.visualstudio.com) combines the simplicity of a code editor with what developers need for their core edit-build-debug cycle. It provides comprehensive code editing, navigation, and understanding support along with lightweight debugging, a rich extensibility model, and lightweight integration with existing tools.
+
+Visual Studio Code is updated monthly with new features and bug fixes. You can download it for Windows, macOS, and Linux on [Visual Studio Code's website](https://code.visualstudio.com/Download). To get the latest releases every day, install the [Insiders build](https://code.visualstudio.com/insiders).
+
+## Contributing
+
+There are many ways in which you can participate in this project, for example:
+
+* [Submit bugs and feature requests](https://github.com/microsoft/vscode/issues), and help us verify as they are checked in
+* Review [source code changes](https://github.com/microsoft/vscode/pulls)
+* Review the [documentation](https://github.com/microsoft/vscode-docs) and make pull requests for anything from typos to additional and new content
+
+If you are interested in fixing issues and contributing directly to the code base,
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "code-oss-dev",
+  "version": "1.115.0",
+  "distro": "084798d47e4cc4c713def402d4a1110fb619116d",
+  "author": {
+    "name": "Microsoft Corporation"
+  },
+  "license": "MIT",
+  "main": "./out/main.js",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "test": "echo Please run any of the test scripts from the scripts folder.",
+    "test-browser": "npx playwright install && node test/unit/browser/index.js",
+    "test-browser-no-install": "node test/unit/browser/index.js",
+    "test-node": "mocha test/unit/node/index.js --delay --ui=tdd --timeout=5000 --exit",
+    "test-extension": "vscode-test",
+    "test-build-scripts": "cd build && npm run test",
+    "check-cyclic-dependencies": "node build/lib/checkCyclicDependencies.ts out",
+    "preinstall": "node build/npm/preinstall.ts",
+    "postinstall": "node build/npm/postinstall.ts",
+    "compile": "npm run gulp compile",
+    "compile-check-ts-native": "tsgo --project ./src/tsconfig.json --noEmit --skipLibCheck",
+    "watch": "npm-run-all2 -lp watch-client-transpile watch-client watch-extensions",
+    "watchd": "deemon npm run watch",
+    "watch-webd": "deemon npm run watch-web",
+    "kill-watchd": "deemon --kill npm run watch",
+    "kill-watch-webd": "deemon --kill npm run watch-web",
+    "restart-watchd": "deemon --restart npm run watch",
+    "restart-watch-webd": "deemon --restart npm run watch-web",
+    "watch-client": "npm run gulp watch-client",
+    "watch-clientd": "deemon npm run watch-client",
+    "kill-watch-clientd": "deemon --kill npm run watch-client",
+    "transpile-client": "node build/next/index.ts transpile",
+    "watch-client-transpile": "node build/next/index.ts transpile --watch",
+    "watch-client-transpiled": "deemon npm run watch-client-transpile",
+    "kill-watch-client-transpiled": "deemon --kill npm run watch-client-transpile",
+    "watch-extensions": "npm run gulp watch-extensions watch-extension-media",
+    "watch-extensionsd": "deemon npm run watch-extensions",
+    "kill-watch-extensionsd": "deemon --kill npm run watch-extensions",
+---END---
+### Lock files
+package-lock.json: EXISTS
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+.nvmrc: 22.22.1
+
+## Tests
+test_file_count: 1217
+ci_workflow_count: 13
+api-proposal-version-check.yml
+check-clean-git-state.sh
+copilot-setup-steps.yml
+monaco-editor.yml
+no-engineering-system-changes.yml
+pr-darwin-test.yml
+pr-linux-cli-test.yml
+pr-linux-test.yml
+pr-node-modules.yml
+pr-win32-test.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.js: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 99 lines
+# Contributing to VS Code
+
+Welcome, and thank you for your interest in contributing to VS Code!
+
+There are several ways in which you can contribute, beyond writing code. The goal of this document is to provide a high-level overview of how you can get involved.
+
+## Asking Questions
+
+
+Have a question? Instead of opening an issue, please ask on [Stack Overflow](https://stackoverflow.com/questions/tagged/visual-studio-code) using the tag `visual-studio-code`.
+
+The active community will be eager to assist you. Your well-worded question will serve as a resource to others searching for help.
+
+## Providing Feedback
+
+Your comments and feedback are welcome, and the development team is available via a handful of different channels.
+
+See the [Feedback Channels](https://github.com/microsoft/vscode/wiki/Feedback-Channels) wiki page for details on how to share your thoughts.
+
+## Reporting Issues
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "watch": "npm-run-all2 -lp watch-client-transpile watch-client watch-extensions",
+### Determinism
+sleep_pattern_count_in_tests: 231
+### Largest source files
+  346722 total
+  146620 ./extensions/vscode-colorize-perf-tests/test/colorize-fixtures/test-checker.ts
+   10354 ./extensions/terminal-suggest/src/completions/git.ts
+    6853 ./extensions/terminal-suggest/src/completions/upstream/docker.ts
+    6039 ./extensions/php-language-features/src/features/phpGlobalFunctions.ts
+    3667 ./extensions/terminal-suggest/src/completions/azd.ts
+    3402 ./extensions/terminal-suggest/src/completions/gh.ts
+    3249 ./extensions/html-language-features/server/lib/jquery.d.ts
+    3049 ./extensions/terminal-suggest/src/completions/upstream/ruff.ts
+    2399 ./eslint.config.js
+    2067 ./extensions/vscode-colorize-perf-tests/test/colorize-fixtures/test-treeView.ts
+
+=== END SIGNALS ===

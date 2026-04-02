@@ -1,0 +1,105 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/microsoft-markitdown
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+CODE_OF_CONDUCT.md
+Dockerfile
+LICENSE
+packages
+README.md
+SECURITY.md
+SUPPORT.md
+
+### README
+FILE: README.md
+# MarkItDown
+
+[![PyPI](https://img.shields.io/pypi/v/markitdown.svg)](https://pypi.org/project/markitdown/)
+![PyPI - Downloads](https://img.shields.io/pypi/dd/markitdown)
+[![Built by AutoGen Team](https://img.shields.io/badge/Built%20by-AutoGen%20Team-blue)](https://github.com/microsoft/autogen)
+
+> [!TIP]
+> MarkItDown now offers an MCP (Model Context Protocol) server for integration with LLM applications like Claude Desktop. See [markitdown-mcp](https://github.com/microsoft/markitdown/tree/main/packages/markitdown-mcp) for more information.
+
+> [!IMPORTANT]
+> Breaking changes between 0.0.1 to 0.1.0:
+> * Dependencies are now organized into optional feature-groups (further details below). Use `pip install 'markitdown[all]'` to have backward-compatible behavior.
+> * convert\_stream() now requires a binary file-like object (e.g., a file opened in binary mode, or an io.BytesIO object). This is a breaking change from the previous version, where it previously also accepted text file-like objects, like io.StringIO.
+> * The DocumentConverter class interface has changed to read from file-like streams rather than file paths. *No temporary files are created anymore*. If you are the maintainer of a plugin, or custom DocumentConverter, you likely need to update your code. Otherwise, if only using the MarkItDown class or CLI (as in these examples), you should not need to change anything.
+
+MarkItDown is a lightweight Python utility for converting various files to Markdown for use with LLMs and related text analysis pipelines. To this end, it is most comparable to [textract](https://github.com/deanmalmgren/textract), but with a focus on preserving important document structure and content as Markdown (including: headings, lists, tables, links, etc.) While the output is often reasonably presentable and human-friendly, it is meant to be consumed by text analysis tools -- and may not be the best option for high-fidelity document conversions for human consumption.
+
+MarkItDown currently supports the conversion from:
+
+- PDF
+- PowerPoint
+- Word
+- Excel
+- Images (EXIF metadata and OCR)
+- Audio (EXIF metadata and speech transcription)
+- HTML
+- Text-based formats (CSV, JSON, XML)
+- ZIP files (iterates over contents)
+- Youtube URLs
+- EPubs
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: EXISTS
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 23
+ci_workflow_count: 2
+pre-commit.yml
+tests.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.7.0 # Use the latest version of Black
+    hooks:
+      - id: black
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 4
+### Largest source files
+ 10903 total
+  1198 ./packages/markitdown/tests/test_pdf_tables.py
+   783 ./packages/markitdown/src/markitdown/_markitdown.py
+   589 ./packages/markitdown/src/markitdown/converters/_pdf_converter.py
+   504 ./packages/markitdown/tests/test_module_misc.py
+   422 ./packages/markitdown-ocr/src/markitdown_ocr/_pdf_converter_with_ocr.py
+   400 ./packages/markitdown/src/markitdown/converter_utils/docx/math/omml.py
+   364 ./packages/markitdown/tests/test_pdf_memory.py
+   279 ./packages/markitdown/tests/_test_vectors.py
+   273 ./packages/markitdown/src/markitdown/converter_utils/docx/math/latex_dict.py
+   264 ./packages/markitdown/src/markitdown/converters/_pptx_converter.py
+
+=== END SIGNALS ===

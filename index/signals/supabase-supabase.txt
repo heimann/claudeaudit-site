@@ -1,0 +1,2231 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/supabase-supabase
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md (38 lines)
+# Supabase Monorepo
+
+pnpm 10 + Turborepo monorepo. Requires Node >= 22.
+
+## Structure
+
+| Directory         | Purpose                                                      |
+| ----------------- | ------------------------------------------------------------ |
+| `apps/studio`     | Supabase Studio/Dashboard — Next.js (pages router), React 18 |
+| `apps/docs`       | Documentation site                                           |
+| `apps/www`        | Marketing website                                            |
+| `packages/ui`     | Shared UI components (shadcn/ui based)                       |
+| `packages/common` | Shared utilities and telemetry constants                     |
+| `e2e/studio`      | Playwright E2E tests for Studio                              |
+
+## Common Commands
+
+```bash
+pnpm install                          # install dependencies
+pnpm dev:studio                       # run Studio dev server
+pnpm test:studio                      # run Studio unit tests (vitest)
+pnpm --prefix e2e/studio run e2e       # run Studio E2E tests (playwright)
+pnpm build --filter=studio             # build Studio
+pnpm lint --filter=studio              # lint Studio
+pnpm typecheck                        # typecheck all packages
+```
+
+## Conventions
+
+**UI** — import from `'ui'`, use `_Shadcn_` suffixed variants for form primitives. Check `packages/ui/index.tsx` before creating new primitives.
+
+**Styling** — Tailwind only, semantic tokens (`bg-muted`, `text-foreground-light`), no hardcoded colors.
+
+## Studio
+
+Pages router. Co-locate sub-components with parent. Avoid barrel re-export files.
+
+See studio-\* skills for detailed studio conventions.
+---END---
+FILE: .claude/settings.json (15 lines)
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/scripts/install_pkgs.sh"
+          }
+        ]
+      }
+    ]
+  }
+}
+---END---
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (59 lines)
+# Copilot Code Review Instructions
+
+## Review Policy — Read This First
+
+You are a code reviewer for a large TypeScript/Next.js/React monorepo. Your reviews must be **low-noise and high-signal**. The team acts on fewer than 20% of default Copilot suggestions, so every comment you leave must earn its place.
+
+### Confidence Threshold
+
+Only comment when you are **>85% confident** the issue is a real bug, security vulnerability, or logic error. If you are unsure, do not comment. Silence is better than noise.
+
+### What NOT to Comment On
+
+Our CI pipeline already validates the following. **Never comment on these topics:**
+
+- **Formatting or whitespace** — Prettier runs on every PR
+- **Linting issues** — ESLint with auto-fix runs on every PR
+- **Type errors** — TypeScript strict-mode typecheck runs on every PR
+- **Typos or spelling** — Automated typo detection runs on every PR
+- **Missing tests for trivial changes** — Handled by topic-specific test instructions
+- **Import ordering or grouping** — Handled by linter
+- **Naming style preferences** (camelCase vs snake_case debates) — Follow existing file conventions
+- **Accessibility attributes on shadcn/Radix UI components** — See `studio-shadcn-components.instructions.md` for details
+
+### What TO Comment On (Priority Order)
+
+1. **Logic errors and bugs** — Off-by-one, null derefs, wrong conditional, unreachable code, incorrect early returns
+2. **Security vulnerabilities** — XSS, SQL injection, auth bypass, secrets in code, unsafe `dangerouslySetInnerHTML`
+3. **Race conditions and async bugs** — Missing `await`, unhandled promise rejections, stale closures, effect cleanup issues
+4. **Data loss risks** — Destructive operations without confirmation, missing error handling on writes
+5. **API contract violations** — Wrong HTTP method, missing auth headers, incorrect request/response shapes
+
+### Comment Style
+
+- **Be advisory, not prescriptive.** Use "Consider..." or "This may..." — never demand changes.
+- **One comment per distinct issue.** Do not leave multiple comments about the same underlying problem.
+- **No self-contradictions.** If you suggest a change, do not then flag a problem with your own suggestion.
+- **Do not comment on individual commits.** Review the final state of the PR diff only.
+
+## Repo Context
+
+This is a TypeScript/Next.js/React monorepo:
+
+- `apps/studio/` — Supabase Dashboard (primary review target)
+- `apps/www/` — Marketing site
+- `apps/docs/` — Documentation
+- `packages/common/` — Shared code including telemetry definitions
+
+## Topic-Specific Guidelines
+
+Path-specific rules in `.github/instructions/`:
+
+- **Telemetry**: `studio-telemetry.instructions.md` — event naming, property conventions, feature flag measurement
+- **Testing**: `studio-testing.instructions.md` — test strategy, extraction patterns, coverage expectations
+- **Error Handling**: `studio-error-handling.instructions.md` — error classification, `ErrorMatcher` usage
+- **E2E Tests**: `studio-e2e-tests.instructions.md` — selector priority, anti-patterns (`waitForTimeout`, `force: true`)
+- **Composition Patterns**: `studio-composition-patterns.instructions.md` — avoid boolean props, use compound components
+- **shadcn/Radix Components**: `studio-shadcn-components.instructions.md` — accessibility handled by primitives, do not flag
+
+These files are scoped to `apps/studio/` and applied automatically during reviews.
+---END---
+
+### Subdirectory agent docs
+FILE: .claude/skills/vercel-composition-patterns/AGENTS.md (946 lines)
+# React Composition Patterns
+
+**Version 1.0.0**  
+Engineering  
+January 2026
+
+> **Note:**  
+> This document is mainly for agents and LLMs to follow when maintaining,  
+> generating, or refactoring React codebases using composition. Humans  
+> may also find it useful, but guidance here is optimized for automation  
+> and consistency by AI-assisted workflows.
+
+---
+
+## Abstract
+
+Composition patterns for building flexible, maintainable React components. Avoid boolean prop proliferation by using compound components, lifting state, and composing internals. These patterns make codebases easier for both humans and AI agents to work with as they scale.
+
+---
+
+## Table of Contents
+
+1. [Component Architecture](#1-component-architecture) — **HIGH**
+   - 1.1 [Avoid Boolean Prop Proliferation](#11-avoid-boolean-prop-proliferation)
+   - 1.2 [Use Compound Components](#12-use-compound-components)
+2. [State Management](#2-state-management) — **MEDIUM**
+   - 2.1 [Decouple State Management from UI](#21-decouple-state-management-from-ui)
+   - 2.2 [Define Generic Context Interfaces for Dependency Injection](#22-define-generic-context-interfaces-for-dependency-injection)
+   - 2.3 [Lift State into Provider Components](#23-lift-state-into-provider-components)
+3. [Implementation Patterns](#3-implementation-patterns) — **MEDIUM**
+   - 3.1 [Create Explicit Component Variants](#31-create-explicit-component-variants)
+   - 3.2 [Prefer Composing Children Over Render Props](#32-prefer-composing-children-over-render-props)
+4. [React 19 APIs](#4-react-19-apis) — **MEDIUM**
+   - 4.1 [React 19 API Changes](#41-react-19-api-changes)
+
+---
+
+## 1. Component Architecture
+
+**Impact: HIGH**
+
+Fundamental patterns for structuring components to avoid prop
+proliferation and enable flexible composition.
+
+### 1.1 Avoid Boolean Prop Proliferation
+
+**Impact: CRITICAL (prevents unmaintainable component variants)**
+
+Don't add boolean props like `isThread`, `isEditing`, `isDMThread` to customize
+
+---END---
+
+### .claude/ contents
+FILE: .claude/scripts/install_pkgs.sh (7 lines)
+#!/bin/bash
+
+if [ "$CLAUDE_CODE_REMOTE" != "true" ]; then
+  exit 0
+fi
+
+pnpm install
+---END---
+FILE: .claude/skills/studio-best-practices/SKILL.md (175 lines)
+---
+name: studio-best-practices
+description: React and TypeScript best practices for Supabase Studio. Use when writing
+  or reviewing Studio components — covers boolean naming, component structure, loading/error
+  states, state management, custom hooks, event handlers, conditional rendering,
+  performance, and TypeScript conventions.
+---
+
+# Studio Best Practices
+
+Applies to `apps/studio/**/*.{ts,tsx}`.
+
+## Boolean Naming
+
+Use descriptive prefixes — derive from existing state rather than storing separately:
+
+- `is` — state/identity: `isLoading`, `isPaused`, `isNewRecord`
+- `has` — possession: `hasPermission`, `hasData`
+- `can` — capability: `canUpdateColumns`, `canDelete`
+- `should` — conditional behavior: `shouldFetch`, `shouldRender`
+
+Extract complex conditions into named variables:
+
+```tsx
+// ❌ inline multi-condition
+{
+  !isSchemaLocked && isTableLike(selectedTable) && canUpdateColumns && !isLoading && <Button />
+}
+
+// ✅ named variable
+const canShowAddButton =
+  !isSchemaLocked && isTableLike(selectedTable) && canUpdateColumns && !isLoading
+{
+  canShowAddButton && <Button />
+}
+```
+
+Derive booleans — don't store them:
+
+```tsx
+// ❌ stored derived state
+const [isFormValid, setIsFormValid] = useState(false)
+useEffect(() => {
+  setIsFormValid(name.length > 0 && email.includes('@'))
+}, [name, email])
+
+// ✅ derived
+const isFormValid = name.length > 0 && email.includes('@')
+```
+
+---END---
+FILE: .claude/skills/studio-e2e-tests/SKILL.md (435 lines)
+---
+name: studio-e2e-tests
+description: Write and run Playwright E2E tests for Supabase Studio. Use when asked
+  to run e2e tests, write new E2E tests, or debug flaky tests. Covers running commands,
+  avoiding race conditions, waiting strategies, selectors, helper functions, and CI
+  vs local differences.
+---
+
+# E2E Studio Tests
+
+Run Playwright end-to-end tests for the Studio application.
+
+## Running Tests
+
+Tests must be run from the `e2e/studio` directory:
+
+```bash
+cd e2e/studio && pnpm run e2e
+```
+
+### Run specific file
+
+```bash
+cd e2e/studio && pnpm run e2e -- features/cron-jobs.spec.ts
+```
+
+### Run with grep filter
+
+```bash
+cd e2e/studio && pnpm run e2e -- --grep "test name pattern"
+```
+
+### UI mode for debugging
+
+```bash
+cd e2e/studio && pnpm run e2e -- --ui
+```
+
+## Environment Setup
+
+- Tests auto-start Supabase local containers via web server config
+- Self-hosted mode (`IS_PLATFORM=false`) runs tests in parallel (3 workers)
+- No manual setup needed for self-hosted tests
+
+## Test File Structure
+
+- Tests are in `e2e/studio/features/*.spec.ts`
+- Use custom test utility: `import { test } from '../utils/test.js'`
+- Test fixtures provide `page`, `ref`, and other helpers
+
+---END---
+FILE: .claude/skills/studio-error-handling/SKILL.md (51 lines)
+---
+name: studio-error-handling
+description: Error display and troubleshooting pattern for Supabase Studio. Use when
+  rendering API errors in the UI, adding inline troubleshooting steps for a new
+  error type, or wiring up the AI assistant debug button from an error state.
+---
+
+# Studio Error Handling Pattern
+
+Full docs and code examples: `apps/studio/components/interfaces/ErrorHandling/README.md`
+
+## How it works
+
+Classification happens in the **data layer**: `handleError` in `data/fetchers.ts` tests the error message against `ERROR_PATTERNS` and throws the matching error subclass (e.g. `ConnectionTimeoutError extends ResponseError`). The component (`ErrorMatcher`) reads `errorType` from the instance and does an O(1) lookup — it never does regex matching.
+
+```
+handleError() → throws ConnectionTimeoutError → React Query catches → ErrorMatcher reads errorType → renders troubleshooting
+```
+
+## Key files
+
+| File                                  | Purpose                                                          |
+| ------------------------------------- | ---------------------------------------------------------------- |
+| `data/error-patterns.ts`              | Array of `{ pattern, ErrorClass }` — the regex lives here        |
+| `types/api-errors.ts`                 | Error classes, `KnownErrorType` union, `ClassifiedError` type    |
+| `ErrorMatcher.tsx`                    | Component — reads `errorType`, looks up mapping, renders         |
+| `error-mappings.tsx`                  | `Record<KnownErrorType, { id, Troubleshooting: ComponentType }>` |
+| `errorMappings/ConnectionTimeout.tsx` | Reference troubleshooting component                              |
+| `TroubleshootingSections.tsx`         | Reusable accordion section components                            |
+| `TroubleshootingAccordion.tsx`        | Accordion wrapper with telemetry                                 |
+
+## Usage
+
+Pass the **full error object** from React Query — not `error.message`:
+
+```tsx
+{
+  isError && (
+    <ErrorMatcher title="Failed to load tables" error={error} supportFormParams={{ projectRef }} />
+  )
+}
+```
+
+## What NOT to do
+
+- Do not pass `error.message` to `ErrorMatcher` — pass the full `error` object so the class is preserved.
+- Do not put regex patterns in `error-mappings.tsx` — they belong in `data/error-patterns.ts`.
+- Do not use `Object.assign` to stamp `errorType` — throw a proper subclass instead.
+- Do not pass a raw URL string for support — use `supportFormParams={{ projectRef }}`.
+- Do not put the page title inside the error mapping — it belongs on the `<ErrorMatcher>` caller.
+---END---
+FILE: .claude/skills/studio-queries/SKILL.md (148 lines)
+---
+name: studio-queries
+description: React Query conventions for data fetching in Supabase Studio. Use when
+  writing or reviewing query hooks, mutation hooks, or query keys in apps/studio/data/.
+  Covers queryOptions pattern, keys.ts structure, mutation hook template, and imperative
+  fetching.
+---
+
+# Studio Queries & Mutations (React Query)
+
+Follow the patterns in `apps/studio/data/`. Reference examples:
+
+- Query options: `apps/studio/data/table-editor/table-editor-query.ts`
+- Mutation hook: `apps/studio/data/edge-functions/edge-functions-update-mutation.ts`
+- Keys: `apps/studio/data/edge-functions/keys.ts`
+
+## Query Keys
+
+Define a `keys.ts` per domain. Export `*Keys` helpers using array keys with `as const`. Never inline query keys in components.
+
+```ts
+export const edgeFunctionsKeys = {
+  list: (projectRef: string | undefined) => ['projects', projectRef, 'edge-functions'] as const,
+  detail: (projectRef: string | undefined, slug: string | undefined) =>
+    ['projects', projectRef, 'edge-function', slug, 'detail'] as const,
+}
+```
+
+## Query Options (preferred pattern)
+
+Use `queryOptions` from `@tanstack/react-query`. This gives type safety and works with both `useQuery()` and `queryClient.fetchQuery()`.
+
+Rules:
+
+- Export `XVariables`, `XData`, and `XError` types (prefixed with the domain name)
+- Implement a **private** `getX(variables, signal?)` function:
+  - Throws if required variables are missing
+  - Passes `signal` for cancellation
+  - Calls `handleError(error)` on failure (which throws); returns `data` on success
+  - Not exported — use `queryClient.fetchQuery(xQueryOptions(...))` for imperative fetching
+- Export `xQueryOptions()` using `queryOptions`
+- Gate with `enabled` so the query doesn't run until required variables exist
+- Platform-only queries: include `IS_PLATFORM` from `lib/constants` in `enabled`
+- Don't add extra params to `xQueryOptions` — callers override by destructuring: `{ ...xQueryOptions(vars), enabled: true }`
+
+```ts
+import { queryOptions } from '@tanstack/react-query'
+
+import { xKeys } from './keys'
+import { get, handleError } from '@/data/fetchers'
+---END---
+FILE: .claude/skills/studio-testing/SKILL.md (175 lines)
+---
+name: studio-testing
+description: Testing strategy for Supabase Studio. Use when writing tests, deciding what
+  type of test to write, extracting logic from components into testable utility
+  functions, or reviewing test coverage. Covers unit tests, component tests,
+  and E2E test selection criteria.
+---
+
+# Studio Testing Strategy
+
+How to write and structure tests for `apps/studio/`. The core principle: push
+logic out of React components into pure utility functions, then test those
+functions exhaustively. Only use component tests for complex UI interactions.
+Use E2E tests for features shared between self-hosted and platform.
+
+## When to Apply
+
+Reference these guidelines when:
+
+- Writing new tests for Studio code
+- Deciding which type of test to write (unit, component, E2E)
+- Extracting logic from a component to make it testable
+- Reviewing whether test coverage is sufficient
+- Adding a new feature that needs tests
+
+## Rule Categories by Priority
+
+| Priority | Category         | Impact   | Prefix     |
+| -------- | ---------------- | -------- | ---------- |
+| 1        | Logic Extraction | CRITICAL | `testing-` |
+| 2        | Test Coverage    | CRITICAL | `testing-` |
+| 3        | Component Tests  | HIGH     | `testing-` |
+| 4        | E2E Tests        | HIGH     | `testing-` |
+
+## Quick Reference
+
+### 1. Logic Extraction (CRITICAL)
+
+- `testing-extract-logic` - Remove logic from components into `.utils.ts` files
+  as pure functions: args in, return out
+
+### 2. Test Coverage (CRITICAL)
+
+- `testing-exhaustive-permutations` - Test every permutation of utility functions:
+  happy path, malformed input, empty values, edge cases
+
+### 3. Component Tests (HIGH)
+
+- `testing-component-tests-ui-only` - Only write component tests for complex UI
+  interaction logic, not business logic
+---END---
+FILE: .claude/skills/studio-ui-patterns/SKILL.md (127 lines)
+---
+name: studio-ui-patterns
+description: Design system UI patterns for Supabase Studio. Use when building or updating
+  pages, forms, tables, charts, empty states, navigation, cards, alerts, or side panels
+  (sheets). Covers layout selection, component choice, and placement conventions.
+---
+
+# Studio UI Patterns
+
+The Design System docs and demos are the source of truth. Always check the relevant
+demo file before composing new UI.
+
+## Layout
+
+Docs: `apps/design-system/content/docs/ui-patterns/layout.mdx`
+
+Build pages with `PageContainer`, `PageHeader`, and `PageSection`.
+
+| Content type      | `size`      |
+| ----------------- | ----------- |
+| Settings / config | `"default"` |
+| Lists / tables    | `"large"`   |
+| Full-screen views | `"full"`    |
+
+- If filters/search exist on a list page, align table actions with the filters (don't use `PageHeaderAside`/`PageSectionAside` for those actions)
+- If no filters, actions can go in `PageHeaderAside` or `PageSectionAside`
+
+Demos: `page-layout-settings.tsx`, `page-layout-list.tsx`, `page-layout-list-simple.tsx`, `page-layout-detail.tsx`
+(all in `apps/design-system/registry/default/example/`)
+
+## Forms
+
+Docs: `apps/design-system/content/docs/ui-patterns/forms.mdx`
+
+- Use `react-hook-form` + `zod`
+- Use `FormItemLayout` instead of manually composing `FormItem`/`FormLabel`/`FormMessage`/`FormDescription`
+- Wrap inputs with `FormControl_Shadcn_`; use `_Shadcn_` imports from `ui` for primitives
+
+Layout selection:
+
+| Context                                    | Layout                                     | Container                                                  |
+| ------------------------------------------ | ------------------------------------------ | ---------------------------------------------------------- |
+| Page (settings/config)                     | `FormItemLayout layout="flex-row-reverse"` | `Card` (`CardContent` per field; `CardFooter` for actions) |
+| Side panel — wide                          | `FormItemLayout layout="horizontal"`       | `SheetSection`                                             |
+| Side panel — narrow (`size="sm"` or below) | `FormItemLayout layout="vertical"`         | `SheetSection`                                             |
+
+Dirty state / submit:
+
+- Destructure `isDirty` from `form.formState` to show Cancel and disable Save
+- Show loading on submit button via `loading` prop
+---END---
+FILE: .claude/skills/telemetry-standards/SKILL.md (170 lines)
+---
+name: telemetry-standards
+description: PostHog event tracking standards for Supabase Studio. Use when reviewing
+  PRs for telemetry compliance or implementing new event tracking. Covers event naming,
+  property conventions, approved patterns, and implementation guide.
+---
+
+# Telemetry Standards for Supabase Studio
+
+Standards for PostHog event tracking in `apps/studio/`. Apply these when
+reviewing PRs that touch tracking or when implementing new tracking.
+
+## Event Naming
+
+**Format:** `[object]_[verb]` in snake_case
+
+**Approved verbs only** (canonical list — derived from `packages/common/telemetry-constants.ts`):
+opened, clicked, submitted, created, removed, updated, intended, evaluated, added,
+enabled, disabled, copied, exposed, failed, converted, closed, completed, applied, sent, moved
+
+**Flag these:**
+- Unapproved verbs (saved, viewed, seen, pressed, etc.)
+- Wrong order: `click_product_card` → should be `product_card_clicked`
+- Wrong casing: `productCardClicked` → should be `product_card_clicked`
+
+**Good examples:**
+- `product_card_clicked`
+- `backup_button_clicked`
+- `sql_query_submitted`
+
+**Common mistakes with corrections:**
+- `database_saved` → `save_button_clicked` or `database_updated` (unapproved verb)
+- `click_backup_button` → `backup_button_clicked` (wrong order)
+- `dashboardViewed` → don't track passive views on page load
+- `component_rendered` → don't track — no user interaction
+
+## Property Standards
+
+**Casing:** camelCase preferred for new events. The codebase has existing snake_case properties (e.g., `schema_name`, `table_name`) — when adding properties to an existing event, match its established convention.
+
+**Names must be self-explanatory:**
+- `{ productType: 'database', planTier: 'pro' }`
+- `{ assistantType: 'sql', suggestionType: 'optimization' }`
+
+**Flag these:**
+- Generic names: `label`, `value`, `name`, `data`
+- PascalCase properties
+- Inconsistent names across similar events (e.g., `assistantType` in one event, `aiType` in a related event)
+- Mixing camelCase and snake_case within the same event
+
+---END---
+FILE: .claude/skills/use-static-effect-event/SKILL.md (141 lines)
+---
+name: use-static-effect-event
+description: useStaticEffectEvent hook in Supabase Studio — a userland polyfill for
+  React's useEffectEvent. Use when you need to read latest state/props inside a useEffect
+  without re-triggering it, or when stale closures in Effects are causing bugs.
+---
+
+# useStaticEffectEvent
+
+Located at `apps/studio/hooks/useStaticEffectEvent.ts`.
+
+A userland polyfill for React's `useEffectEvent` (stable in React 19.2). It solves the stale closure problem: gives you a **stable callback** that always reads the latest props/state without those values triggering Effect re-runs.
+
+## The Problem It Solves
+
+Without it, you face two bad options inside `useEffect`:
+
+1. **Add values to dependencies** → unnecessary Effect re-runs (teardown/reconnect)
+2. **Omit from dependencies** → stale closure bugs (outdated values)
+
+```tsx
+// Problem: re-runs every time `theme` changes, even though we only
+// want to reconnect when `roomId` changes
+useEffect(() => {
+  const connection = createConnection(roomId)
+  connection.on('connected', () => {
+    showNotification('Connected!', theme) // theme causes unwanted reconnects
+  })
+  return () => connection.disconnect()
+}, [roomId, theme])
+```
+
+## When to Use
+
+1. Read latest state/props inside an Effect without re-triggering it
+2. Create stable callbacks that always use current values
+3. Avoid stale closures in event handlers used within Effects
+
+### Pattern 1: Sync data without re-running on every change
+
+```tsx
+const syncApiPrivileges = useStaticEffectEvent(() => {
+  if (hasLoadedInitialData.current) return
+  if (!apiAccessStatus.isSuccess) return
+  if (!privilegesForTable) return
+
+  hasLoadedInitialData.current = true
+  setPrivileges(privilegesForTable.privileges)
+})
+
+---END---
+FILE: .claude/skills/vercel-composition-patterns/AGENTS.md (946 lines)
+# React Composition Patterns
+
+**Version 1.0.0**  
+Engineering  
+January 2026
+
+> **Note:**  
+> This document is mainly for agents and LLMs to follow when maintaining,  
+> generating, or refactoring React codebases using composition. Humans  
+> may also find it useful, but guidance here is optimized for automation  
+> and consistency by AI-assisted workflows.
+
+---
+
+## Abstract
+
+Composition patterns for building flexible, maintainable React components. Avoid boolean prop proliferation by using compound components, lifting state, and composing internals. These patterns make codebases easier for both humans and AI agents to work with as they scale.
+
+---
+
+## Table of Contents
+
+1. [Component Architecture](#1-component-architecture) — **HIGH**
+   - 1.1 [Avoid Boolean Prop Proliferation](#11-avoid-boolean-prop-proliferation)
+   - 1.2 [Use Compound Components](#12-use-compound-components)
+2. [State Management](#2-state-management) — **MEDIUM**
+   - 2.1 [Decouple State Management from UI](#21-decouple-state-management-from-ui)
+   - 2.2 [Define Generic Context Interfaces for Dependency Injection](#22-define-generic-context-interfaces-for-dependency-injection)
+   - 2.3 [Lift State into Provider Components](#23-lift-state-into-provider-components)
+3. [Implementation Patterns](#3-implementation-patterns) — **MEDIUM**
+   - 3.1 [Create Explicit Component Variants](#31-create-explicit-component-variants)
+   - 3.2 [Prefer Composing Children Over Render Props](#32-prefer-composing-children-over-render-props)
+4. [React 19 APIs](#4-react-19-apis) — **MEDIUM**
+   - 4.1 [React 19 API Changes](#41-react-19-api-changes)
+
+---
+
+## 1. Component Architecture
+
+**Impact: HIGH**
+
+Fundamental patterns for structuring components to avoid prop
+proliferation and enable flexible composition.
+
+### 1.1 Avoid Boolean Prop Proliferation
+
+**Impact: CRITICAL (prevents unmaintainable component variants)**
+
+Don't add boolean props like `isThread`, `isEditing`, `isDMThread` to customize
+
+---END---
+FILE: .claude/skills/vercel-composition-patterns/rules/architecture-avoid-boolean-props.md (100 lines)
+---
+title: Avoid Boolean Prop Proliferation
+impact: CRITICAL
+impactDescription: prevents unmaintainable component variants
+tags: composition, props, architecture
+---
+
+## Avoid Boolean Prop Proliferation
+
+Don't add boolean props like `isThread`, `isEditing`, `isDMThread` to customize
+component behavior. Each boolean doubles possible states and creates
+unmaintainable conditional logic. Use composition instead.
+
+**Incorrect (boolean props create exponential complexity):**
+
+```tsx
+function Composer({
+  onSubmit,
+  isThread,
+  channelId,
+  isDMThread,
+  dmId,
+  isEditing,
+  isForwarding,
+}: Props) {
+  return (
+    <form>
+      <Header />
+      <Input />
+      {isDMThread ? (
+        <AlsoSendToDMField id={dmId} />
+      ) : isThread ? (
+        <AlsoSendToChannelField id={channelId} />
+      ) : null}
+      {isEditing ? (
+        <EditActions />
+      ) : isForwarding ? (
+        <ForwardActions />
+      ) : (
+        <DefaultActions />
+      )}
+      <Footer onSubmit={onSubmit} />
+    </form>
+  )
+}
+```
+
+**Correct (composition eliminates conditionals):**
+
+```tsx
+---END---
+FILE: .claude/skills/vercel-composition-patterns/rules/architecture-compound-components.md (112 lines)
+---
+title: Use Compound Components
+impact: HIGH
+impactDescription: enables flexible composition without prop drilling
+tags: composition, compound-components, architecture
+---
+
+## Use Compound Components
+
+Structure complex components as compound components with a shared context. Each
+subcomponent accesses shared state via context, not props. Consumers compose the
+pieces they need.
+
+**Incorrect (monolithic component with render props):**
+
+```tsx
+function Composer({
+  renderHeader,
+  renderFooter,
+  renderActions,
+  showAttachments,
+  showFormatting,
+  showEmojis,
+}: Props) {
+  return (
+    <form>
+      {renderHeader?.()}
+      <Input />
+      {showAttachments && <Attachments />}
+      {renderFooter ? (
+        renderFooter()
+      ) : (
+        <Footer>
+          {showFormatting && <Formatting />}
+          {showEmojis && <Emojis />}
+          {renderActions?.()}
+        </Footer>
+      )}
+    </form>
+  )
+}
+```
+
+**Correct (compound components with shared context):**
+
+```tsx
+const ComposerContext = createContext<ComposerContextValue | null>(null)
+
+function ComposerProvider({ children, state, actions, meta }: ProviderProps) {
+  return (
+---END---
+FILE: .claude/skills/vercel-composition-patterns/rules/patterns-children-over-render-props.md (87 lines)
+---
+title: Prefer Composing Children Over Render Props
+impact: MEDIUM
+impactDescription: cleaner composition, better readability
+tags: composition, children, render-props
+---
+
+## Prefer Children Over Render Props
+
+Use `children` for composition instead of `renderX` props. Children are more
+readable, compose naturally, and don't require understanding callback
+signatures.
+
+**Incorrect (render props):**
+
+```tsx
+function Composer({
+  renderHeader,
+  renderFooter,
+  renderActions,
+}: {
+  renderHeader?: () => React.ReactNode
+  renderFooter?: () => React.ReactNode
+  renderActions?: () => React.ReactNode
+}) {
+  return (
+    <form>
+      {renderHeader?.()}
+      <Input />
+      {renderFooter ? renderFooter() : <DefaultFooter />}
+      {renderActions?.()}
+    </form>
+  )
+}
+
+// Usage is awkward and inflexible
+return (
+  <Composer
+    renderHeader={() => <CustomHeader />}
+    renderFooter={() => (
+      <>
+        <Formatting />
+        <Emojis />
+      </>
+    )}
+    renderActions={() => <SubmitButton />}
+  />
+)
+```
+
+---END---
+FILE: .claude/skills/vercel-composition-patterns/rules/patterns-explicit-variants.md (100 lines)
+---
+title: Create Explicit Component Variants
+impact: MEDIUM
+impactDescription: self-documenting code, no hidden conditionals
+tags: composition, variants, architecture
+---
+
+## Create Explicit Component Variants
+
+Instead of one component with many boolean props, create explicit variant
+components. Each variant composes the pieces it needs. The code documents
+itself.
+
+**Incorrect (one component, many modes):**
+
+```tsx
+// What does this component actually render?
+<Composer
+  isThread
+  isEditing={false}
+  channelId='abc'
+  showAttachments
+  showFormatting={false}
+/>
+```
+
+**Correct (explicit variants):**
+
+```tsx
+// Immediately clear what this renders
+<ThreadComposer channelId="abc" />
+
+// Or
+<EditMessageComposer messageId="xyz" />
+
+// Or
+<ForwardMessageComposer messageId="123" />
+```
+
+Each implementation is unique, explicit and self-contained. Yet they can each
+use shared parts.
+
+**Implementation:**
+
+```tsx
+function ThreadComposer({ channelId }: { channelId: string }) {
+  return (
+    <ThreadProvider channelId={channelId}>
+      <Composer.Frame>
+        <Composer.Input />
+---END---
+FILE: .claude/skills/vercel-composition-patterns/rules/react19-no-forwardref.md (42 lines)
+---
+title: React 19 API Changes
+impact: MEDIUM
+impactDescription: cleaner component definitions and context usage
+tags: react19, refs, context, hooks
+---
+
+## React 19 API Changes
+
+> **⚠️ React 19+ only.** Skip this if you're on React 18 or earlier.
+
+In React 19, `ref` is now a regular prop (no `forwardRef` wrapper needed), and `use()` replaces `useContext()`.
+
+**Incorrect (forwardRef in React 19):**
+
+```tsx
+const ComposerInput = forwardRef<TextInput, Props>((props, ref) => {
+  return <TextInput ref={ref} {...props} />
+})
+```
+
+**Correct (ref as a regular prop):**
+
+```tsx
+function ComposerInput({ ref, ...props }: Props & { ref?: React.Ref<TextInput> }) {
+  return <TextInput ref={ref} {...props} />
+}
+```
+
+**Incorrect (useContext in React 19):**
+
+```tsx
+const value = useContext(MyContext)
+```
+
+**Correct (use instead of useContext):**
+
+```tsx
+const value = use(MyContext)
+```
+
+`use()` can also be called conditionally, unlike `useContext()`.
+---END---
+FILE: .claude/skills/vercel-composition-patterns/rules/state-context-interface.md (191 lines)
+---
+title: Define Generic Context Interfaces for Dependency Injection
+impact: HIGH
+impactDescription: enables dependency-injectable state across use-cases
+tags: composition, context, state, typescript, dependency-injection
+---
+
+## Define Generic Context Interfaces for Dependency Injection
+
+Define a **generic interface** for your component context with three parts:
+`state`, `actions`, and `meta`. This interface is a contract that any provider
+can implement—enabling the same UI components to work with completely different
+state implementations.
+
+**Core principle:** Lift state, compose internals, make state
+dependency-injectable.
+
+**Incorrect (UI coupled to specific state implementation):**
+
+```tsx
+function ComposerInput() {
+  // Tightly coupled to a specific hook
+  const { input, setInput } = useChannelComposerState()
+  return <TextInput value={input} onChangeText={setInput} />
+}
+```
+
+**Correct (generic interface enables dependency injection):**
+
+```tsx
+// Define a GENERIC interface that any provider can implement
+interface ComposerState {
+  input: string
+  attachments: Attachment[]
+  isSubmitting: boolean
+}
+
+interface ComposerActions {
+  update: (updater: (state: ComposerState) => ComposerState) => void
+  submit: () => void
+}
+
+interface ComposerMeta {
+  inputRef: React.RefObject<TextInput>
+}
+
+interface ComposerContextValue {
+  state: ComposerState
+  actions: ComposerActions
+  meta: ComposerMeta
+---END---
+FILE: .claude/skills/vercel-composition-patterns/rules/state-decouple-implementation.md (113 lines)
+---
+title: Decouple State Management from UI
+impact: MEDIUM
+impactDescription: enables swapping state implementations without changing UI
+tags: composition, state, architecture
+---
+
+## Decouple State Management from UI
+
+The provider component should be the only place that knows how state is managed.
+UI components consume the context interface—they don't know if state comes from
+useState, Zustand, or a server sync.
+
+**Incorrect (UI coupled to state implementation):**
+
+```tsx
+function ChannelComposer({ channelId }: { channelId: string }) {
+  // UI component knows about global state implementation
+  const state = useGlobalChannelState(channelId)
+  const { submit, updateInput } = useChannelSync(channelId)
+
+  return (
+    <Composer.Frame>
+      <Composer.Input
+        value={state.input}
+        onChange={(text) => sync.updateInput(text)}
+      />
+      <Composer.Submit onPress={() => sync.submit()} />
+    </Composer.Frame>
+  )
+}
+```
+
+**Correct (state management isolated in provider):**
+
+```tsx
+// Provider handles all state management details
+function ChannelProvider({
+  channelId,
+  children,
+}: {
+  channelId: string
+  children: React.ReactNode
+}) {
+  const { state, update, submit } = useGlobalChannel(channelId)
+  const inputRef = useRef(null)
+
+  return (
+    <Composer.Provider
+      state={state}
+---END---
+FILE: .claude/skills/vercel-composition-patterns/rules/state-lift-state.md (125 lines)
+---
+title: Lift State into Provider Components
+impact: HIGH
+impactDescription: enables state sharing outside component boundaries
+tags: composition, state, context, providers
+---
+
+## Lift State into Provider Components
+
+Move state management into dedicated provider components. This allows sibling
+components outside the main UI to access and modify state without prop drilling
+or awkward refs.
+
+**Incorrect (state trapped inside component):**
+
+```tsx
+function ForwardMessageComposer() {
+  const [state, setState] = useState(initialState)
+  const forwardMessage = useForwardMessage()
+
+  return (
+    <Composer.Frame>
+      <Composer.Input />
+      <Composer.Footer />
+    </Composer.Frame>
+  )
+}
+
+// Problem: How does this button access composer state?
+function ForwardMessageDialog() {
+  return (
+    <Dialog>
+      <ForwardMessageComposer />
+      <MessagePreview /> {/* Needs composer state */}
+      <DialogActions>
+        <CancelButton />
+        <ForwardButton /> {/* Needs to call submit */}
+      </DialogActions>
+    </Dialog>
+  )
+}
+```
+
+**Incorrect (useEffect to sync state up):**
+
+```tsx
+function ForwardMessageDialog() {
+  const [input, setInput] = useState('')
+  return (
+    <Dialog>
+---END---
+FILE: .claude/skills/vercel-composition-patterns/SKILL.md (88 lines)
+---
+name: vercel-composition-patterns
+description: React composition patterns that scale. Use when refactoring components with
+  boolean prop proliferation, building flexible component libraries, or
+  designing reusable APIs. Triggers on tasks involving compound components,
+  render props, context providers, or component architecture. Includes React 19
+  API changes.
+license: MIT
+metadata:
+  author: vercel
+  version: '1.0.0'
+---
+
+# React Composition Patterns
+
+Composition patterns for building flexible, maintainable React components. Avoid
+boolean prop proliferation by using compound components, lifting state, and
+composing internals. These patterns make codebases easier for both humans and AI
+agents to work with as they scale.
+
+## When to Apply
+
+Reference these guidelines when:
+
+- Refactoring components with many boolean props
+- Building reusable component libraries
+- Designing flexible component APIs
+- Reviewing component architecture
+- Working with compound components or context providers
+
+## Rule Categories by Priority
+
+| Priority | Category                | Impact | Prefix          |
+| -------- | ----------------------- | ------ | --------------- |
+| 1        | Component Architecture  | HIGH   | `architecture-` |
+| 2        | State Management        | MEDIUM | `state-`        |
+| 3        | Implementation Patterns | MEDIUM | `patterns-`     |
+| 4        | React 19 APIs           | MEDIUM | `react19-`      |
+
+## Quick Reference
+
+### 1. Component Architecture (HIGH)
+
+- `architecture-avoid-boolean-props` - Don't add boolean props to customize
+  behavior; use composition
+- `architecture-compound-components` - Structure complex components with shared
+  context
+
+### 2. State Management (MEDIUM)
+
+---END---
+
+### .agents/ contents
+FILE: .agents/skills/vitest/GENERATION.md (5 lines)
+# Generation Info
+
+- **Source:** `sources/vitest`
+- **Git SHA:** `4a7321e10672f00f0bb698823a381c2cc245b8f7`
+- **Generated:** 2026-01-28
+---END---
+FILE: .agents/skills/vitest/references/advanced-environments.md (264 lines)
+---
+name: test-environments
+description: Configure environments like jsdom, happy-dom for browser APIs
+---
+
+# Test Environments
+
+## Available Environments
+
+- `node` (default) - Node.js environment
+- `jsdom` - Browser-like with DOM APIs
+- `happy-dom` - Faster alternative to jsdom
+- `edge-runtime` - Vercel Edge Runtime
+
+## Configuration
+
+```ts
+// vitest.config.ts
+defineConfig({
+  test: {
+    environment: 'jsdom',
+    
+    // Environment-specific options
+    environmentOptions: {
+      jsdom: {
+        url: 'http://localhost',
+      },
+    },
+  },
+})
+```
+
+## Installing Environment Packages
+
+```bash
+# jsdom
+npm i -D jsdom
+
+# happy-dom (faster, fewer APIs)
+npm i -D happy-dom
+```
+
+## Per-File Environment
+
+Use magic comment at top of file:
+
+```ts
+// @vitest-environment jsdom
+
+import { expect, test } from 'vitest'
+---END---
+FILE: .agents/skills/vitest/references/advanced-projects.md (300 lines)
+---
+name: projects-workspaces
+description: Multi-project configuration for monorepos and different test types
+---
+
+# Projects
+
+Run different test configurations in the same Vitest process.
+
+## Basic Projects Setup
+
+```ts
+// vitest.config.ts
+defineConfig({
+  test: {
+    projects: [
+      // Glob patterns for config files
+      'packages/*',
+      
+      // Inline config
+      {
+        test: {
+          name: 'unit',
+          include: ['tests/unit/**/*.test.ts'],
+          environment: 'node',
+        },
+      },
+      {
+        test: {
+          name: 'integration',
+          include: ['tests/integration/**/*.test.ts'],
+          environment: 'jsdom',
+        },
+      },
+    ],
+  },
+})
+```
+
+## Monorepo Pattern
+
+```ts
+defineConfig({
+  test: {
+    projects: [
+      // Each package has its own vitest.config.ts
+      'packages/core',
+      'packages/cli',
+      'packages/utils',
+    ],
+---END---
+FILE: .agents/skills/vitest/references/advanced-type-testing.md (237 lines)
+---
+name: type-testing
+description: Test TypeScript types with expectTypeOf and assertType
+---
+
+# Type Testing
+
+Test TypeScript types without runtime execution.
+
+## Setup
+
+Type tests use `.test-d.ts` extension:
+
+```ts
+// math.test-d.ts
+import { expectTypeOf } from 'vitest'
+import { add } from './math'
+
+test('add returns number', () => {
+  expectTypeOf(add).returns.toBeNumber()
+})
+```
+
+## Configuration
+
+```ts
+defineConfig({
+  test: {
+    typecheck: {
+      enabled: true,
+      
+      // Only type check
+      only: false,
+      
+      // Checker: 'tsc' or 'vue-tsc'
+      checker: 'tsc',
+      
+      // Include patterns
+      include: ['**/*.test-d.ts'],
+      
+      // tsconfig to use
+      tsconfig: './tsconfig.json',
+    },
+  },
+})
+```
+
+## expectTypeOf API
+
+```ts
+---END---
+FILE: .agents/skills/vitest/references/advanced-vi.md (249 lines)
+---
+name: vi-utilities
+description: vi helper for mocking, timers, utilities
+---
+
+# Vi Utilities
+
+The `vi` helper provides mocking and utility functions.
+
+```ts
+import { vi } from 'vitest'
+```
+
+## Mock Functions
+
+```ts
+// Create mock
+const fn = vi.fn()
+const fnWithImpl = vi.fn((x) => x * 2)
+
+// Check if mock
+vi.isMockFunction(fn) // true
+
+// Mock methods
+fn.mockReturnValue(42)
+fn.mockReturnValueOnce(1)
+fn.mockResolvedValue(data)
+fn.mockRejectedValue(error)
+fn.mockImplementation(() => 'result')
+fn.mockImplementationOnce(() => 'once')
+
+// Clear/reset
+fn.mockClear()    // Clear call history
+fn.mockReset()    // Clear history + implementation
+fn.mockRestore()  // Restore original (for spies)
+```
+
+## Spying
+
+```ts
+const obj = { method: () => 'original' }
+
+const spy = vi.spyOn(obj, 'method')
+obj.method()
+
+expect(spy).toHaveBeenCalled()
+
+// Mock implementation
+spy.mockReturnValue('mocked')
+
+---END---
+FILE: .agents/skills/vitest/references/core-cli.md (166 lines)
+---
+name: vitest-cli
+description: Command line interface commands and options
+---
+
+# Command Line Interface
+
+## Commands
+
+### `vitest`
+
+Start Vitest in watch mode (dev) or run mode (CI):
+
+```bash
+vitest                    # Watch mode in dev, run mode in CI
+vitest foobar             # Run tests containing "foobar" in path
+vitest basic/foo.test.ts:10  # Run specific test by file and line number
+```
+
+### `vitest run`
+
+Run tests once without watch mode:
+
+```bash
+vitest run
+vitest run --coverage
+```
+
+### `vitest watch`
+
+Explicitly start watch mode:
+
+```bash
+vitest watch
+```
+
+### `vitest related`
+
+Run tests that import specific files (useful with lint-staged):
+
+```bash
+vitest related src/index.ts src/utils.ts --run
+```
+
+### `vitest bench`
+
+Run only benchmark tests:
+
+```bash
+vitest bench
+---END---
+FILE: .agents/skills/vitest/references/core-config.md (174 lines)
+---
+name: vitest-configuration
+description: Configure Vitest with vite.config.ts or vitest.config.ts
+---
+
+# Configuration
+
+Vitest reads configuration from `vitest.config.ts` or `vite.config.ts`. It shares the same config format as Vite.
+
+## Basic Setup
+
+```ts
+// vitest.config.ts
+import { defineConfig } from 'vitest/config'
+
+export default defineConfig({
+  test: {
+    // test options
+  },
+})
+```
+
+## Using with Existing Vite Config
+
+Add Vitest types reference and use the `test` property:
+
+```ts
+// vite.config.ts
+/// <reference types="vitest/config" />
+import { defineConfig } from 'vite'
+
+export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'jsdom',
+  },
+})
+```
+
+## Merging Configs
+
+If you have separate config files, use `mergeConfig`:
+
+```ts
+// vitest.config.ts
+import { defineConfig, mergeConfig } from 'vitest/config'
+import viteConfig from './vite.config'
+
+export default mergeConfig(viteConfig, defineConfig({
+  test: {
+---END---
+FILE: .agents/skills/vitest/references/core-describe.md (193 lines)
+---
+name: describe-api
+description: describe/suite for grouping tests into logical blocks
+---
+
+# Describe API
+
+Group related tests into suites for organization and shared setup.
+
+## Basic Usage
+
+```ts
+import { describe, expect, test } from 'vitest'
+
+describe('Math', () => {
+  test('adds numbers', () => {
+    expect(1 + 1).toBe(2)
+  })
+
+  test('subtracts numbers', () => {
+    expect(3 - 1).toBe(2)
+  })
+})
+
+// Alias: suite
+import { suite } from 'vitest'
+suite('equivalent to describe', () => {})
+```
+
+## Nested Suites
+
+```ts
+describe('User', () => {
+  describe('when logged in', () => {
+    test('shows dashboard', () => {})
+    test('can update profile', () => {})
+  })
+
+  describe('when logged out', () => {
+    test('shows login page', () => {})
+  })
+})
+```
+
+## Suite Options
+
+```ts
+// All tests inherit options
+describe('slow tests', { timeout: 30_000 }, () => {
+  test('test 1', () => {}) // 30s timeout
+---END---
+FILE: .agents/skills/vitest/references/core-expect.md (219 lines)
+---
+name: expect-api
+description: Assertions with matchers, asymmetric matchers, and custom matchers
+---
+
+# Expect API
+
+Vitest uses Chai assertions with Jest-compatible API.
+
+## Basic Assertions
+
+```ts
+import { expect, test } from 'vitest'
+
+test('assertions', () => {
+  // Equality
+  expect(1 + 1).toBe(2)              // Strict equality (===)
+  expect({ a: 1 }).toEqual({ a: 1 }) // Deep equality
+
+  // Truthiness
+  expect(true).toBeTruthy()
+  expect(false).toBeFalsy()
+  expect(null).toBeNull()
+  expect(undefined).toBeUndefined()
+  expect('value').toBeDefined()
+
+  // Numbers
+  expect(10).toBeGreaterThan(5)
+  expect(10).toBeGreaterThanOrEqual(10)
+  expect(5).toBeLessThan(10)
+  expect(0.1 + 0.2).toBeCloseTo(0.3, 5)
+
+  // Strings
+  expect('hello world').toMatch(/world/)
+  expect('hello').toContain('ell')
+
+  // Arrays
+  expect([1, 2, 3]).toContain(2)
+  expect([{ a: 1 }]).toContainEqual({ a: 1 })
+  expect([1, 2, 3]).toHaveLength(3)
+
+  // Objects
+  expect({ a: 1, b: 2 }).toHaveProperty('a')
+  expect({ a: 1, b: 2 }).toHaveProperty('a', 1)
+  expect({ a: { b: 1 } }).toHaveProperty('a.b', 1)
+  expect({ a: 1 }).toMatchObject({ a: 1 })
+
+  // Types
+  expect('string').toBeTypeOf('string')
+  expect(new Date()).toBeInstanceOf(Date)
+---END---
+FILE: .agents/skills/vitest/references/core-hooks.md (244 lines)
+---
+name: lifecycle-hooks
+description: beforeEach, afterEach, beforeAll, afterAll, and around hooks
+---
+
+# Lifecycle Hooks
+
+## Basic Hooks
+
+```ts
+import { afterAll, afterEach, beforeAll, beforeEach, test } from 'vitest'
+
+beforeAll(async () => {
+  // Runs once before all tests in file/suite
+  await setupDatabase()
+})
+
+afterAll(async () => {
+  // Runs once after all tests in file/suite
+  await teardownDatabase()
+})
+
+beforeEach(async () => {
+  // Runs before each test
+  await clearTestData()
+})
+
+afterEach(async () => {
+  // Runs after each test
+  await cleanupMocks()
+})
+```
+
+## Cleanup Return Pattern
+
+Return cleanup function from `before*` hooks:
+
+```ts
+beforeAll(async () => {
+  const server = await startServer()
+  
+  // Returned function runs as afterAll
+  return async () => {
+    await server.close()
+  }
+})
+
+beforeEach(async () => {
+  const connection = await connect()
+  
+---END---
+FILE: .agents/skills/vitest/references/core-test-api.md (233 lines)
+---
+name: test-api
+description: test/it function for defining tests with modifiers
+---
+
+# Test API
+
+## Basic Test
+
+```ts
+import { expect, test } from 'vitest'
+
+test('adds numbers', () => {
+  expect(1 + 1).toBe(2)
+})
+
+// Alias: it
+import { it } from 'vitest'
+
+it('works the same', () => {
+  expect(true).toBe(true)
+})
+```
+
+## Async Tests
+
+```ts
+test('async test', async () => {
+  const result = await fetchData()
+  expect(result).toBeDefined()
+})
+
+// Promises are automatically awaited
+test('returns promise', () => {
+  return fetchData().then(result => {
+    expect(result).toBeDefined()
+  })
+})
+```
+
+## Test Options
+
+```ts
+// Timeout (default: 5000ms)
+test('slow test', async () => {
+  // ...
+}, 10_000)
+
+// Or with options object
+test('with options', { timeout: 10_000, retry: 2 }, async () => {
+---END---
+FILE: .agents/skills/vitest/references/features-concurrency.md (250 lines)
+---
+name: concurrency-parallelism
+description: Concurrent tests, parallel execution, and sharding
+---
+
+# Concurrency & Parallelism
+
+## File Parallelism
+
+By default, Vitest runs test files in parallel across workers:
+
+```ts
+defineConfig({
+  test: {
+    // Run files in parallel (default: true)
+    fileParallelism: true,
+    
+    // Number of worker threads
+    maxWorkers: 4,
+    minWorkers: 1,
+    
+    // Pool type: 'threads', 'forks', 'vmThreads'
+    pool: 'threads',
+  },
+})
+```
+
+## Concurrent Tests
+
+Run tests within a file in parallel:
+
+```ts
+// Individual concurrent tests
+test.concurrent('test 1', async ({ expect }) => {
+  expect(await fetch1()).toBe('result')
+})
+
+test.concurrent('test 2', async ({ expect }) => {
+  expect(await fetch2()).toBe('result')
+})
+
+// All tests in suite concurrent
+describe.concurrent('parallel suite', () => {
+  test('test 1', async ({ expect }) => {})
+  test('test 2', async ({ expect }) => {})
+})
+```
+
+**Important:** Use `{ expect }` from context for concurrent tests.
+
+---END---
+FILE: .agents/skills/vitest/references/features-context.md (238 lines)
+---
+name: test-context-fixtures
+description: Test context, custom fixtures with test.extend
+---
+
+# Test Context & Fixtures
+
+## Built-in Context
+
+Every test receives context as first argument:
+
+```ts
+test('context', ({ task, expect, skip }) => {
+  console.log(task.name)  // Test name
+  expect(1).toBe(1)       // Context-bound expect
+  skip()                  // Skip test dynamically
+})
+```
+
+### Context Properties
+
+- `task` - Test metadata (name, file, etc.)
+- `expect` - Expect bound to this test (important for concurrent tests)
+- `skip(condition?, message?)` - Skip the test
+- `onTestFinished(fn)` - Cleanup after test
+- `onTestFailed(fn)` - Run on failure only
+
+## Custom Fixtures with test.extend
+
+Create reusable test utilities:
+
+```ts
+import { test as base } from 'vitest'
+
+// Define fixture types
+interface Fixtures {
+  db: Database
+  user: User
+}
+
+// Create extended test
+export const test = base.extend<Fixtures>({
+  // Fixture with setup/teardown
+  db: async ({}, use) => {
+    const db = await createDatabase()
+    await use(db)           // Provide to test
+    await db.close()        // Cleanup
+  },
+  
+  // Fixture depending on another fixture
+---END---
+FILE: .agents/skills/vitest/references/features-coverage.md (207 lines)
+---
+name: code-coverage
+description: Code coverage with V8 or Istanbul providers
+---
+
+# Code Coverage
+
+## Setup
+
+```bash
+# Run tests with coverage
+vitest run --coverage
+```
+
+## Configuration
+
+```ts
+// vitest.config.ts
+defineConfig({
+  test: {
+    coverage: {
+      // Provider: 'v8' (default, faster) or 'istanbul' (more compatible)
+      provider: 'v8',
+      
+      // Enable coverage
+      enabled: true,
+      
+      // Reporters
+      reporter: ['text', 'json', 'html'],
+      
+      // Files to include
+      include: ['src/**/*.{ts,tsx}'],
+      
+      // Files to exclude
+      exclude: [
+        'node_modules/',
+        'tests/',
+        '**/*.d.ts',
+        '**/*.test.ts',
+      ],
+      
+      // Report uncovered files
+      all: true,
+      
+      // Thresholds
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+---END---
+FILE: .agents/skills/vitest/references/features-filtering.md (211 lines)
+---
+name: test-filtering
+description: Filter tests by name, file patterns, and tags
+---
+
+# Test Filtering
+
+## CLI Filtering
+
+### By File Path
+
+```bash
+# Run files containing "user"
+vitest user
+
+# Multiple patterns
+vitest user auth
+
+# Specific file
+vitest src/user.test.ts
+
+# By line number
+vitest src/user.test.ts:25
+```
+
+### By Test Name
+
+```bash
+# Tests matching pattern
+vitest -t "login"
+vitest --testNamePattern "should.*work"
+
+# Regex patterns
+vitest -t "/user|auth/"
+```
+
+## Changed Files
+
+```bash
+# Uncommitted changes
+vitest --changed
+
+# Since specific commit
+vitest --changed HEAD~1
+vitest --changed abc123
+
+# Since branch
+vitest --changed origin/main
+```
+
+---END---
+FILE: .agents/skills/vitest/references/features-mocking.md (265 lines)
+---
+name: mocking
+description: Mock functions, modules, timers, and dates with vi utilities
+---
+
+# Mocking
+
+## Mock Functions
+
+```ts
+import { expect, vi } from 'vitest'
+
+// Create mock function
+const fn = vi.fn()
+fn('hello')
+
+expect(fn).toHaveBeenCalled()
+expect(fn).toHaveBeenCalledWith('hello')
+
+// With implementation
+const add = vi.fn((a, b) => a + b)
+expect(add(1, 2)).toBe(3)
+
+// Mock return values
+fn.mockReturnValue(42)
+fn.mockReturnValueOnce(1).mockReturnValueOnce(2)
+fn.mockResolvedValue({ data: true })
+fn.mockRejectedValue(new Error('fail'))
+
+// Mock implementation
+fn.mockImplementation((x) => x * 2)
+fn.mockImplementationOnce(() => 'first call')
+```
+
+## Spying on Objects
+
+```ts
+const cart = {
+  getTotal: () => 100,
+}
+
+const spy = vi.spyOn(cart, 'getTotal')
+cart.getTotal()
+
+expect(spy).toHaveBeenCalled()
+
+// Mock implementation
+spy.mockReturnValue(200)
+expect(cart.getTotal()).toBe(200)
+
+---END---
+FILE: .agents/skills/vitest/references/features-snapshots.md (207 lines)
+---
+name: snapshot-testing
+description: Snapshot testing with file, inline, and file snapshots
+---
+
+# Snapshot Testing
+
+Snapshot tests capture output and compare against stored references.
+
+## Basic Snapshot
+
+```ts
+import { expect, test } from 'vitest'
+
+test('snapshot', () => {
+  const result = generateOutput()
+  expect(result).toMatchSnapshot()
+})
+```
+
+First run creates `.snap` file:
+
+```js
+// __snapshots__/test.spec.ts.snap
+exports['snapshot 1'] = `
+{
+  "id": 1,
+  "name": "test"
+}
+`
+```
+
+## Inline Snapshots
+
+Stored directly in test file:
+
+```ts
+test('inline snapshot', () => {
+  const data = { foo: 'bar' }
+  expect(data).toMatchInlineSnapshot()
+})
+```
+
+Vitest updates the test file:
+
+```ts
+test('inline snapshot', () => {
+  const data = { foo: 'bar' }
+  expect(data).toMatchInlineSnapshot(`
+    {
+---END---
+FILE: .agents/skills/vitest/SKILL.md (52 lines)
+---
+name: vitest
+description: Vitest fast unit testing framework powered by Vite with Jest-compatible API. Use when writing tests, mocking, configuring coverage, or working with test filtering and fixtures.
+metadata:
+  author: Anthony Fu
+  version: "2026.1.28"
+  source: Generated from https://github.com/vitest-dev/vitest, scripts located at https://github.com/antfu/skills
+---
+
+Vitest is a next-generation testing framework powered by Vite. It provides a Jest-compatible API with native ESM, TypeScript, and JSX support out of the box. Vitest shares the same config, transformers, resolvers, and plugins with your Vite app.
+
+**Key Features:**
+- Vite-native: Uses Vite's transformation pipeline for fast HMR-like test updates
+- Jest-compatible: Drop-in replacement for most Jest test suites
+- Smart watch mode: Only reruns affected tests based on module graph
+- Native ESM, TypeScript, JSX support without configuration
+- Multi-threaded workers for parallel test execution
+- Built-in coverage via V8 or Istanbul
+- Snapshot testing, mocking, and spy utilities
+
+> The skill is based on Vitest 3.x, generated at 2026-01-28.
+
+## Core
+
+| Topic | Description | Reference |
+|-------|-------------|-----------|
+| Configuration | Vitest and Vite config integration, defineConfig usage | [core-config](references/core-config.md) |
+| CLI | Command line interface, commands and options | [core-cli](references/core-cli.md) |
+| Test API | test/it function, modifiers like skip, only, concurrent | [core-test-api](references/core-test-api.md) |
+| Describe API | describe/suite for grouping tests and nested suites | [core-describe](references/core-describe.md) |
+| Expect API | Assertions with toBe, toEqual, matchers and asymmetric matchers | [core-expect](references/core-expect.md) |
+| Hooks | beforeEach, afterEach, beforeAll, afterAll, aroundEach | [core-hooks](references/core-hooks.md) |
+
+## Features
+
+| Topic | Description | Reference |
+|-------|-------------|-----------|
+| Mocking | Mock functions, modules, timers, dates with vi utilities | [features-mocking](references/features-mocking.md) |
+| Snapshots | Snapshot testing with toMatchSnapshot and inline snapshots | [features-snapshots](references/features-snapshots.md) |
+| Coverage | Code coverage with V8 or Istanbul providers | [features-coverage](references/features-coverage.md) |
+| Test Context | Test fixtures, context.expect, test.extend for custom fixtures | [features-context](references/features-context.md) |
+| Concurrency | Concurrent tests, parallel execution, sharding | [features-concurrency](references/features-concurrency.md) |
+| Filtering | Filter tests by name, file patterns, tags | [features-filtering](references/features-filtering.md) |
+
+## Advanced
+
+| Topic | Description | Reference |
+|-------|-------------|-----------|
+| Vi Utilities | vi helper: mock, spyOn, fake timers, hoisted, waitFor | [advanced-vi](references/advanced-vi.md) |
+| Environments | Test environments: node, jsdom, happy-dom, custom | [advanced-environments](references/advanced-environments.md) |
+---END---
+
+## Repository Structure
+### Top-level layout
+apps
+blocks
+CONTRIBUTING.md
+DEVELOPERS.md
+docker
+e2e
+examples
+i18n
+knip.jsonc
+LICENSE
+Makefile
+package.json
+packages
+patches
+pnpm-lock.yaml
+pnpm-workspace.yaml
+prettier.config.mjs
+README.md
+scripts
+SECURITY.md
+supabase
+supa-mdx-lint
+supa-mdx-lint.config.toml
+tsconfig.json
+turbo.json
+
+### README
+FILE: README.md
+<p align="center">
+<img src="https://user-images.githubusercontent.com/8291514/213727234-cda046d6-28c6-491a-b284-b86c5cede25d.png#gh-light-mode-only">
+<img src="https://user-images.githubusercontent.com/8291514/213727225-56186826-bee8-43b5-9b15-86e839d89393.png#gh-dark-mode-only">
+</p>
+
+# Supabase
+
+[Supabase](https://supabase.com) is the Postgres development platform. We're building the features of Firebase using enterprise-grade open source tools.
+
+- [x] Hosted Postgres Database. [Docs](https://supabase.com/docs/guides/database)
+- [x] Authentication and Authorization. [Docs](https://supabase.com/docs/guides/auth)
+- [x] Auto-generated APIs.
+  - [x] REST. [Docs](https://supabase.com/docs/guides/api)
+  - [x] GraphQL. [Docs](https://supabase.com/docs/guides/graphql)
+  - [x] Realtime subscriptions. [Docs](https://supabase.com/docs/guides/realtime)
+- [x] Functions.
+  - [x] Database Functions. [Docs](https://supabase.com/docs/guides/database/functions)
+  - [x] Edge Functions [Docs](https://supabase.com/docs/guides/functions)
+- [x] File Storage. [Docs](https://supabase.com/docs/guides/storage)
+- [x] AI + Vector/Embeddings Toolkit. [Docs](https://supabase.com/docs/guides/ai)
+- [x] Dashboard
+
+![Supabase Dashboard](https://raw.githubusercontent.com/supabase/supabase/master/apps/www/public/images/github/supabase-dashboard.png)
+
+Watch "releases" of this repo to get notified of major updates.
+
+<kbd><img src="https://raw.githubusercontent.com/supabase/supabase/d5f7f413ab356dc1a92075cb3cee4e40a957d5b1/web/static/watch-repo.gif" alt="Watch this repo"/></kbd>
+
+## Documentation
+
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "supabase",
+  "description": "The Postgres Development Platform.",
+  "version": "0.0.0",
+  "author": "Supabase, Inc.",
+  "license": "Apache-2.0",
+  "private": true,
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "build": "turbo run build",
+    "build:studio": "turbo run build --filter=studio",
+    "build:studio:docker": "docker build . -f apps/studio/Dockerfile --target production -t supabase-studio:local --build-arg NEXT_PUBLIC_STUDIO_AUTH_MODE=supabase --no-cache",
+    "build:design-system": "turbo run build --filter=design-system",
+    "build:docs": "turbo run build --filter=docs",
+    "clean": "turbo run clean --parallel && rimraf -G node_modules/{*,.bin,.modules.yaml}",
+    "dev": "turbo run dev --parallel",
+    "dev:studio": "turbo run dev --filter=studio --parallel",
+    "dev:studio-local": "pnpm setup:cli && NODE_ENV=test pnpm --prefix ./apps/studio dev",
+    "dev:docs": "turbo run dev --filter=docs --parallel",
+    "dev:www": "turbo run dev --filter=www --parallel",
+    "dev:design-system": "turbo run dev --filter=design-system --parallel",
+    "lint": "turbo run lint",
+    "typecheck": "turbo --continue typecheck",
+    "test:prettier": "SORT_IMPORTS=false prettier --config prettier.config.mjs --cache --check '{apps,packages,blocks,examples,i18n}/**/*.{js,jsx,ts,tsx,css,md,mdx,json}'",
+    "format": "SORT_IMPORTS=false prettier --config prettier.config.mjs --cache --write '{apps,packages,blocks,examples,i18n}/**/*.{js,jsx,ts,tsx,css,md,mdx,json}'",
+    "test:docs": "turbo run test --filter=docs",
+    "test:ui": "turbo run test --filter=ui",
+    "test:ui-patterns": "turbo run test --filter=ui-patterns",
+    "test:studio": "turbo run test --filter=studio",
+    "test:studio:watch": "turbo run test --filter=studio -- watch",
+    "e2e:setup:cli": "supabase stop --all --no-backup ; supabase start --exclude studio && if [ -z \"${CI}\" ]; then supabase db reset; fi && supabase status --output json > keys.json && node scripts/generateLocalEnv.js",
+    "e2e:setup:selfhosted": "SKIP_ASSET_UPLOAD=1 pnpm e2e:setup:cli && NODE_ENV=test NODE_OPTIONS=\"--max-old-space-size=4096\" pnpm run build:studio && NODE_ENV=test pnpm --prefix ./apps/studio start",
+    "e2e:setup:selfhosted:start-studio": "SKIP_ASSET_UPLOAD=1 NODE_ENV=test pnpm --prefix ./apps/studio start",
+    "e2e:setup:platform": "SKIP_ASSET_UPLOAD=1 NODE_OPTIONS=\"--max-old-space-size=4096\" pnpm run build:studio && pnpm --prefix ./apps/studio start",
+    "e2e": "pnpm --prefix e2e/studio run e2e",
+    "e2e:ui": "pnpm --prefix e2e/studio run e2e:ui",
+    "perf:kong": "ab -t 5 -c 20 -T application/json http://localhost:8000/",
+    "perf:meta": "ab -t 5 -c 20 -T application/json http://localhost:5555/tables",
+    "setup:cli": "supabase start -x studio && supabase status --output json > keys.json && node scripts/generateLocalEnv.js",
+    "generate:types": "supabase gen types typescript --local > ./supabase/functions/common/database-types.ts",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+REPO_DIR=$(shell pwd)
+
+help:
+	@echo "\SCRIPTS\n"
+	@echo "make github.contributors  	# pull a list of all contributors"
+	@echo "make github.issues			# pull a list of all issue creators"
+	@echo "make github.repos			# pull a list of our repos"
+	@echo "make github.traction			# get a history of stargazers for our individual repos"
+
+github.contributors.%:
+	curl -sS https://api.github.com/repos/supabase/$*/contributors \
+	| jq -r 'map_values({ username: .login }) \
+	| unique \
+	| sort_by(.username)' \
+	> $(REPO_DIR)/web/src/data/contributors/$*.json
+
+.PHONY: github.rcontributorsepos
+github.contributors: \
+	github.contributors.supabase \
+	github.contributors.supabase-js \
+	github.contributors.supabase-py \
+	github.contributors.supabase-flutter \
+	github.contributors.supabase-dart
+
+github.issues:
+	curl -sS https://api.github.com/repos/supabase/supabase/issues \
+	| jq -r 'map_values({username: .user.login, avatar_url: .user.avatar_url}) \
+	| unique \
+	| sort_by(.username)' \
+	> $(REPO_DIR)/web/src/data/contributors/issues.json
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+.nvmrc: 22
+
+## Tests
+test_file_count: 317
+ci_workflow_count: 44
+ai-tests.yml
+authorize-vercel-deploys.yml
+autofix_linters.yml
+auto-label-issues.yml
+avoid-typos.yml
+braintrust-evals.yml
+braintrust-preview-scorers-cleanup.yml
+braintrust-preview-scorers-deploy.yml
+braintrust-scorers-deploy.yml
+dashboard-pr-reminder.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 35 lines
+# CONTRIBUTING.md
+
+Thank you for contributing to Supabase! We’re a big, exciting open source project and we’d love to have you contribute! Here’s some resources and guidance to help you get started:
+
+[1. Getting Started](#getting-started)
+[2. Issues](#issues)
+[3. Pull Requests](#pull-requests)
+
+## Getting Started
+
+To ensure a positive and inclusive environment, please read our [code of conduct](https://github.com/supabase/.github/blob/main/CODE_OF_CONDUCT.md) before contributing. For help setting up the code in this repo, please follow our [DEVELOPERS.md](https://github.com/supabase/supabase/blob/master/DEVELOPERS.md) file. For the [docs](https://supabase.com/docs) site, follow this [CONTRIBUTING.md](https://github.com/supabase/supabase/blob/master/apps/docs/CONTRIBUTING.md) guide.
+
+## Issues
+
+If you find a bug, please create an Issue and we’ll triage it.
+
+- Please search [existing Issues](https://github.com/supabase/supabase/issues) before creating a new one.
+- Please include a clear description of the problem along with steps to reproduce it. Exact steps with screenshots and urls really help here.
+
+## Pull Requests
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "dev": "turbo run dev --parallel",
+### tsconfig.json
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "skipLibCheck": true
+  }
+}
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 6
+### Largest source files
+ 166758 total
+  26644 ./packages/api-types/types/platform.d.ts
+  12492 ./packages/api-types/types/api.d.ts
+   3404 ./apps/docs/components/Navigation/NavigationMenu/NavigationMenu.constants.ts
+   3121 ./packages/common/telemetry-constants.ts
+   3110 ./apps/www/lib/redirects.js
+   1850 ./packages/pg-meta/test/query/table-row-query.test.ts
+   1637 ./apps/design-system/registry/examples.ts
+   1603 ./apps/studio/components/interfaces/SQLEditor/SQLEditor.queries.ts
+   1556 ./apps/design-system/registry/colors.ts
+   1470 ./packages/pg-meta/test/tables.test.ts
+
+=== END SIGNALS ===

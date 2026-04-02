@@ -1,0 +1,199 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/syncthing-syncthing
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+assets
+AUTHORS
+buf.gen.yaml
+buf.yaml
+build.go
+build.ps1
+build.sh
+cmd
+compat.yaml
+CONDUCT.md
+CONTRIBUTING.md
+Dockerfile
+Dockerfile.builder
+Dockerfile.stcrashreceiver
+Dockerfile.stdiscosrv
+Dockerfile.strelaypoolsrv
+Dockerfile.strelaysrv
+Dockerfile.stupgrades
+Dockerfile.ursrv
+etc
+GOALS.md
+go.mod
+go.sum
+gui
+internal
+lib
+LICENSE
+man
+meta
+proto
+README-Docker.md
+README.md
+relnotes
+script
+test
+
+### README
+FILE: README.md
+[![Syncthing][14]][15]
+
+---
+
+[![MPLv2 License](https://img.shields.io/badge/license-MPLv2-blue.svg?style=flat-square)](https://www.mozilla.org/MPL/2.0/)
+[![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/88/badge)](https://bestpractices.coreinfrastructure.org/projects/88)
+[![Go Report Card](https://goreportcard.com/badge/github.com/syncthing/syncthing)](https://goreportcard.com/report/github.com/syncthing/syncthing)
+
+## Goals
+
+Syncthing is a **continuous file synchronization program**. It synchronizes
+files between two or more computers. We strive to fulfill the goals below.
+The goals are listed in order of importance, the most important ones first.
+This is the summary version of the goal list - for more
+commentary, see the full [Goals document][13].
+
+Syncthing should be:
+
+1. **Safe From Data Loss**
+
+   Protecting the user's data is paramount. We take every reasonable
+   precaution to avoid corrupting the user's files.
+
+2. **Secure Against Attackers**
+
+   Again, protecting the user's data is paramount. Regardless of our other
+   goals, we must never allow the user's data to be susceptible to
+   eavesdropping or modification by unauthorized parties.
+
+3. **Easy to Use**
+---END---
+
+## Dependencies
+FILE: go.mod
+module github.com/syncthing/syncthing
+
+go 1.25.0
+
+require (
+	github.com/AudriusButkevicius/recli v0.0.7
+	github.com/alecthomas/kong v1.14.0
+	github.com/aws/aws-sdk-go v1.55.8
+	github.com/calmh/incontainer v1.0.0
+	github.com/calmh/xdr v1.2.0
+	github.com/ccding/go-stun v0.1.5
+	github.com/coreos/go-semver v0.3.1
+	github.com/d4l3k/messagediff v1.2.1
+	github.com/getsentry/raven-go v0.2.0
+	github.com/go-ldap/ldap/v3 v3.4.12
+	github.com/gobwas/glob v0.2.3
+	github.com/gofrs/flock v0.13.0
+	github.com/hashicorp/golang-lru/v2 v2.0.7
+	github.com/jackpal/gateway v1.1.1
+	github.com/jackpal/go-nat-pmp v1.0.2
+	github.com/jmoiron/sqlx v1.4.0
+	github.com/julienschmidt/httprouter v1.3.0
+	github.com/kballard/go-shellquote v0.0.0-20180428030007-95032a82bc51
+	github.com/maruel/panicparse/v2 v2.5.0
+	github.com/mattn/go-sqlite3 v1.14.34
+	github.com/maxmind/geoipupdate/v6 v6.1.0
+	github.com/miscreant/miscreant.go v0.0.0-20200214223636-26d376326b75
+	github.com/oschwald/geoip2-golang v1.13.0
+	github.com/pierrec/lz4/v4 v4.1.25
+	github.com/prometheus/client_golang v1.23.2
+	github.com/puzpuzpuz/xsync/v3 v3.5.1
+	github.com/quic-go/quic-go v0.59.0
+	github.com/rabbitmq/amqp091-go v1.10.0
+	github.com/rcrowley/go-metrics v0.0.0-20250401214520-65e299d6c5c9
+	github.com/shirou/gopsutil/v4 v4.26.2
+	github.com/syncthing/notify v0.0.0-20250528144937-c7027d4f7465
+	github.com/syndtr/goleveldb v1.0.1-0.20220721030215-126854af5e6d
+	github.com/thejerf/suture/v4 v4.0.6
+	github.com/urfave/cli v1.22.17
+	github.com/vitrun/qart v0.0.0-20160531060029-bf64b92db6b0
+---END---
+### Lock files
+go.sum: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 141
+ci_workflow_count: 9
+build-infra-dockers.yaml
+build-nightly.yaml
+build-syncthing.yaml
+mirrors.yaml
+org-members.yaml
+pr-metadata.yaml
+release-syncthing.yaml
+trigger-nightly.yaml
+update-docs-translations.yaml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.golangci.yml: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 208 lines
+## Reporting Bugs
+
+Please file bugs in the [GitHub Issue
+Tracker](https://github.com/syncthing/syncthing/issues). Include at
+least the following:
+
+ - What happened
+
+ - What did you expect to happen instead of what *did* happen, if it's
+   not crazy obvious
+
+ - What operating system, operating system version and version of
+   Syncthing you are running
+
+ - The same for other connected devices, where relevant
+
+ - Screenshot if the issue concerns something visible in the GUI
+
+ - Console log entries, where possible and relevant
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 16
+### Largest source files
+ 122709 total
+   4099 ./lib/model/model_test.go
+   3859 ./lib/model/mocks/model.go
+   3748 ./gui/default/syncthing/core/syncthingController.js
+   3499 ./lib/model/model.go
+   2401 ./internal/gen/bep/bep.pb.go
+   2199 ./lib/model/folder_sendrecv.go
+   1994 ./lib/api/api.go
+   1863 ./lib/api/api_test.go
+   1831 ./lib/config/mocks/mocked_wrapper.go
+   1733 ./lib/ignore/ignore_test.go
+
+=== END SIGNALS ===

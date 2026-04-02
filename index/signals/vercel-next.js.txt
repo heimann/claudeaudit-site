@@ -1,0 +1,1195 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/vercel-next.js
+
+## Agent Documentation
+FILE: CLAUDE.md (432 lines)
+# Next.js Development Guide
+
+> **Note:** `CLAUDE.md` is a symlink to `AGENTS.md`. They are the same file.
+
+## Codebase structure
+
+### Monorepo Overview
+
+This is a pnpm monorepo containing the Next.js framework and related packages.
+
+```
+next.js/
+├── packages/           # Published npm packages
+├── turbopack/          # Turbopack bundler (Rust) - git subtree
+├── crates/             # Rust crates for Next.js SWC bindings
+├── test/               # All test suites
+├── examples/           # Example Next.js applications
+├── docs/               # Documentation
+└── scripts/            # Build and maintenance scripts
+```
+
+### Core Package: `packages/next`
+
+The main Next.js framework lives in `packages/next/`. This is what gets published as the `next` npm package.
+
+**Source code** is in `packages/next/src/`.
+
+**Key entry points:**
+
+- Dev server: `src/cli/next-dev.ts` → `src/server/dev/next-dev-server.ts`
+- Production server: `src/cli/next-start.ts` → `src/server/next-server.ts`
+- Build: `src/cli/next-build.ts` → `src/build/index.ts`
+
+**Compiled output** goes to `packages/next/dist/` (mirrors src/ structure).
+
+### Other Important Packages
+
+- `packages/create-next-app/` - The `create-next-app` CLI tool
+- `packages/next-swc/` - Native Rust bindings (SWC transforms)
+- `packages/eslint-plugin-next/` - ESLint rules for Next.js
+- `packages/font/` - `next/font` implementation
+- `packages/third-parties/` - Third-party script integrations
+
+### README files
+
+Before editing or creating files in any subdirectory (e.g., `packages/*`, `crates/*`), read all `README.md` files in the directory path from the repo root up to and including the target file's directory. This helps identify any local patterns, conventions, and documentation.
+
+**Example:** Before editing `turbopack/crates/turbopack-ecmascript-runtime/js/src/nodejs/runtime/runtime-base.ts`, read:
+
+- `turbopack/README.md` (if exists)
+- `turbopack/crates/README.md` (if exists)
+- `turbopack/crates/turbopack-ecmascript-runtime/README.md` (if exists)
+- `turbopack/crates/turbopack-ecmascript-runtime/js/README.md` (if exists - closest to target file)
+
+## Build Commands
+
+```bash
+# Build the Next.js package
+pnpm --filter=next build
+
+# Build all JS code
+pnpm build
+
+# Build all JS and Rust code
+pnpm build-all
+
+# Run specific task
+pnpm --filter=next exec taskr <task>
+```
+
+## Fast Local Development
+
+For iterative development, default to watch mode + skip-isolate for the inner loop (not full builds), with exceptions noted below.
+
+**Default agent rule:** If you are changing Next.js source or integration tests, start `pnpm --filter=next dev` in a separate terminal session before making edits (unless it is already running). If you skip this, explicitly state why (for example: docs-only, read-only investigation, or CI-only analysis).
+
+**1. Start watch build in background:**
+
+```bash
+# Auto-rebuilds on file changes (~1-2s per change vs ~60s full build)
+# Keep this running while you iterate on code
+pnpm --filter=next dev
+```
+
+**2. Run tests fast (no isolation, no packing):**
+
+```bash
+# NEXT_SKIP_ISOLATE=1 - skip packing Next.js for each test (~100s faster)
+# NEXT_TEST_MODE=<mode> - run dev or start based on the context provided
+# testheadless - runs headless with --runInBand (no worker isolation overhead)
+NEXT_SKIP_ISOLATE=1 NEXT_TEST_MODE=<dev|start> pnpm testheadless test/path/to/test.ts
+```
+
+**3. When done, kill the background watch process (if you started it).**
+
+**For type errors only:** Use `pnpm --filter=next types` (~10s) instead of `pnpm --filter=next build` (~60s).
+
+After the workspace is bootstrapped, prefer `pnpm --filter=next build` when edits are limited to core Next.js files. Use full `pnpm build-all` for branch switches/bootstrap, before CI push, or when changes span multiple packages.
+
+**Always run a full bootstrap build after switching branches:**
+---END---
+FILE: AGENTS.md (432 lines)
+# Next.js Development Guide
+
+> **Note:** `CLAUDE.md` is a symlink to `AGENTS.md`. They are the same file.
+
+## Codebase structure
+
+### Monorepo Overview
+
+This is a pnpm monorepo containing the Next.js framework and related packages.
+
+```
+next.js/
+├── packages/           # Published npm packages
+├── turbopack/          # Turbopack bundler (Rust) - git subtree
+├── crates/             # Rust crates for Next.js SWC bindings
+├── test/               # All test suites
+├── examples/           # Example Next.js applications
+├── docs/               # Documentation
+└── scripts/            # Build and maintenance scripts
+```
+
+### Core Package: `packages/next`
+
+The main Next.js framework lives in `packages/next/`. This is what gets published as the `next` npm package.
+
+**Source code** is in `packages/next/src/`.
+
+**Key entry points:**
+
+- Dev server: `src/cli/next-dev.ts` → `src/server/dev/next-dev-server.ts`
+- Production server: `src/cli/next-start.ts` → `src/server/next-server.ts`
+- Build: `src/cli/next-build.ts` → `src/build/index.ts`
+
+**Compiled output** goes to `packages/next/dist/` (mirrors src/ structure).
+
+### Other Important Packages
+
+- `packages/create-next-app/` - The `create-next-app` CLI tool
+- `packages/next-swc/` - Native Rust bindings (SWC transforms)
+- `packages/eslint-plugin-next/` - ESLint rules for Next.js
+- `packages/font/` - `next/font` implementation
+- `packages/third-parties/` - Third-party script integrations
+
+### README files
+
+Before editing or creating files in any subdirectory (e.g., `packages/*`, `crates/*`), read all `README.md` files in the directory path from the repo root up to and including the target file's directory. This helps identify any local patterns, conventions, and documentation.
+
+**Example:** Before editing `turbopack/crates/turbopack-ecmascript-runtime/js/src/nodejs/runtime/runtime-base.ts`, read:
+
+- `turbopack/README.md` (if exists)
+- `turbopack/crates/README.md` (if exists)
+- `turbopack/crates/turbopack-ecmascript-runtime/README.md` (if exists)
+- `turbopack/crates/turbopack-ecmascript-runtime/js/README.md` (if exists - closest to target file)
+
+## Build Commands
+
+```bash
+# Build the Next.js package
+pnpm --filter=next build
+
+# Build all JS code
+pnpm build
+
+# Build all JS and Rust code
+pnpm build-all
+
+# Run specific task
+pnpm --filter=next exec taskr <task>
+```
+
+## Fast Local Development
+
+For iterative development, default to watch mode + skip-isolate for the inner loop (not full builds), with exceptions noted below.
+
+**Default agent rule:** If you are changing Next.js source or integration tests, start `pnpm --filter=next dev` in a separate terminal session before making edits (unless it is already running). If you skip this, explicitly state why (for example: docs-only, read-only investigation, or CI-only analysis).
+
+**1. Start watch build in background:**
+
+```bash
+# Auto-rebuilds on file changes (~1-2s per change vs ~60s full build)
+# Keep this running while you iterate on code
+pnpm --filter=next dev
+```
+
+**2. Run tests fast (no isolation, no packing):**
+
+```bash
+# NEXT_SKIP_ISOLATE=1 - skip packing Next.js for each test (~100s faster)
+# NEXT_TEST_MODE=<mode> - run dev or start based on the context provided
+# testheadless - runs headless with --runInBand (no worker isolation overhead)
+NEXT_SKIP_ISOLATE=1 NEXT_TEST_MODE=<dev|start> pnpm testheadless test/path/to/test.ts
+```
+
+**3. When done, kill the background watch process (if you started it).**
+
+**For type errors only:** Use `pnpm --filter=next types` (~10s) instead of `pnpm --filter=next build` (~60s).
+
+After the workspace is bootstrapped, prefer `pnpm --filter=next build` when edits are limited to core Next.js files. Use full `pnpm build-all` for branch switches/bootstrap, before CI push, or when changes span multiple packages.
+
+**Always run a full bootstrap build after switching branches:**
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+### .claude/ contents
+
+### .agents/ contents
+FILE: .agents/skills/authoring-skills/SKILL.md (114 lines)
+---
+name: authoring-skills
+description: >
+  How to create and maintain agent skills in .agents/skills/. Use when
+  creating a new SKILL.md, writing skill descriptions, choosing frontmatter
+  fields, or deciding what content belongs in a skill vs AGENTS.md.
+  Covers the supported spec fields, description writing, naming conventions,
+  and the relationship between always-loaded AGENTS.md and on-demand skills.
+user-invocable: false
+---
+
+# Authoring Skills
+
+Use this skill when creating or modifying agent skills in `.agents/skills/`.
+
+## When to Create a Skill
+
+Create a skill when content is:
+
+- Too detailed for AGENTS.md (code templates, multi-step workflows, diagnostic procedures)
+- Only relevant for specific tasks (not needed every session)
+- Self-contained enough to load independently
+
+Keep in AGENTS.md instead when:
+
+- It's a one-liner rule or guardrail every session needs
+- It's a general-purpose gotcha any agent could hit
+
+## File Structure
+
+```
+.agents/skills/
+└── my-skill/
+    ├── SKILL.md          # Required: frontmatter + content
+    ├── workflow.md        # Optional: supplementary detail
+    └── examples.md        # Optional: referenced from SKILL.md
+```
+
+## Supported Frontmatter Fields
+
+```yaml
+---
+name: my-skill # Required. Used for $name references and /name commands.
+description: > # Required. How Claude decides to auto-load the skill.
+  What this covers and when to use it. Include file names and keywords.
+argument-hint: '<pr-number>' # Optional. Hint for expected arguments.
+user-invocable: false # Optional. Set false to hide from / menu.
+disable-model-invocation: true # Optional. Set true to prevent auto-triggering.
+allowed-tools: [Bash, Read] # Optional. Tools allowed without permission.
+model: opus # Optional. Model override.
+---END---
+FILE: .agents/skills/dce-edge/SKILL.md (66 lines)
+---
+name: dce-edge
+description: >
+  DCE-safe require() patterns and edge runtime constraints. Use when writing
+  conditional require() calls, guarding Node-only imports (node:stream etc.),
+  or editing define-env-plugin.ts / app-render / stream-utils for edge builds.
+  Covers if/else branching for webpack DCE, TypeScript definite assignment,
+  the NEXT_RUNTIME vs real feature flag distinction, and forcing flags false
+  for edge in define-env.ts.
+---
+
+# DCE + Edge
+
+Use this skill when changing conditional `require()` paths, Node-only imports, or edge/runtime branching.
+
+## DCE-Safe `require()` Pattern
+
+Webpack only DCEs a `require()` when it sits inside the dead branch of an `if/else` whose condition DefinePlugin can evaluate at compile time.
+
+```ts
+// CORRECT - webpack can eliminate the dead branch
+if (process.env.__NEXT_USE_NODE_STREAMS) {
+  require('node:stream')
+} else {
+  // web path
+}
+```
+
+What does NOT work:
+
+- **Early-return/throw guards**: webpack doesn't do control-flow analysis for throws/returns, so the `require()` is still traced.
+- **Bare `if` without `else`**: works for inline `node:*` specifiers but NOT for `require('./some-module')` that pulls a new file into the module graph.
+
+Always test edge changes with `pnpm test-start-webpack` on `test/e2e/app-dir/app/standalone.test.ts` (has edge routes), not with `NEXT_SKIP_ISOLATE=1` which skips the full webpack compilation.
+
+## TypeScript + DCE Interaction
+
+Use `if/else` (not two independent `if` blocks) when assigning a variable conditionally on `process.env.X`. TypeScript cannot prove exhaustiveness across `if (flag) { x = a }; if (!flag) { x = b }` and will error with "variable used before being assigned". The `if/else` pattern satisfies both TypeScript (definite assignment) and webpack DCE.
+
+## Compile-Time Switcher Pattern
+
+Platform-specific code (node vs web) can use a single `.ts` switcher module that conditionally `require()`s either `.node.ts` or `.web.ts` into a typed variable, then re-exports the shared runtime API as named exports. Keep the branch as `if/else` so DefinePlugin can dead-code-eliminate the unused `require()`. Keep shared types canonical in `.node.ts`, with `.web.ts` importing them via `import type` and the switcher re-exporting types as needed. Examples: `stream-ops.ts` and `debug-channel-server.ts`.
+
+## `NEXT_RUNTIME` Is Not a Feature Flag
+
+In user-project webpack server compilers, `process.env.NEXT_RUNTIME` is inlined to `'nodejs'`. Guarding Node-only `require('node:*')` paths with `NEXT_RUNTIME === 'nodejs'` does **not** prune anything. For feature-gated codepaths, guard on the real feature define (e.g. `process.env.__NEXT_USE_NODE_STREAMS`).
+
+## Edge Runtime Constraints
+
+Edge routes do NOT use pre-compiled runtime bundles. They are compiled by the user's webpack/Turbopack, so `define-env.ts` controls DCE. Feature flags that gate `node:*` imports must be forced to `false` for edge builds in `define-env.ts` (`isEdgeServer ? false : flagValue`), otherwise webpack will try to resolve `node:stream` etc. and fail.
+---END---
+FILE: .agents/skills/flags/SKILL.md (43 lines)
+---
+name: flags
+description: >
+  How to add or modify Next.js experimental feature flags end-to-end.
+  Use when editing config-shared.ts, config-schema.ts, define-env-plugin.ts,
+  next-server.ts, export/worker.ts, or module.compiled.js. Covers type
+  declaration, zod schema, build-time injection, runtime env plumbing,
+  and the decision between runtime env-var branching vs separate bundle variants.
+---
+
+# Feature Flags
+
+Use this skill when adding or changing framework feature flags in Next.js internals.
+
+## Required Wiring
+
+All flags need: `config-shared.ts` (type) → `config-schema.ts` (zod). If the flag is consumed in user-bundled code (client components, edge routes, `app-page.ts` template), also add it to `define-env.ts` for build-time injection. Runtime-only flags consumed exclusively in pre-compiled bundles can skip `define-env.ts`.
+
+## Where the Flag Is Consumed
+
+**Client/bundled code only** (e.g. `__NEXT_PPR` in client components): `define-env.ts` is sufficient. Webpack/Turbopack replaces `process.env.X` at the user's build time.
+
+**Pre-compiled runtime bundles** (e.g. code in `app-render.tsx`): The flag must also be set as a real `process.env` var at runtime, because `app-render.tsx` runs from pre-compiled bundles where `define-env.ts` doesn't reach. Two approaches:
+
+- **Runtime env var**: Set in `next-server.ts` + `export/worker.ts`. Both code paths stay in one bundle. Simple but increases bundle size.
+- **Separate bundle variant**: Add DefinePlugin entry in `next-runtime.webpack-config.js` (scoped to `bundleType === 'app'`), new taskfile tasks, update `module.compiled.js` selector, and still set env var in `next-server.ts` + `export/worker.ts` for bundle selection. Eliminates dead code but adds build complexity.
+
+For runtime flags, also add the field to the `NextConfigRuntime` Pick type in `config-shared.ts`.
+
+## Runtime-Bundle Model
+
+- Runtime bundles are built by `next-runtime.webpack-config.js` (rspack) via `taskfile.js` bundle tasks.
+- Bundle selection occurs at runtime in `src/server/route-modules/app-page/module.compiled.js` based on `process.env` vars.
+- Variants: `{turbo/webpack} × {experimental/stable/nodestreams/experimental-nodestreams} × {dev/prod}` = up to 16 bundles per route type.
+- `define-env.ts` affects user bundling, not pre-compiled runtime internals.
+- `process.env.X` checks in `app-render.tsx` are either replaced by DefinePlugin at runtime-bundle-build time, or read as actual env vars at server startup. They are NOT affected by the user's defines from `define-env.ts`.
+- **Gotcha**: DefinePlugin entries in `next-runtime.webpack-config.js` must be scoped to the correct `bundleType` (e.g. `app` only, not `server`) to avoid replacing assignment targets in `next-server.ts`.
+
+## Related Skills
+
+- `$dce-edge` - DCE-safe require patterns and edge constraints
+- `$react-vendoring` - entry-base boundaries and vendored React
+- `$runtime-debug` - reproduction and verification workflow
+---END---
+FILE: .agents/skills/pr-status-triage/local-repro.md (35 lines)
+# Local Reproduction Guide
+
+## Match CI Job Mode
+
+- Dev-mode failures: use `pnpm test-dev-turbo` or `pnpm test-dev-webpack` based on job mode.
+- Start-mode failures: use `pnpm test-start-turbo` or `pnpm test-start-webpack`.
+
+## Match CI Environment Variables
+
+Read the "Job Environment Variables" section in `index.md` and mirror them locally. Key variables:
+
+- `IS_WEBPACK_TEST=1` — forces webpack mode (turbopack is default locally).
+- `NEXT_SKIP_ISOLATE=1` — skips package isolation; **never use** when verifying module resolution or build-time compilation fixes.
+- Feature flags like `__NEXT_USE_NODE_STREAMS=true`, `__NEXT_CACHE_COMPONENTS=true` change DefinePlugin replacements.
+
+Example: a failure in "test node streams prod" needs:
+
+```bash
+IS_WEBPACK_TEST=1 __NEXT_USE_NODE_STREAMS=true __NEXT_CACHE_COMPONENTS=true NEXT_TEST_MODE=start
+```
+
+## Isolation Rule
+
+When validating module-resolution, entrypoint-export, or internal require-path fixes, rerun without `NEXT_SKIP_ISOLATE=1`.
+
+## One-Run Log Analysis
+
+Capture once, analyze multiple times:
+
+```bash
+HEADLESS=true pnpm test-dev-turbo test/path/to/test.ts > /tmp/test-output.log 2>&1
+grep "●" /tmp/test-output.log
+grep -A5 "Error:" /tmp/test-output.log
+tail -5 /tmp/test-output.log
+```
+---END---
+FILE: .agents/skills/pr-status-triage/SKILL.md (37 lines)
+---
+name: pr-status-triage
+description: >
+  Triage CI failures and PR review comments using scripts/pr-status.js.
+  Use when investigating failing CI jobs, flaky tests, or PR review feedback.
+  Covers blocker-first prioritization (build > lint > types > tests),
+  CI env var matching for local reproduction, and the Known Flaky Tests
+  distinction.
+---
+
+# PR Status Triage
+
+Use this skill when the user asks about PR status, CI failures, or review comments in the Next.js monorepo.
+
+## Workflow
+
+1. Run `node scripts/pr-status.js --wait` in the background (timeout 1 min), then read `scripts/pr-status/index.md`.
+2. Analyze each `job-{id}.md` and `thread-{N}.md` file for failures and review feedback.
+3. Prioritize blocking jobs first: build, lint, types, then test jobs.
+4. Treat failures as real until disproven; check the "Known Flaky Tests" section before calling anything flaky.
+5. Reproduce locally with the same mode and env vars as CI.
+6. After addressing review comments, reply to the thread describing what was done, then resolve it. See `thread-N.md` files for ready-to-use commands.
+7. When the only remaining failures are known flaky tests and no code changes are needed, retrigger the failing CI jobs with `gh run rerun <run-id> --failed`. Then wait 5 minutes and go back to step 1. Repeat this loop up to 5 times.
+
+## Quick Commands
+
+```bash
+node scripts/pr-status.js                  # current branch PR
+node scripts/pr-status.js <number>         # specific PR
+node scripts/pr-status.js [PR] --wait      # background mode, waits for CI to finish
+node scripts/pr-status.js --skip-flaky-check  # skip flaky test detection
+```
+
+## References
+
+- [workflow.md](./workflow.md) — prioritization, common failure patterns, resolving review threads
+- [local-repro.md](./local-repro.md) — mode/env matching and isolation guidance
+---END---
+FILE: .agents/skills/pr-status-triage/workflow.md (44 lines)
+# CI Triage Workflow
+
+## Prioritization Order
+
+1. Build failures
+2. Lint failures
+3. Type failures
+4. Test failures
+5. Review comments (after CI blockers)
+
+## Failure Handling Rules
+
+- Investigate each failing job as if it is caused by the current changes.
+- Do not assume flakiness by default.
+- If the job output has a "Known Flaky Tests" section, use it as historical context, not as automatic dismissal.
+
+## Common Patterns
+
+- `rust check / build`:
+  - Run `cargo fmt -- --check`
+  - Fix with `cargo fmt`
+- `lint / build`:
+  - Run `pnpm prettier --write <file>`
+  - Run the repo lint command if needed
+- test failures:
+  - Run the exact failing test file locally
+  - Match dev vs start mode to the CI job
+
+## Resolving Review Threads
+
+After addressing a review comment (e.g., making the requested code change), or when you detect the current code already addresses it:
+
+1. Reply to the thread describing what action was taken:
+   ```bash
+   node scripts/pr-status.js reply-thread <threadNodeId> "Done -- <description of changes>"
+   ```
+2. Then resolve the thread:
+   ```bash
+   node scripts/pr-status.js resolve-thread <threadNodeId>
+   ```
+
+The ready-to-use commands with the correct thread IDs are at the bottom of each `thread-N.md` file in `scripts/pr-status/`.
+
+**Important:** Always reply with a description of the actions taken before resolving. This gives the reviewer context about what changed.
+---END---
+FILE: .agents/skills/react-vendoring/SKILL.md (70 lines)
+---
+name: react-vendoring
+description: >
+  React vendoring and react-server layer boundaries. Use when editing
+  entry-base.ts, $$compiled.internal.d.ts, compiled/react* packages,
+  or taskfile.js copy_vendor_react. Covers the entry-base.ts boundary
+  (all react-server-dom-webpack/* imports must go through it), vendored
+  React channels, type declarations, Turbopack remap to
+  react-server-dom-turbopack, ComponentMod access patterns, and ESLint
+  suppression for guarded requires.
+---
+
+# React Vendoring
+
+Use this skill for changes touching vendored React, `react-server-dom-webpack/*`, or react-server layer boundaries.
+
+## App Router Vendoring
+
+React is NOT resolved from `node_modules` for App Router. It's vendored into `packages/next/src/compiled/` during `pnpm build` (task: `copy_vendor_react()` in `taskfile.js`). Pages Router resolves React from `node_modules` normally.
+
+- **Two channels**: stable (`compiled/react/`) and experimental (`compiled/react-experimental/`). The runtime bundle webpack config aliases to the correct channel via `makeAppAliases({ experimental })`.
+
+## `entry-base.ts` Boundary
+
+Only `entry-base.ts` is compiled in rspack's `(react-server)` layer. ALL imports from `react-server-dom-webpack/*` (Flight server/static APIs) must go through `entry-base.ts`. Other files like `stream-ops.node.ts` or `app-render.tsx` must access Flight APIs via the `ComponentMod` parameter (which is the `entry-base.ts` module exposed through the `app-page.ts` build template).
+
+Direct imports from `react-server-dom-webpack/server.node` or `react-server-dom-webpack/static` in files outside `entry-base.ts` will fail at runtime with "The react-server condition must be enabled". Dev mode may mask this error, but production workers fail immediately.
+
+## Type Declarations
+
+`packages/next/types/$$compiled.internal.d.ts` contains `declare module` blocks for vendored React packages. When adding new APIs (e.g. `renderToPipeableStream`, `prerenderToNodeStream`), you must add type declarations here. The bare specifier types (e.g. `declare module 'react-server-dom-webpack/server'`) are what source code in `src/` imports against.
+
+## Adding Node.js-Only React APIs
+
+These exist in `.node` builds but not in the type definitions. Steps:
+
+1. Add type declarations to `$$compiled.internal.d.ts`.
+2. Export the API from `entry-base.ts` behind a `process.env` guard.
+3. Access it via `ComponentMod` in other files.
+
+```typescript
+// In entry-base.ts (react-server layer) only:
+/* eslint-disable import/no-extraneous-dependencies */
+export let renderToPipeableStream: ... | undefined
+if (process.env.__NEXT_USE_NODE_STREAMS) {
+  renderToPipeableStream = (
+    require('react-server-dom-webpack/server.node') as typeof import('react-server-dom-webpack/server.node')
+  ).renderToPipeableStream
+} else {
+  renderToPipeableStream = undefined
+---END---
+FILE: .agents/skills/README.md (115 lines)
+# Skills Authoring Guide
+
+Skills are on-demand context files that Claude loads when relevant. They extend `AGENTS.md` with deep-dive workflows, code templates, and verification steps.
+
+## When to Create a Skill
+
+Create a skill when content is:
+- **Too detailed for AGENTS.md** (code templates, multi-step workflows, diagnostic procedures)
+- **Only relevant for specific tasks** (not every session needs it)
+- **Self-contained enough to load independently**
+
+Do NOT create a skill for:
+- One-liner rules or guardrails (keep those in AGENTS.md)
+- Content every agent session needs (that's what AGENTS.md is for)
+- Simple facts without actionable steps
+
+## File Structure
+
+```
+.agents/skills/
+├── my-skill/
+│   └── SKILL.md          # Required: frontmatter + content
+│   └── workflow.md        # Optional: supplementary files
+│   └── examples.md        # Optional: referenced from SKILL.md
+└── README.md              # This file
+```
+
+## SKILL.md Format
+
+```yaml
+---
+name: my-skill
+description: >
+  What this skill covers and when to use it. Include key file names,
+  concepts, and trigger phrases so Claude can match user intent to this
+  skill. This is the primary field Claude uses for auto-activation.
+---
+```
+
+### Supported Frontmatter Fields
+
+| Field | Required | Description |
+|-------|----------|-------------|
+| `name` | Yes | Skill name, used for `$name` references and `/name` slash commands |
+| `description` | Yes | What the skill does and when to use it. **This is how Claude decides to auto-load the skill.** Include file names, concepts, and keywords. |
+| `argument-hint` | No | Hint for expected arguments in autocomplete |
+| `user-invocable` | No | Set to `false` to hide from `/` slash command menu |
+| `disable-model-invocation` | No | Set to `true` to prevent Claude from auto-triggering this skill |
+| `allowed-tools` | No | Tools Claude can use without permission when this skill is active |
+| `model` | No | Model override for this skill |
+---END---
+FILE: .agents/skills/router-act/SKILL.md (274 lines)
+---
+name: router-act
+description: >
+  How to write end-to-end tests using createRouterAct and LinkAccordion.
+  Use when writing or modifying tests that need to control the timing of
+  internal Next.js requests (like prefetches) or assert on their responses.
+  Covers the act API, fixture patterns, prefetch control via LinkAccordion,
+  fake clocks, and avoiding flaky testing patterns.
+user-invocable: false
+---
+
+# Router Act Testing
+
+Use this skill when writing or modifying tests that involve prefetch requests, client router navigations, or the segment cache. The `createRouterAct` utility from `test/lib/router-act.ts` lets you assert on prefetch and navigation responses in an end-to-end way without coupling to the exact number of requests or the protocol details. This is why most client router-related tests use this pattern.
+
+## When NOT to Use `act`
+
+Don't bother with `act` if you don't need to instrument the network responses — either to control their timing or to assert on what's included in them. If all you're doing is waiting for some part of the UI to appear after a navigation, regular Playwright helpers like `browser.elementById()`, `browser.elementByCss()`, and `browser.waitForElementByCss()` are sufficient.
+
+## Core Principles
+
+1. **Use `LinkAccordion` to control when prefetches happen.** Never let links be visible outside an `act` scope.
+2. **Prefer `'no-requests'`** whenever the data should be served from cache. This is the strongest assertion — it proves the cache is working.
+3. **Avoid retry/polling timers.** The `act` utility exists specifically to replace inherently flaky patterns like `retry()` loops or `setTimeout` waits for network activity. If you find yourself wanting to poll, you're probably not using `act` correctly.
+4. **Avoid the `block` feature.** It's prone to false negatives. Prefer `includes` and `'no-requests'` assertions instead.
+
+## Act API
+
+### Config Options
+
+```typescript
+// Assert NO router requests are made (data served from cache).
+// Prefer this whenever possible — it's the strongest assertion.
+await act(async () => { ... }, 'no-requests')
+
+// Expect at least one response containing this substring
+await act(async () => { ... }, { includes: 'Page content' })
+
+// Expect multiple responses (checked in order)
+await act(async () => { ... }, [
+  { includes: 'First response' },
+  { includes: 'Second response' },
+])
+
+// Assert the same content appears in two separate responses
+await act(async () => { ... }, [
+  { includes: 'Repeated content' },
+  { includes: 'Repeated content' },
+])
+
+---END---
+FILE: .agents/skills/runtime-debug/SKILL.md (54 lines)
+---
+name: runtime-debug
+description: >
+  Debug and verification workflow for runtime-bundle and module-resolution
+  regressions. Use when diagnosing unexpected module inclusions, bundle
+  size regressions, or CI failures related to NEXT_SKIP_ISOLATE, nft.json
+  traces, or runtime bundle selection (module.compiled.js). Covers CI env
+  mirroring, full stack traces via __NEXT_SHOW_IGNORE_LISTED, route trace
+  inspection, and webpack stats diffing.
+---
+
+# Runtime Debug
+
+Use this skill when reproducing runtime-bundle, module-resolution, or user-bundle inclusion regressions.
+
+## Local Repro Discipline
+
+- Mirror CI env vars when reproducing CI failures.
+- Key variables: `IS_WEBPACK_TEST=1` forces webpack (turbopack is default), `NEXT_SKIP_ISOLATE=1` skips packing next.js.
+- For module-resolution validation, always rerun without `NEXT_SKIP_ISOLATE=1`.
+
+## Stack Trace Visibility
+
+Set `__NEXT_SHOW_IGNORE_LISTED=true` to disable the ignore-list filtering in dev server error output. By default, Next.js collapses internal frames to `at ignore-listed frames`, which hides useful context when debugging framework internals. Defined in `packages/next/src/server/patch-error-inspect.ts`.
+
+## User-Bundle Regression Guardrail
+
+When user `next build` starts bundling internal Node-only helpers unexpectedly:
+
+1. Inspect route trace artifacts (`.next/server/.../page.js.nft.json`).
+2. Inspect traced server chunks for forbidden internals (e.g. `next/dist/server/stream-utils/node-stream-helpers.js`, `node:stream/promises`).
+3. Add a `test-start-webpack` assertion that reads the route trace and traced server chunks, and fails on forbidden internals. This validates user-project bundling (not publish-time runtime bundling).
+
+## Bundle Tracing / Inclusion Proof
+
+To prove what user bundling includes, emit webpack stats from the app's `next.config.js`:
+
+```js
+// next.config.js
+module.exports = {
+  webpack(config) {
+    config.profile = true
+    return config
+  },
+}
+```
+
+Then use `stats.toJson({ modules: true, chunks: true, reasons: true })` and diff `webpack-stats-server.json` between modes. This gives concrete inclusion reasons (e.g. which module required `node:stream/promises`) and is more reliable than analyzer HTML alone.
+
+## Related Skills
+---END---
+FILE: .agents/skills/update-docs/references/CODE-TO-DOCS-MAPPING.md (136 lines)
+# Code to Documentation Mapping
+
+Maps Next.js source code directories to their corresponding documentation files.
+
+## Core Mappings
+
+### Components
+
+| Source Path                                      | Documentation Path                                      |
+| ------------------------------------------------ | ------------------------------------------------------- |
+| `packages/next/src/client/components/image.tsx`  | `docs/01-app/03-api-reference/02-components/image.mdx`  |
+| `packages/next/src/client/components/link.tsx`   | `docs/01-app/03-api-reference/02-components/link.mdx`   |
+| `packages/next/src/client/components/script.tsx` | `docs/01-app/03-api-reference/02-components/script.mdx` |
+| `packages/next/src/client/components/form.tsx`   | `docs/01-app/03-api-reference/02-components/form.mdx`   |
+
+### Functions
+
+| Source Path                                          | Documentation Path                                                |
+| ---------------------------------------------------- | ----------------------------------------------------------------- |
+| `packages/next/src/server/request/`                  | `docs/01-app/03-api-reference/04-functions/`                      |
+| `packages/next/src/server/lib/metadata/`             | `docs/01-app/03-api-reference/04-functions/generate-metadata.mdx` |
+| `packages/next/src/client/components/navigation.tsx` | `docs/01-app/03-api-reference/04-functions/use-router.mdx`        |
+| `packages/next/src/client/components/navigation.tsx` | `docs/01-app/03-api-reference/04-functions/use-pathname.mdx`      |
+| `packages/next/src/client/components/navigation.tsx` | `docs/01-app/03-api-reference/04-functions/use-search-params.mdx` |
+
+### File Conventions
+
+| Source Path                                | Documentation Path                                            |
+| ------------------------------------------ | ------------------------------------------------------------- |
+| `packages/next/src/build/webpack/loaders/` | `docs/01-app/03-api-reference/03-file-conventions/`           |
+| `packages/next/src/server/app-render/`     | `docs/01-app/03-api-reference/03-file-conventions/layout.mdx` |
+| `packages/next/src/server/app-render/`     | `docs/01-app/03-api-reference/03-file-conventions/page.mdx`   |
+
+### Configuration
+
+| Source Path                                 | Documentation Path                                          |
+| ------------------------------------------- | ----------------------------------------------------------- |
+| `packages/next/src/server/config-shared.ts` | `docs/01-app/03-api-reference/05-config/01-next-config-js/` |
+| `packages/next/src/server/config.ts`        | `docs/01-app/03-api-reference/05-config/01-next-config-js/` |
+| `packages/next/src/build/webpack-config.ts` | `docs/01-app/03-api-reference/05-config/01-next-config-js/` |
+
+### Directives
+
+| Source Path                              | Documentation Path                                          |
+| ---------------------------------------- | ----------------------------------------------------------- |
+| `packages/next/src/server/use-cache/`    | `docs/01-app/03-api-reference/01-directives/use-cache.mdx`  |
+| `packages/next/src/client/use-client.ts` | `docs/01-app/03-api-reference/01-directives/use-client.mdx` |
+| `packages/next/src/server/use-server.ts` | `docs/01-app/03-api-reference/01-directives/use-server.mdx` |
+
+### Metadata File Conventions
+---END---
+FILE: .agents/skills/update-docs/references/DOC-CONVENTIONS.md (236 lines)
+# Next.js Documentation Conventions
+
+Complete reference for frontmatter schema, code block formatting, and MDX component usage.
+
+## Frontmatter Schema
+
+All MDX files must start with YAML frontmatter enclosed in `---` delimiters.
+
+### Required Fields
+
+| Field         | Description                                 | Example                                          |
+| ------------- | ------------------------------------------- | ------------------------------------------------ |
+| `title`       | Page title for SEO and headings (2-3 words) | `title: Image Component`                         |
+| `description` | Brief description (1-2 sentences)           | `description: Optimize images using next/image.` |
+
+### Optional Fields
+
+| Field       | Description                                        | Example                                      |
+| ----------- | -------------------------------------------------- | -------------------------------------------- |
+| `nav_title` | Shorter title for navigation sidebar               | `nav_title: Image`                           |
+| `source`    | Pull content from another page (avoid duplication) | `source: app/api-reference/components/image` |
+| `related`   | Next steps section with related links              | See below                                    |
+| `version`   | Development stage indicator                        | `version: experimental`                      |
+
+### Related Links Format
+
+```yaml
+---
+title: My Feature
+description: Description here.
+related:
+  title: Next Steps
+  description: Learn more about related features.
+  links:
+    - app/api-reference/components/image
+    - app/guides/optimizing/images
+---
+```
+
+### Version Field Values
+
+- `experimental` - Experimental feature, may change
+- `legacy` - Legacy feature, consider alternatives
+- `unstable` - Unstable API, not recommended for production
+- `RC` - Release candidate
+
+## Code Block Conventions
+
+### Basic Syntax
+
+---END---
+FILE: .agents/skills/update-docs/SKILL.md (264 lines)
+---
+name: update-docs
+description: This skill should be used when the user asks to "update documentation for my changes", "check docs for this PR", "what docs need updating", "sync docs with code", "scaffold docs for this feature", "document this feature", "review docs completeness", "add docs for this change", "what documentation is affected", "docs impact", or mentions "docs/", "docs/01-app", "docs/02-pages", "MDX", "documentation update", "API reference", ".mdx files". Provides guided workflow for updating Next.js documentation based on code changes.
+---
+
+# Next.js Documentation Updater
+
+Guides you through updating Next.js documentation based on code changes on the active branch. Designed for maintainers reviewing PRs for documentation completeness.
+
+## Quick Start
+
+1. **Analyze changes**: Run `git diff canary...HEAD --stat` to see what files changed
+2. **Identify affected docs**: Map changed source files to documentation paths
+3. **Review each doc**: Walk through updates with user confirmation
+4. **Validate**: Run `pnpm lint` to check formatting
+5. **Commit**: Stage documentation changes
+
+## Workflow: Analyze Code Changes
+
+### Step 1: Get the diff
+
+```bash
+# See all changed files on this branch
+git diff canary...HEAD --stat
+
+# See changes in specific areas
+git diff canary...HEAD -- packages/next/src/
+```
+
+### Step 2: Identify documentation-relevant changes
+
+Look for changes in these areas:
+
+| Source Path                            | Likely Doc Impact           |
+| -------------------------------------- | --------------------------- |
+| `packages/next/src/client/components/` | Component API reference     |
+| `packages/next/src/server/`            | Function API reference      |
+| `packages/next/src/shared/lib/`        | Varies by export            |
+| `packages/next/src/build/`             | Configuration or build docs |
+| `packages/next/src/lib/`               | Various features            |
+
+### Step 3: Map to documentation files
+
+Use the code-to-docs mapping in `references/CODE-TO-DOCS-MAPPING.md` to find corresponding documentation files.
+
+Example mappings:
+
+- `src/client/components/image.tsx` → `docs/01-app/03-api-reference/02-components/image.mdx`
+- `src/server/config-shared.ts` → `docs/01-app/03-api-reference/05-config/`
+
+---END---
+FILE: .agents/skills/v8-jit/SKILL.md (440 lines)
+---
+name: v8-jit
+description: >
+  V8 JIT optimization patterns for writing high-performance JavaScript in
+  Next.js server internals. Use when writing or reviewing hot-path code in
+  app-render, stream-utils, routing, caching, or any per-request code path.
+  Covers hidden classes / shapes, monomorphic call sites, inline caches,
+  megamorphic deopt, closure allocation, array packing, and profiling with
+  --trace-opt / --trace-deopt.
+user-invocable: false
+---
+
+# V8 JIT Optimization
+
+Use this skill when writing or optimizing performance-critical code paths in
+Next.js server internals — especially per-request hot paths like rendering,
+streaming, routing, and caching.
+
+## Background: V8's Tiered Compilation
+
+V8 compiles JavaScript through multiple tiers:
+
+1. **Ignition** (interpreter) — executes bytecode immediately.
+2. **Sparkplug** — fast baseline compiler (no optimization).
+3. **Maglev** — mid-tier optimizing compiler.
+4. **Turbofan** — full optimizing compiler (speculative, type-feedback-driven).
+
+Code starts in Ignition and is promoted to higher tiers based on execution
+frequency and collected type feedback. Turbofan produces the fastest machine
+code but **bails out (deopts)** when assumptions are violated at runtime.
+
+The key principle: **help V8 make correct speculative assumptions by keeping
+types, shapes, and control flow predictable.**
+
+## Hidden Classes (Shapes / Maps)
+
+Every JavaScript object has an internal "hidden class" (V8 calls it a _Map_,
+the spec calls it a _Shape_). Objects that share the same property names, added
+in the same order, share the same hidden class. This enables fast property
+access via inline caches.
+
+### Initialize All Properties in Constructors
+
+```ts
+// GOOD — consistent shape, single hidden class transition chain
+class RequestContext {
+  url: string
+  method: string
+  headers: Record<string, string>
+  startTime: number
+---END---
+FILE: .agents/skills/write-api-reference/SKILL.md (139 lines)
+---
+name: write-api-reference
+description: |
+  Produces API reference documentation for Next.js APIs: functions, components, file conventions, directives, and config options.
+
+  **Auto-activation:** User asks to write, create, or draft an API reference page. Also triggers on paths like `docs/01-app/03-api-reference/`, or keywords like "API reference", "props", "parameters", "returns", "signature".
+
+  **Input sources:** Next.js source code, existing API reference pages, or user-provided specifications.
+
+  **Output type:** A markdown (.mdx) API reference page with YAML frontmatter, usage example, reference section, behavior notes, and examples.
+agent: Plan
+context: fork
+---
+
+# Writing API Reference Pages
+
+## Goal
+
+Produce an API reference page that documents a single API surface (function, component, file convention, directive, or config option). The page should be concise, scannable, and example-driven.
+
+Each page documents **one API**. If the API has sub-methods (like `cookies.set()`), document them on the same page. If two APIs are independent, they get separate pages.
+
+## Structure
+
+Identify which category the API belongs to, then follow the corresponding template.
+
+### Categories
+
+1. **Function** (`cookies`, `fetch`, `generateStaticParams`): signature, params/returns, methods table, examples
+2. **Component** (`Link`, `Image`, `Script`): props summary table, individual prop docs, examples
+3. **File convention** (`page`, `layout`, `route`): definition, code showing the convention, props, behavior, examples
+4. **Directive** (`use client`, `use cache`): definition, usage, serialization/boundary rules, reference
+5. **Config option** (`basePath`, `images`, etc.): definition, config code, behavioral sections
+
+### Template
+
+````markdown
+---
+title: {API name}
+description: {API Reference for the {API name} {function|component|file convention|directive|config option}.}
+---
+
+{One sentence defining what it does and where it's used.}
+
+```tsx filename="path/to/file.tsx" switcher
+// Minimal working usage
+```
+
+```jsx filename="path/to/file.js" switcher
+// Same example in JS
+---END---
+FILE: .agents/skills/write-guide/SKILL.md (116 lines)
+---
+name: write-guide
+description: |
+  Generates technical guides that teach real-world use cases through progressive examples.
+
+  **Auto-activation:** User asks to write, create, or draft a guide or tutorial. Also use when converting feature documentation, API references, or skill knowledge into step-by-step learning content.
+
+  **Input sources:** Feature skills, API documentation, existing code examples, or user-provided specifications.
+
+  **Output type:** A markdown guide with YAML frontmatter, introduction, 2-4 progressive steps, and next steps section.
+agent: Plan
+context: fork
+---
+
+# Writing Guides
+
+## Goal
+
+Produce a technical guide that teaches a real-world use case through progressive examples. Concepts are introduced only when the reader needs them.
+
+Each guide solves **one specific problem**. Not a category of problems. If the outline has 5+ steps or covers multiple approaches, split it.
+
+## Structure
+
+Every guide follows this arc: introduction, example setup, 2-5 progressive steps, next steps.
+
+Each step follows this loop: working code → new requirement → friction → explanation → resolution → observable proof.
+
+Sections: introduction (no heading, 2 paragraphs max), `## Example` (what we're building + source link), `### Step N` (action-oriented titles, 2-4 steps), `## Next steps` (summary + related links).
+
+Headings should tell a story on their own. If readers only saw the headings, they'd understand the guide's takeaway.
+
+### Template
+
+````markdown
+---
+title: {Action-oriented, e.g., "Building X" or "How to Y"}
+description: {One sentence}
+nav_title: {Short title for navigation}
+---
+
+{What the reader will accomplish and why it matters. The friction and how this approach resolves it. 2 paragraphs max.}
+
+## Example
+
+As an example, we'll build {what we're building}.
+
+We'll start with {step 1}, then {step 2}, and {step 3}.
+
+{Source code link.}
+---END---
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+apps
+bench
+Cargo.lock
+Cargo.toml
+CLAUDE.md
+CODE_OF_CONDUCT.md
+conductor.json
+contributing
+contributing.md
+crates
+docs
+errors
+eslint.cli.config.mjs
+eslint.config.mjs
+evals
+examples
+jest.config.js
+jest.config.turbopack.js
+lerna.json
+license.md
+lint-staged.config.js
+package.json
+packages
+patches
+pnpm-lock.yaml
+pnpm-workspace.yaml
+readme.md
+release.js
+rspack
+run-evals.js
+run-tests.js
+rust-toolchain.toml
+scripts
+sgconfig.yml
+socket.yaml
+test
+test-config-errors
+test-file.txt
+tsconfig.json
+tsconfig-tsec.json
+tsec-exemptions.json
+turbo
+turbo.json
+turbopack
+UPGRADING.md
+vercel.json
+
+### README
+
+## Dependencies
+FILE: package.json
+{
+  "name": "nextjs-project",
+  "version": "0.0.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "new-error": "turbo gen error",
+    "new-test": "turbo gen test",
+    "clean": "lerna clean -y && lerna run clean && lerna exec 'node ../../scripts/rm.mjs dist'",
+    "build": "turbo run build --remote-cache-timeout 60 --summarize true",
+    "build-all": "turbo run build build-native-auto --remote-cache-timeout 60 --summarize true",
+    "lerna": "lerna",
+    "dev": "turbo run dev --parallel --filter=\"!@next/bundle-analyzer-ui\"",
+    "bench:render-pipeline": "tsx bench/render-pipeline/benchmark.ts",
+    "bench:render-pipeline:analyze": "tsx bench/render-pipeline/analyze-profiles.ts",
+    "pack-next": "tsx scripts/pack-next.ts",
+    "eval": "node run-evals.js",
+    "test-types": "tsc",
+    "test-unit": "jest test/unit/ packages/next/ packages/font",
+    "test-dev-inner": "cross-env NEXT_TEST_MODE=dev pnpm testheadless",
+    "test-dev": "pnpm run test-dev-webpack",
+    "test-dev-webpack": "pnpm run with-webpack pnpm test-dev-inner",
+    "test-dev-experimental-inner": "pnpm run with-experimental pnpm test-dev-inner",
+    "test-dev-experimental": "pnpm run test-dev-experimental-webpack",
+    "test-dev-experimental-webpack": "pnpm run with-webpack pnpm test-dev-experimental-inner",
+    "test-dev-rspack": "pnpm run with-rspack pnpm run test-dev-inner",
+    "test-dev-experimental-rspack": "pnpm run with-rspack pnpm run test-dev-experimental-inner",
+    "test-dev-turbo": "pnpm run with-turbo pnpm test-dev-inner",
+    "test-dev-experimental-turbo": "pnpm run with-turbo pnpm run with-experimental pnpm test-dev-inner",
+    "test-start-inner": "cross-env NEXT_TEST_MODE=start pnpm testheadless",
+    "test-start": "pnpm run test-start-webpack",
+    "test-start-webpack": "pnpm run with-webpack pnpm run test-start-inner",
+    "test-start-experimental-inner": "pnpm run with-experimental pnpm test-start-inner",
+    "test-start-experimental": "pnpm run test-start-experimental-webpack",
+    "test-start-experimental-webpack": "pnpm run with-webpack pnpm run test-start-experimental-inner",
+    "test-start-rspack": "pnpm run with-rspack pnpm run test-start-inner",
+    "test-start-experimental-rspack": "pnpm run with-rspack pnpm run test-start-experimental-inner",
+    "test-start-turbo": "pnpm run with-turbo pnpm test-start-inner",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+Cargo.lock: EXISTS
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+.node-version: v20
+
+## Tests
+test_file_count: 1887
+ci_workflow_count: 33
+build_and_deploy.yml
+build_and_test.yml
+build_reusable.yml
+code_freeze.yml
+create_release_branch.yml
+deploy_docs.yml
+graphite_ci_optimizer.yml
+integration_tests_reusable.yml
+issue_lock.yml
+issue_stale.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+FILE: .husky/pre-commit
+pnpm lint-staged
+---END---
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.mjs: EXISTS
+.prettierrc.json: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "dev": "turbo run dev --parallel --filter=\"!@next/bundle-analyzer-ui\"",
+### tsconfig.json
+{
+  "compilerOptions": {
+    "noEmit": true,
+    "strict": false,
+    "allowJs": true,
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "target": "ESNext",
+    "moduleResolution": "node",
+    "types": ["react", "jest", "node", "trusted-types", "jest-extended"],
+    "paths": {
+      "development-sandbox": ["./test/lib/development-sandbox"],
+      "next-test-utils": ["./test/lib/next-test-utils"],
+      "next-webdriver": ["./test/lib/next-webdriver"],
+      "e2e-utils": ["./test/lib/e2e-utils"],
+      "e2e-utils/*": ["./test/lib/e2e-utils/*"],
+      "test-data-service/*": ["./test/lib/test-data-service/*"],
+      "test-log": ["./test/lib/test-log"],
+      "router-act": ["./test/lib/router-act"],
+      "@next/playwright": ["./packages/next-playwright/src/index.ts"]
+    }
+  },
+  "include": [
+    "run-tests.js",
+    "test/**/*.test.ts",
+    "test/**/*.test.tsx",
+    "test/**/*.util.ts",
+    "test/e2e/app-dir/use-cache-custom-handler/*.js",
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 256
+### Largest source files
+  44564 total
+   2247 ./turbopack/crates/turbopack-tests/tests/snapshot/debug-ids/browser/output/1i9t_crates_turbopack-tests_tests_snapshot_debug-ids_browser_input_index_19boa0e.js
+   2245 ./turbopack/crates/turbopack-tests/tests/snapshot/workers/shared/output/1i9t_crates_turbopack-tests_tests_snapshot_workers_shared_input_worker_1xw116u.js
+   2245 ./turbopack/crates/turbopack-tests/tests/snapshot/workers/shared/output/1i9t_crates_turbopack-tests_tests_snapshot_workers_shared_input_index_0arnewp.js
+   2245 ./turbopack/crates/turbopack-tests/tests/snapshot/workers/basic/output/1i9t_crates_turbopack-tests_tests_snapshot_workers_basic_input_worker_0yr5fg0.js
+   2245 ./turbopack/crates/turbopack-tests/tests/snapshot/workers/basic/output/1i9t_crates_turbopack-tests_tests_snapshot_workers_basic_input_index_09-gc7x.js
+   2245 ./turbopack/crates/turbopack-tests/tests/snapshot/runtime/default_dev_runtime/output/0rv8_turbopack-tests_tests_snapshot_runtime_default_dev_runtime_input_index_17smy-b.js
+   1898 ./turbopack/crates/turbopack-tests/tests/snapshot/swc_transforms/preset_env/output/0rv8_turbopack-tests_tests_snapshot_swc_transforms_preset_env_input_index_04jskxh.js
+   1701 ./turbopack/crates/turbopack-tests/tests/snapshot/debug-ids/node/output/[turbopack]_runtime.js
+   1529 ./scripts/pr-status.js
+   1261 ./turbopack/crates/turbopack/src/lib.rs
+
+=== END SIGNALS ===

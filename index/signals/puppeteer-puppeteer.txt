@@ -1,0 +1,170 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/puppeteer-puppeteer
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+CHANGELOG.md
+docker
+docs
+eslint.config.mjs
+eslint.types.config.mjs
+examples
+Herebyfile.mjs
+LICENSE
+package.json
+package-lock.json
+packages
+puppeteer.config.cjs
+README.md
+release-please-config.json
+SECURITY.md
+test
+test-d
+tools
+tsconfig.base.json
+tsdoc.json
+versions.json
+website
+
+### README
+FILE: README.md
+# Puppeteer
+
+[![build](https://github.com/puppeteer/puppeteer/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/puppeteer/puppeteer/actions/workflows/ci.yml)
+[![npm puppeteer package](https://img.shields.io/npm/v/puppeteer.svg)](https://npmjs.org/package/puppeteer)
+
+<img src="https://user-images.githubusercontent.com/10379601/29446482-04f7036a-841f-11e7-9872-91d1fc2ea683.png" height="200" align="right"/>
+
+> Puppeteer is a JavaScript library which provides a high-level API to control
+> Chrome or Firefox over the
+> [DevTools Protocol](https://chromedevtools.github.io/devtools-protocol/) or [WebDriver BiDi](https://pptr.dev/webdriver-bidi).
+> Puppeteer runs in the headless (no visible UI) by default
+
+## [Get started](https://pptr.dev/docs) | [API](https://pptr.dev/api) | [FAQ](https://pptr.dev/faq) | [Contributing](https://pptr.dev/contributing) | [Troubleshooting](https://pptr.dev/troubleshooting)
+
+## Installation
+
+```bash npm2yarn
+npm i puppeteer # Downloads compatible Chrome during installation.
+npm i puppeteer-core # Alternatively, install as a library, without downloading Chrome.
+```
+
+## MCP
+
+Install [`chrome-devtools-mcp`](https://github.com/ChromeDevTools/chrome-devtools-mcp),
+a Puppeteer-based MCP server for browser automation and debugging.
+
+## Example
+
+```ts
+import puppeteer from 'puppeteer';
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "puppeteer-repo",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/puppeteer/puppeteer"
+  },
+  "type": "module",
+  "scripts": {
+    "build": "wireit",
+    "build:tools": "wireit",
+    "check": "npm run check --workspaces --if-present",
+    "clean": "npm run clean --workspaces --if-present",
+    "debug": "mocha --inspect-brk",
+    "docs": "wireit",
+    "doctest": "wireit",
+    "format": "wireit",
+    "format:eslint": "wireit",
+    "format:expectations": "node tools/sort-test-expectations.mjs",
+    "format:prettier": "prettier --write --cache . ",
+    "lint": "wireit",
+    "lint:eslint": "wireit",
+    "lint:prettier": "prettier --check --cache .",
+    "lint:expectations": "node tools/sort-test-expectations.mjs --lint",
+    "postinstall": "npm run postinstall --workspaces --if-present",
+    "prepare": "npm run prepare --workspaces --if-present",
+    "test": "wireit",
+    "test-install": "npm run test --workspace @puppeteer-test/installation",
+    "test-types": "wireit",
+    "test:chrome": "wireit",
+    "test:chrome:bidi": "wireit",
+    "test:chrome:bidi-only": "wireit",
+    "test:chrome:headful": "wireit",
+    "test:chrome:headless": "wireit",
+    "test:chrome:shell": "wireit",
+    "test:chrome:pipe": "wireit",
+    "test:firefox": "wireit",
+    "test:firefox:headful": "wireit",
+    "test:firefox:headless": "wireit",
+    "validate-licenses": "node --experimental-strip-types tools/third_party/validate-licenses.ts",
+---END---
+### Lock files
+package-lock.json: EXISTS
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+.nvmrc: v22
+
+## Tests
+test_file_count: 123
+ci_workflow_count: 12
+changed-packages.yml
+ci.yml
+convetional-commit.yml
+daily.yml
+deflake.yml
+devtools.yml
+pre-release.yml
+publish.yml
+release-please.yml
+scorecards-analysis.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.mjs: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### Determinism
+sleep_pattern_count_in_tests: 7
+### Largest source files
+  92687 total
+   3290 ./packages/puppeteer-core/src/api/Page.ts
+   2566 ./test/src/page.spec.ts
+   1751 ./packages/puppeteer-core/src/common/Device.ts
+   1666 ./packages/puppeteer-core/src/api/ElementHandle.ts
+   1632 ./packages/puppeteer-core/src/cdp/NetworkManager.test.ts
+   1628 ./tools/docgen/src/custom_markdown_documenter.ts
+   1369 ./packages/puppeteer-core/src/cdp/Page.ts
+   1249 ./test/src/elementhandle.spec.ts
+   1212 ./packages/puppeteer-core/src/bidi/Page.ts
+   1203 ./packages/puppeteer-core/src/api/Frame.ts
+
+=== END SIGNALS ===

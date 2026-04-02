@@ -1,0 +1,266 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/gohugoio-hugo
+
+## Agent Documentation
+FILE: CLAUDE.md (1 lines)
+@AGENTS.md
+---END---
+FILE: AGENTS.md (17 lines)
+* Brevity is good.
+* Assume that the maintainers and readers of the code you write are Go experts:
+   * Don't use comments to explain the obvious.
+   * Use self-explanatory variable and function names.
+   * Use short variable names when the context is clear.
+* If you need to add temporary debug printing, use `hdebug.Printf`.[^1]
+* Never export symbols that's not needed outside of the package.
+* Avoid global state at (almost) all cost.
+* This is a project with a long history; assume that a similiar problem has been solved before, look hard for helper functions before creating new ones.
+* In tests, use `qt` matchers (e.g. `b.Assert(err, qt.ErrorMatches, ...)`) instead of raw `if`/`t.Fatal` checks.
+* In tests, always use the latest Hugo specification, e.g. for layouts, it's `layouts/page.html` and not `layouts/_default/single.html`, `layouts/list.html` and not `layouts/_default/list.html`
+* Brevity is good. This applies to code, comments and commit messages. Don't write a novel.
+* Use `./check.sh ./somepackage/...` when iterating.
+* Use `./check.sh` when you're done.
+
+
+[^1]: CI build fail if you forget to remove the debug printing.
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+FILE: docs/AGENTS.md (25 lines)
+## Theme
+
+### Role
+You are an expert front-end and Tailwind CSS developer. Your primary goal is to build reliable, readable, and scalable user interfaces using the existing project structure and design system.
+
+### Directives
+*   **ALWAYS** use existing Tailwind utility classes for styling.
+*   **NEVER** write raw CSS in `.css` files unless absolutely necessary for a non-utility-based global reset.
+*   **NEVER** use inline styles (e.g., `<div style="...">`).
+
+### Project Knowledge
+
+*  **Tech Stack:** Hugo (static site generator), AlpineJS, Tailwind CSS. Icons from https://heroicons.com/.
+*  **Core Files and Directories:**
+   - `hugo.toml`: Hugo configuration file.
+   - `assets/css/styles.css`: Main CSS file with Tailwind directives.
+   - `assets/js/main.js`: Main JavaScript with AlpineJS configuration.
+   - `package.json`: Project dependencies and scripts.
+   - `content/`: Directory for markdown content files.
+   - `layouts/`: Directory for Hugo templates and partials.
+   - `layouts/_partials/icons.html`: SVG icon sprites.
+
+
+
+
+---END---
+FILE: docs/CLAUDE.md (0 lines)
+@AGENTS.md---END---
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+bufferpool
+cache
+check_gofmt.sh
+check.sh
+CLAUDE.md
+codegen
+commands
+common
+compare
+config
+CONTRIBUTING.md
+create
+deploy
+deps
+Dockerfile
+docs
+docshelper
+go.mod
+go.sum
+helpers
+htesting
+hugofs
+hugolib
+hugoreleaser.env
+hugoreleaser.yaml
+identity
+internal
+langs
+LICENSE
+livereload
+magefile.go
+main.go
+main_test.go
+main_withdeploy_off_test.go
+main_withdeploy_test.go
+markup
+media
+merge-release.sh
+metrics
+minifiers
+modules
+navigation
+output
+parser
+publisher
+pull-docs.sh
+README.md
+related
+releaser
+resources
+scripts
+SECURITY.md
+snap
+source
+testscripts
+tpl
+transform
+watcher
+watchtestscripts.sh
+
+### README
+FILE: README.md
+[bep]: https://github.com/bep
+[bugs]: https://github.com/gohugoio/hugo/issues?q=is%3Aopen+is%3Aissue+label%3ABug
+[contributing]: CONTRIBUTING.md
+[create a proposal]: https://github.com/gohugoio/hugo/issues/new?labels=Proposal%2C+NeedsTriage&template=feature_request.md
+[documentation repository]: https://github.com/gohugoio/hugoDocs
+[documentation]: https://gohugo.io/documentation
+[dragonfly bsd, freebsd, netbsd, and openbsd]: https://gohugo.io/installation/bsd
+[features]: https://gohugo.io/about/features/
+[forum]: https://discourse.gohugo.io
+[friends]: https://github.com/gohugoio/hugo/graphs/contributors
+[go]: https://go.dev/
+[hugo modules]: https://gohugo.io/hugo-modules/
+[installation]: https://gohugo.io/installation
+[issue queue]: https://github.com/gohugoio/hugo/issues
+[linux]: https://gohugo.io/installation/linux
+[macos]: https://gohugo.io/installation/macos
+[prebuilt binary]: https://github.com/gohugoio/hugo/releases/latest
+[requesting help]: https://discourse.gohugo.io/t/requesting-help/9132
+[spf13]: https://github.com/spf13
+[static site generator]: https://en.wikipedia.org/wiki/Static_site_generator
+[support]: https://discourse.gohugo.io
+[themes]: https://themes.gohugo.io/
+[website]: https://gohugo.io
+[windows]: https://gohugo.io/installation/windows
+
+<a href="https://gohugo.io/"><img src="https://raw.githubusercontent.com/gohugoio/gohugoioTheme/master/static/images/hugo-logo-wide.svg?sanitize=true" alt="Hugo" width="565"></a>
+
+A fast and flexible static site generator built with love by [bep], [spf13], and [friends] in [Go].
+
+---
+---END---
+
+## Dependencies
+FILE: go.mod
+module github.com/gohugoio/hugo
+
+require (
+	github.com/BurntSushi/locker v0.0.0-20171006230638-a6e239ea1c69
+	github.com/JohannesKaufmann/html-to-markdown/v2 v2.5.0
+	github.com/alecthomas/chroma/v2 v2.23.1
+	github.com/aws/aws-sdk-go-v2 v1.41.1
+	github.com/aws/aws-sdk-go-v2/service/cloudfront v1.59.0
+	github.com/bep/clocks v0.5.0
+	github.com/bep/debounce v1.2.0
+	github.com/bep/gitmap v1.9.0
+	github.com/bep/goat v0.5.0
+	github.com/bep/godartsass/v2 v2.5.0
+	github.com/bep/golibsass v1.2.0
+	github.com/bep/golocales v0.1.0
+	github.com/bep/goportabletext v0.1.0
+	github.com/bep/helpers v0.8.0
+	github.com/bep/imagemeta v0.17.0
+	github.com/bep/lazycache v0.8.1
+	github.com/bep/logg v0.4.0
+	github.com/bep/mclib v1.20400.20402
+	github.com/bep/overlayfs v0.10.0
+	github.com/bep/simplecobra v0.7.0
+	github.com/bep/textandbinarywriter v0.1.0
+	github.com/bep/tmc v0.6.0
+	github.com/bits-and-blooms/bitset v1.24.4
+	github.com/cespare/xxhash/v2 v2.3.0
+	github.com/clbanning/mxj/v2 v2.7.0
+	github.com/dustin/go-humanize v1.0.1
+	github.com/evanw/esbuild v0.27.4
+	github.com/fatih/color v1.18.0
+	github.com/fortytw2/leaktest v1.3.0
+	github.com/frankban/quicktest v1.14.6
+	github.com/fsnotify/fsnotify v1.9.0
+	github.com/getkin/kin-openapi v0.134.0
+	github.com/gobuffalo/flect v1.0.3
+	github.com/gobwas/glob v0.2.3
+	github.com/goccy/go-yaml v1.19.2
+	github.com/gohugoio/gift v0.2.0
+	github.com/gohugoio/go-i18n/v2 v2.1.3-0.20251018145728-cfcc22d823c6
+---END---
+### Lock files
+go.sum: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 377
+ci_workflow_count: 3
+image.yml
+stale.yml
+test.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 210 lines
+>**Note:** We would appreciate if you hold on with any big refactoring (like renaming deprecated Go packages), mainly because of potential for extra merge work for future coming in in the near future.
+
+# Contributing to Hugo
+
+We welcome contributions to Hugo of any kind including documentation, themes,
+organization, tutorials, blog posts, bug reports, issues, feature requests,
+feature implementations, pull requests, answering questions on the forum,
+helping to manage issues, etc.
+
+The Hugo community and maintainers are [very active](https://github.com/gohugoio/hugo/pulse/monthly) and helpful, and the project benefits greatly from this activity. We created a [step by step guide](https://gohugo.io/tutorials/how-to-contribute-to-hugo/) if you're unfamiliar with GitHub or contributing to open source projects in general.
+
+*Note that this repository only contains the actual source code of Hugo. For **only** documentation-related pull requests / issues please refer to the [hugoDocs](https://github.com/gohugoio/hugoDocs) repository.*
+
+*Changes to the codebase **and** related documentation, e.g. for a new feature, should still use a single pull request.*
+
+## Table of Contents
+
+* [Asking Support Questions](#asking-support-questions)
+* [Reporting Issues](#reporting-issues)
+* [Submitting Patches](#submitting-patches)
+---END---
+
+## Scalability
+no env-based port config found
+app_type: Go binary
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 4
+### Largest source files
+ 214565 total
+   3795 ./livereload/livereload.js
+   2221 ./tpl/internal/go_templates/htmltemplate/escape_test.go
+   2210 ./tpl/tplimpl/templatestore.go
+   2062 ./hugolib/page_test.go
+   2057 ./hugolib/config_test.go
+   2018 ./tpl/internal/go_templates/texttemplate/exec_test.go
+   1860 ./tpl/internal/go_templates/htmltemplate/exec_test.go
+   1786 ./hugolib/site.go
+   1759 ./internal/warpc/genwebp/deps/parson/parson.c
+   1748 ./hugolib/sitesmatrix/sitematrix_integration_test.go
+
+=== END SIGNALS ===

@@ -1,0 +1,82 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/2dust-v2rayN
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+LICENSE
+package-debian.sh
+package-osx.sh
+package-release-zip.sh
+package-rhel.sh
+README.md
+v2rayN
+
+### README
+FILE: README.md
+# v2rayN
+
+A GUI client for Windows, Linux and macOS, support [Xray](https://github.com/XTLS/Xray-core)
+and [sing-box](https://github.com/SagerNet/sing-box)
+and [others](https://github.com/2dust/v2rayN/wiki/List-of-supported-cores)
+
+[![GitHub commit activity](https://img.shields.io/github/commit-activity/m/2dust/v2rayN)](https://github.com/2dust/v2rayN/commits/master)
+[![CodeFactor](https://www.codefactor.io/repository/github/2dust/v2rayn/badge)](https://www.codefactor.io/repository/github/2dust/v2rayn)
+[![GitHub Releases](https://img.shields.io/github/downloads/2dust/v2rayN/latest/total?logo=github)](https://github.com/2dust/v2rayN/releases)
+[![Chat on Telegram](https://img.shields.io/badge/Chat%20on-Telegram-brightgreen.svg)](https://t.me/v2rayn)
+
+## How to use
+
+Read the [Wiki](https://github.com/2dust/v2rayN/wiki) for details.
+
+## Telegram Channel
+
+[github_2dust](https://t.me/github_2dust)
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 0
+ci_workflow_count: 6
+build-all.yml
+build-linux.yml
+build-osx.yml
+build-windows-desktop.yml
+build-windows.yml
+winget-publish.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+0
+
+=== END SIGNALS ===

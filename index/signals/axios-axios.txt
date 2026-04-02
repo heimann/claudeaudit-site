@@ -1,0 +1,304 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/axios-axios
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (312 lines)
+# Axios Library - GitHub Copilot Instructions
+
+## Project Overview
+
+Axios is a promise-based HTTP client for the browser and Node.js. It provides a simple, elegant API for making HTTP requests with features like interceptors, request/response transformation, automatic JSON data handling, and request cancellation.
+
+## Core Architecture
+
+### Module Structure
+
+- **ES6 Modules**: The library uses ES6 import/export syntax throughout
+- **Platform Abstraction**: Code is organized to support both browser and Node.js environments via the `platform/` directory
+- **Adapter Pattern**: HTTP requests are handled through adapters (XHR, HTTP, Fetch) selected based on the environment
+
+### Key Components
+
+#### 1. Core Classes (`lib/core/`)
+
+- **Axios**: Main class that manages request dispatching and interceptor chains
+- **AxiosError**: Custom error class with standardized error codes (ERR_NETWORK, ETIMEDOUT, etc.)
+- **AxiosHeaders**: Manages HTTP headers with case-insensitive access and normalization
+- **InterceptorManager**: Handles request/response interceptors with synchronous/asynchronous support
+
+#### 2. Adapters (`lib/adapters/`)
+
+- **xhr.js**: XMLHttpRequest adapter for browsers
+- **http.js**: Node.js HTTP/HTTPS adapter
+- **fetch.js**: Fetch API adapter
+- Adapters are selected automatically based on environment capabilities
+
+#### 3. Utilities (`lib/utils.js`)
+
+- Comprehensive type checking functions (isArray, isObject, isString, etc.)
+- Object manipulation utilities (merge, extend, forEach)
+- Platform-agnostic helper functions
+- Uses functional programming patterns with pure functions
+
+#### 4. Helpers (`lib/helpers/`)
+
+- URL building and parameter serialization
+- Form data handling and conversion
+- Progress event management
+- Request/response transformation utilities
+
+## Coding Conventions
+
+### Code Style
+
+1. **Strict Mode**: Always use `'use strict';` at the top of files
+2. **Function Documentation**: Use JSDoc comments for all public functions with @param and @returns tags
+3. **Import Style**: Use named imports from relative paths with `.js` extension
+4. **Error Handling**: Always use AxiosError with appropriate error codes
+5. **Null Checks**: Use explicit checks (`=== null`, `!== undefined`) rather than truthy/falsy checks where precision matters
+
+### Naming Conventions
+
+- **Classes**: PascalCase (e.g., `Axios`, `AxiosError`, `InterceptorManager`)
+- **Functions**: camelCase (e.g., `buildURL`, `mergeConfig`, `dispatchRequest`)
+- **Constants**: UPPER_SNAKE_CASE for error codes (e.g., `ERR_NETWORK`, `ETIMEDOUT`)
+- **Private symbols**: Use Symbol for internal properties (e.g., `$internals`)
+- **Helper functions**: Prefix with underscore for internal helpers (e.g., `_request`)
+
+### Error Handling Patterns
+
+```javascript
+// Always use AxiosError for library errors
+throw new AxiosError(message, code, config, request, response);
+
+// Predefined error codes
+AxiosError.ERR_BAD_REQUEST;
+AxiosError.ERR_NETWORK;
+AxiosError.ETIMEDOUT;
+AxiosError.ECONNABORTED;
+AxiosError.ERR_CANCELED;
+```
+
+### Configuration Patterns
+
+- Use `mergeConfig()` to combine configuration objects
+- Support both function and object forms for serializers
+- Validate options using the `validator` helper
+- Apply defaults from `lib/defaults/index.js`
+
+## Important Design Patterns
+
+### 1. Interceptor Chain Pattern
+
+```javascript
+// Interceptors execute in a specific order:
+// Request interceptors (last registered -> first registered)
+// Actual request
+// Response interceptors (first registered -> last registered)
+
+// Support both synchronous and asynchronous interceptors
+interceptors.request.use(onFulfilled, onRejected, {
+  synchronous: false,
+  runWhen: (config) => config.custom === true,
+});
+```
+
+---END---
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+bower.json
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+COLLABORATOR_GUIDE.md
+CONTRIBUTING.md
+CONTRIBUTORS.md
+ECOSYSTEM.md
+eslint.config.js
+examples
+gulpfile.js
+index.d.cts
+index.d.ts
+index.js
+lib
+LICENSE
+MIGRATION_GUIDE.md
+package.json
+package-lock.json
+README.md
+rollup.config.js
+sandbox
+scripts
+SECURITY.md
+tests
+tsconfig.json
+tslint.json
+vitest.config.js
+webpack.config.js
+
+### README
+FILE: README.md
+<h3 align="center"> 💎 Platinum sponsors <br> </h3> <table align="center"><tr><td align="center" width="50%"> <a href="https://thanks.dev/?utm_source&#x3D;axios&amp;utm_medium&#x3D;sponsorlist&amp;utm_campaign&#x3D;sponsorship" style="padding: 10px; display: inline-block" target="_blank"> <img width="90px" height="90px" src="https://axios-http.com/assets/sponsors/opencollective/ed51c2ee8f1b70aa3484d6dd678652134079a036.png" alt="THANKS.DEV"/> </a> <p align="center" title="We&#x27;re passionate about making open source sustainable. Scan your dependancy tree to better understand which open source projects need funding the most. Maintainers can also register their projects to become eligible for funding.">We&#x27;re passionate about making open source sustainable. Scan your dependancy tree to better understand which open source projects need funding the...</p> <p align="center"> <a href="https://thanks.dev/?utm_source&#x3D;axios&amp;utm_medium&#x3D;readme_sponsorlist&amp;utm_campaign&#x3D;sponsorship" target="_blank"><b>thanks.dev</b></a> </p>
+</td><td align="center" width="50%"> <a href="https://opencollective.com/axios/contribute" target="_blank" >💜 Become a sponsor</a>
+</td></tr></table>
+<h3 align="center"> 🥇 Gold sponsors <br> </h3> <table align="center" width="100%"><tr width="33.333333333333336%"><td align="center" width="33.333333333333336%"> <a href="https://www.principal.com/about-us?utm_source&#x3D;axios&amp;utm_medium&#x3D;sponsorlist&amp;utm_campaign&#x3D;sponsorship" style="padding: 10px; display: inline-block" target="_blank"> <img width="133px" height="43px" src="https://axios-http.com/assets/sponsors/principal.svg" alt="Principal Financial Group"/> </a> <p align="center" title="We’re bound by one common purpose: to give you the financial tools, resources and information you need to live your best life.">We’re bound by one common purpose: to give you the financial tools, resources and information you ne...</p> <p align="center"> <a href="https://www.principal.com/about-us?utm_source&#x3D;axios&amp;utm_medium&#x3D;readme_sponsorlist&amp;utm_campaign&#x3D;sponsorship" target="_blank"><b>www.principal.com</b></a> </p>
+</td><td align="center" width="33.333333333333336%"> <a href="https://twicsy.com/buy-instagram-followers?utm_source&#x3D;axios&amp;utm_medium&#x3D;sponsorlist&amp;utm_campaign&#x3D;sponsorship" style="padding: 10px; display: inline-block" target="_blank"> <img width="85px" height="70px" src="https://axios-http.com/assets/sponsors/opencollective/dfa9670ad5e66eea17315332453c7f4e3a3b5905.png" alt="Buy Instagram Followers Twicsy"/> </a> <p align="center" title="Buy real Instagram followers from Twicsy starting at only $2.97. Twicsy has been voted the best site to buy followers from the likes of US Magazine.">Buy real Instagram followers from Twicsy starting at only $2.97. Twicsy has been voted the best site...</p> <p align="center"> <a href="https://twicsy.com/buy-instagram-followers?utm_source&#x3D;axios&amp;utm_medium&#x3D;readme_sponsorlist&amp;utm_campaign&#x3D;sponsorship" target="_blank"><b>twicsy.com</b></a> </p>
+</td><td align="center" width="33.333333333333336%"> <a href="https://www.descope.com/?utm_source&#x3D;axios&amp;utm_medium&#x3D;referral&amp;utm_campaign&#x3D;axios-oss-sponsorship" style="padding: 10px; display: inline-block" target="_blank"> <picture> <source width="200px" height="52px" media="(prefers-color-scheme: dark)" srcset="https://axios-http.com/assets/sponsors/descope_white.png"> <img width="200px" height="52px" src="https://axios-http.com/assets/sponsors/descope.png" alt="Descope"/> </picture> </a> <p align="center" title="Hi, we&#x27;re Descope! We are building something in the authentication space for app developers and can’t wait to place it in your hands.">Hi, we&#x27;re Descope! We are building something in the authentication space for app developers and...</p> <p align="center"> <a href="https://www.descope.com/?utm_source&#x3D;axios&amp;utm_medium&#x3D;referral&amp;utm_campaign&#x3D;axios-oss-sponsorship" target="_blank"><b>Website</b></a> | <a href="https://docs.descope.com/?utm_source&#x3D;axios&amp;utm_medium&#x3D;referral&amp;utm_campaign&#x3D;axios-oss-sponsorship" target="_blank"><b>Docs</b></a> | <a href="https://www.descope.com/community?utm_source&#x3D;axios&amp;utm_medium&#x3D;referral&amp;utm_campaign&#x3D;axios-oss-sponsorship" target="_blank"><b>Community</b></a> </p>
+</td></tr><tr width="33.333333333333336%"><td align="center" width="33.333333333333336%"> <a href="https://route4me.com/?utm_source&#x3D;axios&amp;utm_medium&#x3D;sponsorlist&amp;utm_campaign&#x3D;sponsorship" style="padding: 10px; display: inline-block" target="_blank"> <picture> <source width="200px" height="51px" media="(prefers-color-scheme: dark)" srcset="https://axios-http.com/assets/sponsors/route4me_white.png"> <img width="200px" height="51px" src="https://axios-http.com/assets/sponsors/route4me.png" alt="Route4Me"/> </picture> </a> <p align="center" title="Best Route Planning And Route Optimization Software">Best Route Planning And Route Optimization Software</p> <p align="center"> <a href="https://route4me.com/platform/route-optimization-software?utm_source&#x3D;axios&amp;utm_medium&#x3D;readme_sponsorlist&amp;utm_campaign&#x3D;sponsorship" target="_blank"><b>Explore</b></a> | <a href="https://route4me.com/platform/marketplace/pricing?utm_source&#x3D;axios&amp;utm_medium&#x3D;readme_sponsorlist&amp;utm_campaign&#x3D;sponsorship" target="_blank"><b>Free Trial</b></a> | <a href="https://route4me.com/contact?utm_source&#x3D;axios&amp;utm_medium&#x3D;readme_sponsorlist&amp;utm_campaign&#x3D;sponsorship" target="_blank"><b>Contact</b></a> </p>
+</td><td align="center" width="33.333333333333336%"> <a href="https://buzzoid.com/buy-instagram-followers/?utm_source&#x3D;axios&amp;utm_medium&#x3D;sponsorlist&amp;utm_campaign&#x3D;sponsorship" style="padding: 10px; display: inline-block" target="_blank"> <img width="62px" height="70px" src="https://axios-http.com/assets/sponsors/opencollective/e1625cb54e10ee40180c99d1495a462e9d6664a4.png" alt="Buzzoid - Buy Instagram Followers"/> </a> <p align="center" title="At Buzzoid, you can buy Instagram followers quickly, safely, and easily with just a few clicks. Rated world&#x27;s #1 IG service since 2012.">At Buzzoid, you can buy Instagram followers quickly, safely, and easily with just a few clicks. Rate...</p> <p align="center"> <a href="https://buzzoid.com/buy-instagram-followers/?utm_source&#x3D;axios&amp;utm_medium&#x3D;readme_sponsorlist&amp;utm_campaign&#x3D;sponsorship" target="_blank"><b>buzzoid.com</b></a> </p>
+</td><td align="center" width="33.333333333333336%"> <a href="https://poprey.com/?utm_source&#x3D;axios&amp;utm_medium&#x3D;sponsorlist&amp;utm_campaign&#x3D;sponsorship" style="padding: 10px; display: inline-block" target="_blank"> <img width="70px" height="70px" src="https://axios-http.com/assets/sponsors/opencollective/e699ec99f7df3a203ddbc49d3c7712a907e628ea.png" alt="Poprey - Buy Instagram Likes"/> </a> <p align="center" title="Buy Instagram Likes">Buy Instagram Likes</p> <p align="center"> <a href="https://poprey.com/?utm_source&#x3D;axios&amp;utm_medium&#x3D;readme_sponsorlist&amp;utm_campaign&#x3D;sponsorship" target="_blank"><b>poprey.com</b></a> </p>
+</td></tr><tr width="33.333333333333336%"><td align="center" width="33.333333333333336%"> <a href="https://requestly.com/?utm_source&#x3D;axios&amp;utm_medium&#x3D;sponsorlist&amp;utm_campaign&#x3D;sponsorship" style="padding: 10px; display: inline-block" target="_blank"> <img width="71px" height="70px" src="https://axios-http.com/assets/sponsors/opencollective/16450b4dc0deb9dab5a511bf2bc8b8b4ac33412f.png" alt="Requestly"/> </a> <p align="center" title="A lightweight open-source API Development, Testing &amp; Mocking platform">A lightweight open-source API Development, Testing &amp; Mocking platform</p> <p align="center"> <a href="https://requestly.com/?utm_source&#x3D;axios&amp;utm_medium&#x3D;readme_sponsorlist&amp;utm_campaign&#x3D;sponsorship" target="_blank"><b>requestly.com</b></a> </p>
+</td><td align="center" width="33.333333333333336%"> <a href="https://opencollective.com/axios/contribute" target="_blank" >💜 Become a sponsor</a>
+</td><td align="center" width="33.333333333333336%"> <a href="https://opencollective.com/axios/contribute" target="_blank" >💜 Become a sponsor</a>
+</td></tr></table>
+
+<!--<div>marker</div>-->
+
+<br><br>
+
+<div align="center">
+   <a href="https://axios-http.com"><img src="https://axios-http.com/assets/logo.svg" alt="Axios" /></a><br>
+</div>
+
+<p align="center">Promise based HTTP client for the browser and node.js</p>
+
+<p align="center">
+    <a href="https://axios-http.com/"><b>Website</b></a> •
+    <a href="https://axios-http.com/docs/intro"><b>Documentation</b></a>
+</p>
+
+<div align="center">
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "axios",
+  "version": "1.14.0",
+  "description": "Promise based HTTP client for the browser and node.js",
+  "main": "./dist/node/axios.cjs",
+  "module": "./index.js",
+  "type": "module",
+  "types": "index.d.ts",
+  "jsdelivr": "dist/axios.min.js",
+  "unpkg": "dist/axios.min.js",
+  "typings": "./index.d.ts",
+  "exports": {
+    ".": {
+      "types": {
+        "require": "./index.d.cts",
+        "default": "./index.d.ts"
+      },
+      "bun": {
+        "require": "./dist/node/axios.cjs",
+        "default": "./index.js"
+      },
+      "react-native": {
+        "require": "./dist/browser/axios.cjs",
+        "default": "./dist/esm/axios.js"
+      },
+      "browser": {
+        "require": "./dist/browser/axios.cjs",
+        "default": "./index.js"
+      },
+      "default": {
+        "require": "./dist/node/axios.cjs",
+        "default": "./index.js"
+      }
+    },
+    "./lib/adapters/http.js": "./lib/adapters/http.js",
+    "./lib/adapters/xhr.js": "./lib/adapters/xhr.js",
+    "./unsafe/*": "./lib/*",
+    "./unsafe/core/settle.js": "./lib/core/settle.js",
+    "./unsafe/core/buildFullPath.js": "./lib/core/buildFullPath.js",
+    "./unsafe/helpers/isAbsoluteURL.js": "./lib/helpers/isAbsoluteURL.js",
+---END---
+### Lock files
+package-lock.json: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 100
+ci_workflow_count: 6
+moderator.yml
+publish.yml
+release-branch.yml
+run-ci.yml
+update-sponsor-block.yml
+zizmor.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.js: EXISTS
+.prettierrc: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 50 lines
+# Contributing
+
+We are open to, and grateful for, any contributions made by the community. By contributing to axios, you agree to abide by the [code of conduct](https://github.com/axios/axios/blob/master/CODE_OF_CONDUCT.md).
+
+## Code Style
+
+Please follow the [node style guide](https://github.com/felixge/node-style-guide).
+
+## Commit Messages
+
+Please follow [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
+
+## Testing
+
+Please update the tests to reflect your code changes. Pull requests will not be accepted if they are failing on GitHub actions.
+
+## Documentation
+
+Please update the [documentation](https://axios-http.com/docs/intro) accordingly so that there are no discrepancies between the API and the documentation.
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### tsconfig.json
+{
+  "compilerOptions": {
+    "module": "node16",
+    "lib": ["dom", "es2015"],
+    "types": [],
+    "strict": true,
+    "noEmit": true
+  }
+}
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 63
+### Largest source files
+ 22648 total
+  3723 ./tests/unit/adapters/http.test.js
+   951 ./lib/adapters/http.js
+   919 ./lib/utils.js
+   810 ./index.d.ts
+   745 ./tests/browser/interceptors.browser.test.js
+   724 ./tests/module/esm/tests/helpers/esm-index.ts
+   684 ./tests/unit/adapters/fetch.test.js
+   552 ./tests/module/cjs/tests/helpers/cjs-typing.ts
+   497 ./tests/unit/axiosHeaders.test.js
+   497 ./tests/browser/requests.browser.test.js
+
+=== END SIGNALS ===

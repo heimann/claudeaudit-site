@@ -1,0 +1,147 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/tonsky-FiraCode
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+AUTHORS
+CHANGELOG.md
+classes
+clojure
+deps.edn
+distr
+Dockerfile
+docs
+extras
+features
+FiraCode.glyphs
+googlefonts-qa
+LEEME.md
+LEIAME.md
+LICENSE
+Makefile
+package.json
+README_CN.md
+README_JA.md
+README.md
+requirements.txt
+script
+
+### README
+FILE: README.md
+## Fira Code: free monospaced font with programming ligatures
+
+![Fira Code](./extras/logo.svg)
+
+Read in [Español](./LEEME.md) | [简体中文](./README_CN.md) | [日本語](./README_JA.md) | [Português brasileiro](./LEIAME.md)
+
+### Problem
+
+Programmers use a lot of symbols, often encoded with several characters. For the human brain, sequences like `->`, `<=`, or `:=` are single logical tokens, even if they take two or three characters on the screen. Your eye spends a non-zero amount of energy to scan, parse and join multiple characters into a single logical one. Ideally, all programming languages should be designed with full-fledged Unicode symbols for operators, but that’s not the case yet.
+
+### Solution
+
+Fira Code is a free monospaced font containing ligatures for common programming multi-character combinations. This is just a font rendering feature: underlying code remains ASCII-compatible. This helps to read and understand code faster. For some frequent sequences like `..` or `//`, ligatures allow us to correct spacing.
+
+### Download & Install
+
+<a href="https://github.com/tonsky/FiraCode/releases/download/6.2/Fira_Code_v6.2.zip"><img alt="Fira_Code_v6.2.zip - December 6, 2021 - 2.5 MB" src="./extras/download.png" width="520"></a>
+
+Then:
+
+- [How to Install](https://github.com/tonsky/FiraCode/wiki)
+- [Troubleshooting](https://github.com/tonsky/FiraCode/wiki#troubleshooting)
+- [News & Updates](https://twitter.com/FiraCode)
+
+### What’s in the box?
+
+Left: ligatures as rendered in Fira Code. Right: same character sequences without ligatures.
+
+<img src="./extras/ligatures.png" width="754">
+
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "firacode",
+  "version": "6.2.0",
+  "description": "Fira Code: monospaced font with programming ligatures",
+  "main": "distr/fira_code.css",
+  "keywords": [
+    "font",
+    "Mozilla Fira Type Family",
+    "Fira",
+    "FiraMono"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tonsky/FiraCode.git"
+  },
+  "author": "Nikita Prokopov <niki@tonsky.me>",
+  "license": "OFL-1.1",
+  "bugs": {
+    "url": "https://github.com/tonsky/FiraCode/issues"
+  },
+  "homepage": "https://github.com/tonsky/FiraCode#readme",
+  "files": [
+    "distr"
+  ]
+}
+
+---END---
+### Lock files
+### Setup
+FILE: Makefile (first 30 lines)
+all: build
+
+build:
+	docker run --rm -v ${PWD}:/opt tonsky/firacode:latest ./script/build.sh
+
+package:
+	./script/package.sh
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 0
+ci_workflow_count: 1
+build.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  234 total
+  113 ./googlefonts-qa/scripts/set-vertical-metrics.py
+   85 ./script/release.py
+   20 ./script/update_version.py
+   16 ./script/common.py
+    0 ./googlefonts-qa/scripts/get-version.py
+
+=== END SIGNALS ===

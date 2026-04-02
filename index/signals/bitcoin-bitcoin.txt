@@ -1,0 +1,131 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/bitcoin-bitcoin
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+ci
+cmake
+CMakeLists.txt
+CMakePresets.json
+contrib
+CONTRIBUTING.md
+COPYING
+depends
+doc
+INSTALL.md
+libbitcoinkernel.pc.in
+README.md
+SECURITY.md
+share
+src
+test
+vcpkg.json
+
+### README
+FILE: README.md
+Bitcoin Core integration/staging tree
+=====================================
+
+https://bitcoincore.org
+
+For an immediately usable, binary version of the Bitcoin Core software, see
+https://bitcoincore.org/en/download/.
+
+What is Bitcoin Core?
+---------------------
+
+Bitcoin Core connects to the Bitcoin peer-to-peer network to download and fully
+validate blocks and transactions. It also includes a wallet and graphical user
+interface, which can be optionally built.
+
+Further information about Bitcoin Core is available in the [doc folder](/doc).
+
+License
+-------
+
+Bitcoin Core is released under the terms of the MIT license. See [COPYING](COPYING) for more
+information or see https://opensource.org/license/MIT.
+
+Development Process
+-------------------
+
+The `master` branch is regularly built (see `doc/build-*.md` for instructions) and tested, but it is not guaranteed to be
+completely stable. [Tags](https://github.com/bitcoin/bitcoin/tags) are created
+regularly from release branches to indicate new official, stable release versions of Bitcoin Core.
+
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+.python-version: 3.10.14
+
+## Tests
+test_file_count: 52
+ci_workflow_count: 1
+ci.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 456 lines
+Contributing to Bitcoin Core
+============================
+
+The Bitcoin Core project operates an open contributor model where anyone is
+welcome to contribute towards development in the form of peer review, testing
+and patches. This document explains the practical process and guidelines for
+contributing.
+
+First, in terms of structure, there is no particular concept of "Bitcoin Core
+developers" in the sense of privileged people. Open source often naturally
+revolves around a meritocracy where contributors earn trust from the developer
+community over time. Nevertheless, some hierarchy is necessary for practical
+purposes. As such, there are repository maintainers who are responsible for
+merging pull requests, the [release cycle](/doc/release-process.md), and
+moderation.
+
+Getting Started
+---------------
+
+New contributors are very welcome and needed.
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 7
+### Largest source files
+  586289 total
+   16456 ./src/secp256k1/src/precomputed_ecmult.c
+    7851 ./src/secp256k1/src/tests.c
+    6729 ./src/qt/locale/bitcoin_en.ts
+    6406 ./src/validation.cpp
+    6219 ./src/net_processing.cpp
+    5277 ./src/qt/locale/bitcoin_uk.ts
+    5225 ./src/qt/locale/bitcoin_ga_IE.ts
+    5220 ./src/qt/locale/bitcoin_ga.ts
+    5206 ./src/qt/locale/bitcoin_fo.ts
+    5185 ./src/qt/locale/bitcoin_eu.ts
+
+=== END SIGNALS ===

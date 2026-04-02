@@ -1,0 +1,346 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/mui-material-ui
+
+## Agent Documentation
+FILE: CLAUDE.md (5 lines)
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+See [AGENTS.md](./AGENTS.md) for codebase documentation.
+---END---
+FILE: AGENTS.md (181 lines)
+# AGENTS.md
+
+This file provides guidance for AI agents working with code in this repository.
+
+## Package Manager
+
+**Only pnpm is supported** (yarn/npm will fail). Use the `-F` flag for workspace operations:
+
+```bash
+pnpm -F @mui/material add some-package    # Add dependency to a package
+pnpm -F @mui/material build               # Build a specific package
+```
+
+Never use `cd` to navigate into package directories for commands.
+
+## Common Commands
+
+### Development
+
+```bash
+pnpm install                  # Install deps if necessary
+pnpm docs:dev                 # Start docs dev server only
+```
+
+### Building
+
+```bash
+pnpm release:build            # Build all packages (except docs)
+pnpm docs:build               # Build documentation site
+```
+
+### Testing
+
+```bash
+pnpm test:unit                # Run all unit tests (jsdom)
+pnpm test:unit ComponentName  # Run tests matching pattern
+pnpm test:unit -t "test name" # Grep for specific test name
+pnpm test:browser             # Run tests in real browsers (Chrome, Firefox, WebKit)
+pnpm test:e2e                 # End-to-end tests
+pnpm test:regressions         # Visual regression tests
+```
+
+### Code Quality
+
+```bash
+pnpm prettier                 # Format staged changes
+pnpm eslint                   # Lint with cache
+pnpm typescript               # Type check all packages
+```
+
+### API Documentation
+
+After changing component props or TypeScript declarations:
+
+```bash
+pnpm proptypes && pnpm docs:api
+```
+
+### Docs demos
+
+Always author the TypeScript version of the demos. To generate the JavaScript variant, run:
+
+```bash
+pnpm docs:typescript:formatted
+```
+
+## Architecture
+
+This is a monorepo managed by Lerna with Nx for caching. Key packages:
+
+- `@mui/material` - Core Material UI components
+- `@mui/system` - Styling system (sx prop, styled, theme)
+- `@mui/lab` - Experimental components (new components go here first)
+- `@mui/icons-material` - Material Design icons
+- `@mui/utils` - Internal utilities
+- `@mui/styled-engine` - CSS-in-JS abstraction (Emotion by default)
+
+Internal packages (not published): `@mui-internal/*`, `@mui/internal-*`
+
+## Code Conventions
+
+### TypeScript
+
+- Use `interface` (not `type`) for component props
+- Export `{ComponentName}Props` interface from component files
+- Path aliases available: `@mui/material` → `./packages/mui-material/src`
+
+### Errors
+
+These guidelines only apply for errors thrown from public packages.
+
+Every error message must:
+
+1. **Say what happened** - Describe the problem clearly
+2. **Say why it's a problem** - Explain the consequence
+3. **Point toward how to solve it** - Give actionable guidance
+
+Format:
+
+<!-- markdownlint-disable MD038 -->
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+babel.config.mjs
+CHANGELOG.md
+CHANGELOG.old.md
+CLAUDE.md
+CONTRIBUTING.md
+crowdin.yml
+dangerfile.js
+docs
+eslint.config.mjs
+examples
+lerna.json
+LICENSE
+netlify
+netlify.toml
+nx.json
+package.json
+packages
+packages-internal
+patches
+pnpm-lock.yaml
+pnpm-workspace.yaml
+prettier.config.mjs
+README.md
+renovate.json
+scripts
+SECURITY.md
+stylelint.config.mjs
+test
+test-results
+tsconfig.json
+TYPESCRIPT_CONVENTION.md
+vercel.json
+vitest.config.mts
+vitest.shared.mts
+webpackBaseConfig.js
+
+### README
+FILE: README.md
+<!-- #host-reference -->
+<!-- markdownlint-disable-next-line -->
+<p align="center">
+  <a href="https://next.mui.com/core/" rel="noopener" target="_blank"><img width="150" height="133" src="https://next.mui.com/static/logo.svg" alt="Material UI logo"></a>
+</p>
+
+<h1 align="center">Material UI</h1>
+
+<div align="center">
+
+[![license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mui/material-ui/blob/HEAD/LICENSE)
+[![npm latest package](https://img.shields.io/npm/v/@mui/material/latest.svg)](https://www.npmjs.com/package/@mui/material)
+[![npm next package](https://img.shields.io/npm/v/@mui/material/next.svg)](https://www.npmjs.com/package/@mui/material)
+[![npm downloads](https://img.shields.io/npm/dm/@mui/material.svg)](https://www.npmjs.com/package/@mui/material)
+[![GitHub branch status](https://img.shields.io/github/checks-status/mui/material-ui/HEAD)](https://github.com/mui/material-ui/commits/HEAD/)
+[![Coverage Status](https://img.shields.io/codecov/c/github/mui/material-ui.svg)](https://app.codecov.io/gh/mui/material-ui/)
+[![Follow on X](https://img.shields.io/twitter/follow/MaterialUI.svg?label=follow+Material+UI)](https://x.com/MaterialUI)
+[![Renovate status](https://img.shields.io/badge/renovate-enabled-brightgreen.svg)](https://github.com/mui/material-ui/issues/27062)
+[![Average time to resolve an issue](https://isitmaintained.com/badge/resolution/mui/material-ui.svg)](https://isitmaintained.com/project/mui/material-ui 'Average time to resolve an issue')
+[![Open Collective backers and sponsors](https://img.shields.io/opencollective/all/mui-org)](https://opencollective.com/mui-org)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/1320/badge)](https://www.bestpractices.dev/projects/1320)
+
+</div>
+
+[Material UI](https://mui.com/material-ui/) is a comprehensive library of React components that features our independent implementation of Google's [Material Design](https://m2.material.io/design/introduction/) system.
+It's trusted by some of the world's greatest product teams because it's been rigorously battle-tested through more than a decade of development by thousands of open-source contributors.
+
+Material UI's core functionality is extended by [MUI X](https://github.com/mui/mui-x), a suite of complex components for advanced use cases.
+
+## Documentation
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "@mui/monorepo",
+  "version": "9.0.0-beta.0",
+  "private": true,
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "proptypes": "tsx ./scripts/generateProptypes.ts",
+    "deduplicate": "pnpm dedupe",
+    "build": "lerna run build --ignore docs",
+    "build:ci": "lerna run build --concurrency 8 --ignore docs --stream --skip-nx-cache",
+    "build:public": "lerna run --no-private build",
+    "build:public:ci": "lerna run --no-private build --concurrency 8 --skip-nx-cache",
+    "release:publish": "code-infra publish --github-release --tag next",
+    "release:publish:dry-run": "code-infra publish --github-release --dry-run --tag next",
+    "release:version": "lerna version --no-changelog --no-push --no-git-tag-version --no-private --force-publish=@mui/core-downloads-tracker",
+    "release:build": "lerna run --concurrency 8 --no-private build --skip-nx-cache",
+    "release:changelog": "node scripts/releaseChangelog.mjs",
+    "release:pack": "tsx scripts/releasePack.mts",
+    "docs:api": "rimraf --glob ./docs/pages/**/api-docs ./docs/pages/**/api && pnpm docs:api:build",
+    "docs:api:build": "tsx ./scripts/buildApiDocs/index.ts",
+    "docs:llms:build": "rimraf --glob ./docs/public/material-ui/ && tsx ./scripts/buildLlmsDocs/index.ts --projectSettings ./packages/api-docs-builder-core/materialUi/projectSettings.ts",
+    "docs:build": "pnpm docs:llms:build && pnpm --filter docs build",
+    "docs:build-sw": "pnpm --filter docs build-sw",
+    "docs:build-color-preview": "babel-node scripts/buildColorTypes",
+    "docs:deploy": "pnpm --filter docs run deploy",
+    "docs:dev": "pnpm --filter docs dev",
+    "docs:icons": "pnpm --filter docs icons",
+    "docs:size-why": "cross-env DOCS_STATS_ENABLED=true pnpm docs:build",
+    "docs:start": "pnpm --filter docs start",
+    "docs:create-playground": "pnpm --filter docs create-playground",
+    "docs:i18n": "cross-env BABEL_ENV=development babel-node --extensions \".tsx,.ts,.js\" ./docs/scripts/i18n.ts",
+    "docs:link-check": "pnpm --filter docs link-check",
+    "docs:typescript": "pnpm docs:typescript:formatted --watch",
+    "docs:typescript:check": "pnpm --filter docs typescript",
+    "docs:typescript:formatted": "tsx ./docs/scripts/formattedTSDemos",
+    "docs:sync-team": "tsx ./docs/scripts/syncTeamMembers.ts && pnpm prettier",
+    "docs:mdicons:synonyms": "cross-env BABEL_ENV=development babel-node --extensions \".tsx,.ts,.js,.mjs\" ./docs/scripts/updateIconSynonyms && pnpm prettier",
+    "docs:zipRules": "cd docs && rm mui-vale.zip && zip -r mui-vale.zip mui-vale && cd ../ && pnpm vale sync",
+    "extract-error-codes": "code-infra extract-error-codes --errorCodesPath docs/public/static/error-codes.json --skip @mui/core-downloads-tracker @mui/envinfo @mui/docs @mui/codemod @mui/icons-material",
+    "template:screenshot": "cross-env BABEL_ENV=development babel-node --extensions \".tsx,.ts,.js\" ./docs/scripts/generateTemplateScreenshots",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 580
+ci_workflow_count: 17
+check-if-pr-has-label.yml
+ci-check.yml
+ci.yml
+closed-issue-message.yml
+codeql.yml
+create-cherry-pick-pr.yml
+ensure-triage-label.yml
+issue-cleanup.yml
+maintenance.yml
+mark-duplicate.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.mjs: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 381 lines
+# Contributing to Material UI and MUI System
+
+If you're reading this, you're awesome!
+Thank you for being a part of the community and helping us make these projects great.
+Here are a few guidelines that will help you along the way.
+
+## Summary
+
+- [Code of conduct](#code-of-conduct)
+- [A large spectrum of contributions](#a-large-spectrum-of-contributions)
+- [Your first pull request](#your-first-pull-request)
+- [Sending a pull request](#sending-a-pull-request)
+  - [Trying changes on the documentation site](#trying-changes-on-the-documentation-site)
+  - [Trying changes on the playground](#trying-changes-on-the-playground)
+  - [How to increase the chances of being accepted](#how-to-increase-the-chances-of-being-accepted)
+  - [CI checks and how to fix them](#ci-checks-and-how-to-fix-them)
+  - [Updating the component API documentation](#updating-the-component-api-documentation)
+  - [Coding style](#coding-style)
+- [Contributing to the documentation](#contributing-to-the-documentation)
+  - [How to find docs issues to work on](#how-to-find-docs-issues-to-work-on)
+---END---
+
+## Scalability
+pnpm-lock.yaml:20362:  jscodeshift-add-imports@1.0.11(jscodeshift@17.1.2(@babel/preset-env@7.29.2(@babel/core@7.29.0))):
+pnpm-lock.yaml:20366:      jscodeshift-find-imports: 2.0.4(jscodeshift@17.1.2(@babel/preset-env@7.29.2(@babel/core@7.29.0)))
+pnpm-lock.yaml:20370:  jscodeshift-find-imports@2.0.4(jscodeshift@17.1.2(@babel/preset-env@7.29.2(@babel/core@7.29.0))):
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### tsconfig.json
+{
+  "compilerOptions": {
+    // aligning with Node18 recommendation: https://www.npmjs.com/package/@tsconfig/node18
+    "target": "es2022",
+    "lib": ["es2020", "dom", "dom.iterable"],
+    "jsx": "react-jsx",
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noEmit": true,
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "noErrorTruncation": false,
+    "allowJs": true,
+    "paths": {
+      "@mui/material": ["./packages/mui-material/src"],
+      "@mui/material/package.json": ["./packages/mui-material/package.json"],
+      "@mui/material/*": ["./packages/mui-material/src/*"],
+      "@mui/lab": ["./packages/mui-lab/src"],
+      "@mui/lab/*": ["./packages/mui-lab/src/*"],
+      "@mui/internal-markdown": ["./packages/markdown"],
+      "@mui/internal-markdown/*": ["./packages/markdown/*"],
+      "@mui/styled-engine": ["./packages/mui-styled-engine/src"],
+      "@mui/styled-engine/*": ["./packages/mui-styled-engine/src/*"],
+      "@mui/styled-engine-sc": ["./packages/mui-styled-engine-sc/src"],
+      "@mui/styled-engine-sc/*": ["./packages/mui-styled-engine-sc/src/*"],
+      "@mui/system": ["./packages/mui-system/src"],
+      "@mui/system/package.json": ["./packages/mui-system/package.json"],
+      "@mui/system/*": ["./packages/mui-system/src/*"],
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 10
+### Largest source files
+ 110472 total
+   3968 ./packages/mui-material/src/Autocomplete/Autocomplete.test.js
+   1989 ./packages/mui-material/src/Select/Select.test.js
+   1728 ./packages/mui-material/src/Slider/Slider.test.js
+   1690 ./packages/mui-material/src/Tabs/Tabs.test.js
+   1583 ./packages/mui-material/src/ButtonBase/ButtonBase.test.js
+   1330 ./packages/mui-material/src/useAutocomplete/useAutocomplete.js
+   1327 ./packages/mui-material/src/Tooltip/Tooltip.test.js
+   1209 ./packages/mui-material/src/Autocomplete/Autocomplete.js
+   1070 ./packages/mui-material/src/Popover/Popover.test.js
+   1067 ./packages/mui-material/src/Slider/Slider.js
+
+=== END SIGNALS ===

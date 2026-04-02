@@ -1,0 +1,158 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/tailwindlabs-tailwindcss
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+Cargo.lock
+Cargo.toml
+CHANGELOG.md
+crates
+integrations
+LICENSE
+package.json
+packages
+patches
+playgrounds
+pnpm-lock.yaml
+pnpm-workspace.yaml
+README.md
+rust-toolchain.toml
+scripts
+turbo.json
+vitest.config.ts
+
+### README
+FILE: README.md
+<p align="center">
+  <a href="https://tailwindcss.com" target="_blank">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/tailwindlabs/tailwindcss/HEAD/.github/logo-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/tailwindlabs/tailwindcss/HEAD/.github/logo-light.svg">
+      <img alt="Tailwind CSS" src="https://raw.githubusercontent.com/tailwindlabs/tailwindcss/HEAD/.github/logo-light.svg" width="350" height="70" style="max-width: 100%;">
+    </picture>
+  </a>
+</p>
+
+<p align="center">
+  A utility-first CSS framework for rapidly building custom user interfaces.
+</p>
+
+<p align="center">
+    <a href="https://github.com/tailwindlabs/tailwindcss/actions"><img src="https://img.shields.io/github/actions/workflow/status/tailwindlabs/tailwindcss/ci.yml?branch=main" alt="Build Status"></a>
+    <a href="https://www.npmjs.com/package/tailwindcss"><img src="https://img.shields.io/npm/dt/tailwindcss.svg" alt="Total Downloads"></a>
+    <a href="https://github.com/tailwindlabs/tailwindcss/releases"><img src="https://img.shields.io/npm/v/tailwindcss.svg" alt="Latest Release"></a>
+    <a href="https://github.com/tailwindlabs/tailwindcss/blob/main/LICENSE"><img src="https://img.shields.io/npm/l/tailwindcss.svg" alt="License"></a>
+</p>
+
+---
+
+## Documentation
+
+For full documentation, visit [tailwindcss.com](https://tailwindcss.com).
+
+## Community
+
+For help, discussion about best practices, or feature ideas:
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "@tailwindcss/root",
+  "private": true,
+  "version": "1.0.0",
+  "prettier": {
+    "semi": false,
+    "singleQuote": true,
+    "printWidth": 100,
+    "plugins": [
+      "prettier-plugin-organize-imports"
+    ],
+    "overrides": [
+      {
+        "files": [
+          "tsconfig.json"
+        ],
+        "options": {
+          "parser": "jsonc"
+        }
+      },
+      {
+        "files": [
+          "integrations/**/*.ts"
+        ],
+        "options": {
+          "plugins": [
+            "prettier-plugin-embed",
+            "prettier-plugin-organize-imports"
+          ]
+        }
+      }
+    ]
+  },
+  "scripts": {
+    "format": "prettier --write .",
+    "lint": "prettier --check . && turbo lint",
+    "build": "turbo build --filter=!./playgrounds/*",
+    "postbuild": "node ./scripts/pack-packages.mjs",
+    "dev": "turbo dev --filter=!./playgrounds/*",
+    "test": "cargo test && vitest run --hideSkippedTests",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+Cargo.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 122
+ci_workflow_count: 5
+ci.yml
+integration-tests.yml
+prepare-release.yml
+release-insiders.yml
+release.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "dev": "turbo dev --filter=!./playgrounds/*",
+### Determinism
+sleep_pattern_count_in_tests: 7
+### Largest source files
+ 141749 total
+  29982 ./packages/tailwindcss/src/utilities.test.ts
+   6689 ./packages/tailwindcss/src/utilities.ts
+   6300 ./packages/tailwindcss/src/index.test.ts
+   4639 ./packages/tailwindcss/src/compat/plugin-api.test.ts
+   3449 ./integrations/upgrade/index.test.ts
+   2908 ./packages/tailwindcss/src/canonicalize-candidates.ts
+   2651 ./packages/tailwindcss/src/variants.test.ts
+   2611 ./integrations/cli/index.test.ts
+   2481 ./crates/ignore/src/walk.rs
+   2272 ./packages/tailwindcss/tests/ui.spec.ts
+
+=== END SIGNALS ===

@@ -1,0 +1,350 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/langchain-ai-langchain
+
+## Agent Documentation
+FILE: CLAUDE.md (253 lines)
+# Global development guidelines for the LangChain monorepo
+
+This document provides context to understand the LangChain Python project and assist with development.
+
+## Project architecture and context
+
+### Monorepo structure
+
+This is a Python monorepo with multiple independently versioned packages that use `uv`.
+
+```txt
+langchain/
+├── libs/
+│   ├── core/             # `langchain-core` primitives and base abstractions
+│   ├── langchain/        # `langchain-classic` (legacy, no new features)
+│   ├── langchain_v1/     # Actively maintained `langchain` package
+│   ├── partners/         # Third-party integrations
+│   │   ├── openai/       # OpenAI models and embeddings
+│   │   ├── anthropic/    # Anthropic (Claude) integration
+│   │   ├── ollama/       # Local model support
+│   │   └── ... (other integrations maintained by the LangChain team)
+│   ├── text-splitters/   # Document chunking utilities
+│   ├── standard-tests/   # Shared test suite for integrations
+│   ├── model-profiles/   # Model configuration profiles
+├── .github/              # CI/CD workflows and templates
+├── .vscode/              # VSCode IDE standard settings and recommended extensions
+└── README.md             # Information about LangChain
+```
+
+- **Core layer** (`langchain-core`): Base abstractions, interfaces, and protocols. Users should not need to know about this layer directly.
+- **Implementation layer** (`langchain`): Concrete implementations and high-level public utilities
+- **Integration layer** (`partners/`): Third-party service integrations. Note that this monorepo is not exhaustive of all LangChain integrations; some are maintained in separate repos, such as `langchain-ai/langchain-google` and `langchain-ai/langchain-aws`. Usually these repos are cloned at the same level as this monorepo, so if needed, you can refer to their code directly by navigating to `../langchain-google/` from this monorepo.
+- **Testing layer** (`standard-tests/`): Standardized integration tests for partner integrations
+
+### Development tools & commands
+
+- `uv` – Fast Python package installer and resolver (replaces pip/poetry)
+- `make` – Task runner for common development commands. Feel free to look at the `Makefile` for available commands and usage patterns.
+- `ruff` – Fast Python linter and formatter
+- `mypy` – Static type checking
+- `pytest` – Testing framework
+
+This monorepo uses `uv` for dependency management. Local development uses editable installs: `[tool.uv.sources]`
+
+Each package in `libs/` has its own `pyproject.toml` and `uv.lock`.
+
+Before running your tests, set up all packages by running:
+
+```bash
+# For all groups
+uv sync --all-groups
+
+# or, to install a specific group only:
+uv sync --group test
+```
+
+```bash
+# Run unit tests (no network)
+make test
+
+# Run specific test file
+uv run --group test pytest tests/unit_tests/test_specific.py
+```
+
+```bash
+# Lint code
+make lint
+
+# Format code
+make format
+
+# Type checking
+uv run --group lint mypy .
+```
+
+#### Key config files
+
+- pyproject.toml: Main workspace configuration with dependency groups
+- uv.lock: Locked dependencies for reproducible builds
+- Makefile: Development tasks
+
+#### Commit standards
+
+Suggest PR titles that follow Conventional Commits format. Refer to .github/workflows/pr_lint for allowed types and scopes. Note that all commit/PR titles should be in lowercase with the exception of proper nouns/named entities. All PR titles should include a scope with no exceptions. For example:
+
+```txt
+feat(langchain): add new chat completion feature
+fix(core): resolve type hinting issue in vector store
+chore(anthropic): update infrastructure dependencies
+```
+
+Note how `feat(langchain)` includes a scope even though it is the main package and name of the repo.
+
+#### Pull request guidelines
+
+- Always add a disclaimer to the PR description mentioning how AI agents are involved with the contribution.
+- Describe the "why" of the changes, why the proposed solution is the right one. Limit prose.
+- Highlight areas of the proposed changes that require careful review.
+
+## Core development principles
+---END---
+FILE: AGENTS.md (253 lines)
+# Global development guidelines for the LangChain monorepo
+
+This document provides context to understand the LangChain Python project and assist with development.
+
+## Project architecture and context
+
+### Monorepo structure
+
+This is a Python monorepo with multiple independently versioned packages that use `uv`.
+
+```txt
+langchain/
+├── libs/
+│   ├── core/             # `langchain-core` primitives and base abstractions
+│   ├── langchain/        # `langchain-classic` (legacy, no new features)
+│   ├── langchain_v1/     # Actively maintained `langchain` package
+│   ├── partners/         # Third-party integrations
+│   │   ├── openai/       # OpenAI models and embeddings
+│   │   ├── anthropic/    # Anthropic (Claude) integration
+│   │   ├── ollama/       # Local model support
+│   │   └── ... (other integrations maintained by the LangChain team)
+│   ├── text-splitters/   # Document chunking utilities
+│   ├── standard-tests/   # Shared test suite for integrations
+│   ├── model-profiles/   # Model configuration profiles
+├── .github/              # CI/CD workflows and templates
+├── .vscode/              # VSCode IDE standard settings and recommended extensions
+└── README.md             # Information about LangChain
+```
+
+- **Core layer** (`langchain-core`): Base abstractions, interfaces, and protocols. Users should not need to know about this layer directly.
+- **Implementation layer** (`langchain`): Concrete implementations and high-level public utilities
+- **Integration layer** (`partners/`): Third-party service integrations. Note that this monorepo is not exhaustive of all LangChain integrations; some are maintained in separate repos, such as `langchain-ai/langchain-google` and `langchain-ai/langchain-aws`. Usually these repos are cloned at the same level as this monorepo, so if needed, you can refer to their code directly by navigating to `../langchain-google/` from this monorepo.
+- **Testing layer** (`standard-tests/`): Standardized integration tests for partner integrations
+
+### Development tools & commands
+
+- `uv` – Fast Python package installer and resolver (replaces pip/poetry)
+- `make` – Task runner for common development commands. Feel free to look at the `Makefile` for available commands and usage patterns.
+- `ruff` – Fast Python linter and formatter
+- `mypy` – Static type checking
+- `pytest` – Testing framework
+
+This monorepo uses `uv` for dependency management. Local development uses editable installs: `[tool.uv.sources]`
+
+Each package in `libs/` has its own `pyproject.toml` and `uv.lock`.
+
+Before running your tests, set up all packages by running:
+
+```bash
+# For all groups
+uv sync --all-groups
+
+# or, to install a specific group only:
+uv sync --group test
+```
+
+```bash
+# Run unit tests (no network)
+make test
+
+# Run specific test file
+uv run --group test pytest tests/unit_tests/test_specific.py
+```
+
+```bash
+# Lint code
+make lint
+
+# Format code
+make format
+
+# Type checking
+uv run --group lint mypy .
+```
+
+#### Key config files
+
+- pyproject.toml: Main workspace configuration with dependency groups
+- uv.lock: Locked dependencies for reproducible builds
+- Makefile: Development tasks
+
+#### Commit standards
+
+Suggest PR titles that follow Conventional Commits format. Refer to .github/workflows/pr_lint for allowed types and scopes. Note that all commit/PR titles should be in lowercase with the exception of proper nouns/named entities. All PR titles should include a scope with no exceptions. For example:
+
+```txt
+feat(langchain): add new chat completion feature
+fix(core): resolve type hinting issue in vector store
+chore(anthropic): update infrastructure dependencies
+```
+
+Note how `feat(langchain)` includes a scope even though it is the main package and name of the repo.
+
+#### Pull request guidelines
+
+- Always add a disclaimer to the PR description mentioning how AI agents are involved with the contribution.
+- Describe the "why" of the changes, why the proposed solution is the right one. Limit prose.
+- Highlight areas of the proposed changes that require careful review.
+
+## Core development principles
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+CITATION.cff
+CLAUDE.md
+libs
+LICENSE
+README.md
+
+### README
+FILE: README.md
+<div align="center">
+  <a href="https://docs.langchain.com/oss/python/langchain/overview">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset=".github/images/logo-dark.svg">
+      <source media="(prefers-color-scheme: light)" srcset=".github/images/logo-light.svg">
+      <img alt="LangChain Logo" src=".github/images/logo-dark.svg" width="50%">
+    </picture>
+  </a>
+</div>
+
+<div align="center">
+  <h3>The agent engineering platform.</h3>
+</div>
+
+<div align="center">
+  <a href="https://opensource.org/licenses/MIT" target="_blank"><img src="https://img.shields.io/pypi/l/langchain" alt="PyPI - License"></a>
+  <a href="https://pypistats.org/packages/langchain" target="_blank"><img src="https://img.shields.io/pepy/dt/langchain" alt="PyPI - Downloads"></a>
+  <a href="https://pypi.org/project/langchain/#history" target="_blank"><img src="https://img.shields.io/pypi/v/langchain?label=%20" alt="Version"></a>
+  <a href="https://x.com/langchain" target="_blank"><img src="https://img.shields.io/twitter/url/https/twitter.com/langchain.svg?style=social&label=Follow%20%40LangChain" alt="Twitter / X"></a>
+</div>
+
+<br>
+
+LangChain is a framework for building agents and LLM-powered applications. It helps you chain together interoperable components and third-party integrations to simplify AI application development — all while future-proofing decisions as the underlying technology evolves.
+
+> [!NOTE]
+> Looking for the JS/TS library? Check out [LangChain.js](https://github.com/langchain-ai/langchainjs).
+
+## Quickstart
+
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 616
+ci_workflow_count: 21
+auto-label-by-package.yml
+check_agents_sync.yml
+check_core_versions.yml
+check_diffs.yml
+close_unchecked_issues.yml
+codspeed.yml
+_compile_integration_test.yml
+integration_tests.yml
+_lint.yml
+pr_labeler_backfill.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.3.0
+    hooks:
+      - id: no-commit-to-branch # prevent direct commits to protected branches
+        args: ["--branch", "master"]
+      - id: check-yaml # validate YAML syntax
+        args: ["--unsafe"] # allow custom tags
+      - id: check-toml # validate TOML syntax
+      - id: end-of-file-fixer # ensure files end with a newline
+      - id: trailing-whitespace # remove trailing whitespace from lines
+        exclude: \.ambr$
+
+  # Text normalization hooks for consistent formatting
+  - repo: https://github.com/sirosen/texthooks
+    rev: 0.6.8
+    hooks:
+      - id: fix-smartquotes # replace curly quotes with straight quotes
+      - id: fix-spaces # replace non-standard spaces (e.g., non-breaking) with regular spaces
+
+  # Per-package format and lint hooks for the monorepo
+  - repo: local
+    hooks:
+      - id: core
+        name: format and lint core
+        language: system
+        entry: make -C libs/core format lint
+        files: ^libs/core/
+        pass_filenames: false
+      - id: langchain
+        name: format and lint langchain
+        language: system
+        entry: make -C libs/langchain format lint
+        files: ^libs/langchain/
+        pass_filenames: false
+      - id: standard-tests
+        name: format and lint standard-tests
+        language: system
+        entry: make -C libs/standard-tests format lint
+        files: ^libs/standard-tests/
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 59
+### Largest source files
+ 152892 total
+   6261 ./libs/core/langchain_core/runnables/base.py
+   5769 ./libs/core/tests/unit_tests/runnables/test_runnable.py
+   3655 ./libs/core/tests/unit_tests/test_tools.py
+   3465 ./libs/standard-tests/langchain_tests/integration_tests/chat_models.py
+   2960 ./libs/core/tests/unit_tests/messages/test_utils.py
+   2942 ./libs/core/tests/unit_tests/indexing/test_indexing.py
+   2910 ./libs/core/tests/unit_tests/runnables/test_runnable_events_v2.py
+   2697 ./libs/core/langchain_core/callbacks/manager.py
+   2353 ./libs/core/langchain_core/messages/utils.py
+   2159 ./libs/core/tests/unit_tests/runnables/test_runnable_events_v1.py
+
+=== END SIGNALS ===

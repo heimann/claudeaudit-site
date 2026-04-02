@@ -1,0 +1,319 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/microsoft-TypeScript
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md (30 lines)
+# 🚨 CRITICAL: This Repository Is in Maintenance Mode 🚨
+
+**You MUST read and follow these instructions before taking any coding action in this repository.**
+
+This repository (`microsoft/TypeScript`) is the JavaScript-based TypeScript compiler and is **effectively closed for general development**. TypeScript 6.0 is the **last JavaScript-based release**. Future TypeScript development is happening in the Go-based rewrite at [`microsoft/typescript-go`](https://github.com/microsoft/typescript-go).
+
+See [issue #62963](https://github.com/microsoft/TypeScript/issues/62963) and the [TypeScript 7.0 progress blog post](https://devblogs.microsoft.com/typescript/progress-on-typescript-7-december-2025/) for full details.
+
+## ❌ DO NOT create coding PRs for this repository
+
+**Unless the user explicitly acknowledges the above and confirms their change falls into one of these narrow accepted categories:**
+
+- Crashes introduced in 5.9 or 6.0 that **also repro in 7.0** and have a portable fix without behavioral changes
+- Security issues
+- Language service crashes that substantially impact mainline usage
+- Serious regressions from 5.9 that impact a large proportion of users
+- Non-disruptive `lib.d.ts` changes
+
+## Required behavior for coding agents
+
+If asked to make code changes or create a PR in this repository, you **MUST**:
+
+1. Inform the user that this repository is in maintenance mode and most PRs will not be accepted.
+2. Ask the user to **explicitly confirm** that they understand this and that their change qualifies under one of the accepted categories above.
+3. **Refuse to proceed** until that acknowledgement is given.
+4. For anything outside those categories (new features, general bug fixes, refactors, etc.), direct the user to [`microsoft/typescript-go`](https://github.com/microsoft/typescript-go) instead.
+
+---
+
+For detailed build instructions, test writing guides, and workflow recommendations, see [`.github/copilot-instructions.md`](.github/copilot-instructions.md).
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (371 lines)
+# 🚨 CRITICAL: This Repository Is in Maintenance Mode 🚨
+
+**You MUST read and follow these instructions before taking any coding action in this repository.**
+
+This repository (`microsoft/TypeScript`) is the JavaScript-based TypeScript compiler and is **effectively closed for general development**. TypeScript 6.0 is the **last JavaScript-based release**. Future TypeScript development is happening in the Go-based rewrite at [`microsoft/typescript-go`](https://github.com/microsoft/typescript-go).
+
+See [issue #62963](https://github.com/microsoft/TypeScript/issues/62963) and the [TypeScript 7.0 progress blog post](https://devblogs.microsoft.com/typescript/progress-on-typescript-7-december-2025/) for full details.
+
+## ❌ DO NOT create coding PRs for this repository
+
+**Unless the user explicitly acknowledges the above and confirms their change falls into one of these narrow accepted categories:**
+
+- Crashes introduced in 5.9 or 6.0 that **also repro in 7.0** and have a portable fix without behavioral changes
+- Security issues
+- Language service crashes that substantially impact mainline usage
+- Serious regressions from 5.9 that impact a large proportion of users
+- Non-disruptive `lib.d.ts` changes
+
+## Required behavior for coding agents
+
+If asked to make code changes or create a PR in this repository, you **MUST**:
+
+1. Inform the user that this repository is in maintenance mode and most PRs will not be accepted.
+2. Ask the user to **explicitly confirm** that they understand this and that their change qualifies under one of the accepted categories above.
+3. **Refuse to proceed** until that acknowledgement is given.
+4. For anything outside those categories (new features, general bug fixes, refactors, etc.), direct the user to [`microsoft/typescript-go`](https://github.com/microsoft/typescript-go) instead.
+
+---
+
+# Guide for Copilot
+
+This document provides a concise guide for writing TypeScript fourslash tests and compiler tests, along with build instructions.
+
+## Build Instructions Summary
+
+### Setup
+1. Install Node.js (current or LTS)
+2. Clone the repository: `git clone --depth=1 https://github.com/microsoft/TypeScript`
+3. Install dependencies: `npm ci`
+
+### Common Build Tasks
+```bash
+npx hereby local             # Build the compiler into built/local
+npx hereby clean             # Delete the built compiler  
+npx hereby tests             # Build the test infrastructure
+npx hereby runtests          # Run all tests
+npx hereby runtests-parallel # Run tests in parallel 🚨 MANDATORY BEFORE FINISHING!
+npx hereby runtests --runner=fourslash # Run only fourslash tests
+npx hereby runtests --runner=compiler # Run only compiler tests
+npx hereby runtests --tests=<testPath> # Run specific test
+npx hereby baseline-accept   # Accept new test baselines
+npx hereby lint              # Run eslint 🚨 MANDATORY BEFORE FINISHING!
+npx hereby format            # Run code formatting 🚨 MANDATORY BEFORE FINISHING!
+```
+
+## Fourslash Test Syntax Guide
+
+Fourslash tests are interactive TypeScript language service tests. They validate IDE features like completions, quick info, navigation, and refactoring.
+
+### Basic Structure
+```typescript
+/// <reference path='fourslash.ts'/>
+
+////code goes here with /*markers*/
+
+// Test assertions go here
+```
+
+### Key Syntax Elements
+
+#### 1. Source Code Definition
+Use `////` to define source code lines:
+```typescript
+////function foo(x: number) {
+////    return x + 1;
+////}
+////let result = foo(/*marker*/42);
+```
+
+#### 2. Markers for Positioning
+Use `/**/` for anonymous markers or `/*name*/` for named markers:
+```typescript
+////let x = /*1*/someValue;
+////let y = /*cursor*/anotherValue;
+```
+
+#### 3. Multi-file Tests
+Use `// @Filename:` to define multiple files:
+```typescript
+// @Filename: /a.ts
+////export const value = 42;
+
+// @Filename: /b.ts  
+////import { value } from './a';
+////console.log(/*marker*/value);
+```
+
+#### 4. Ranges
+Use `[|text|]` to define text ranges:
+```typescript
+---END---
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+azure-pipelines.release-publish.yml
+azure-pipelines.release.yml
+bin
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+eslint.config.mjs
+Herebyfile.mjs
+knip.jsonc
+LICENSE.txt
+package.json
+package-lock.json
+README.md
+scripts
+SECURITY.md
+src
+SUPPORT.md
+tests
+ThirdPartyNoticeText.txt
+
+### README
+FILE: README.md
+# TypeScript
+
+<!-- CODING AGENTS: READ AGENTS.md BEFORE WRITING CODE -->
+
+[![CI](https://github.com/microsoft/TypeScript/actions/workflows/ci.yml/badge.svg)](https://github.com/microsoft/TypeScript/actions/workflows/ci.yml)
+[![npm version](https://badge.fury.io/js/typescript.svg)](https://www.npmjs.com/package/typescript)
+[![Downloads](https://img.shields.io/npm/dm/typescript.svg)](https://www.npmjs.com/package/typescript)
+[![OpenSSF Scorecard](https://api.securityscorecards.dev/projects/github.com/microsoft/TypeScript/badge)](https://securityscorecards.dev/viewer/?uri=github.com/microsoft/TypeScript)
+
+
+[TypeScript](https://www.typescriptlang.org/) is a language for application-scale JavaScript. TypeScript adds optional types to JavaScript that support tools for large-scale JavaScript applications for any browser, for any host, on any OS. TypeScript compiles to readable, standards-based JavaScript. Try it out at the [playground](https://www.typescriptlang.org/play/), and stay up to date via [our blog](https://blogs.msdn.microsoft.com/typescript) and [Twitter account](https://twitter.com/typescript).
+
+Find others who are using TypeScript at [our community page](https://www.typescriptlang.org/community/).
+
+## Installing
+
+For the latest stable version:
+
+```bash
+npm install -D typescript
+```
+
+For our nightly builds:
+
+```bash
+npm install -D typescript@next
+```
+
+## Contribute
+
+---END---
+
+## Dependencies
+FILE: package.json
+{
+    "name": "typescript",
+    "author": "Microsoft Corp.",
+    "homepage": "https://www.typescriptlang.org/",
+    "version": "6.0.0",
+    "license": "Apache-2.0",
+    "description": "TypeScript is a language for application scale JavaScript development",
+    "keywords": [
+        "TypeScript",
+        "Microsoft",
+        "compiler",
+        "language",
+        "javascript"
+    ],
+    "bugs": {
+        "url": "https://github.com/microsoft/TypeScript/issues"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/microsoft/TypeScript.git"
+    },
+    "main": "./lib/typescript.js",
+    "typings": "./lib/typescript.d.ts",
+    "bin": {
+        "tsc": "./bin/tsc",
+        "tsserver": "./bin/tsserver"
+    },
+    "engines": {
+        "node": ">=14.17"
+    },
+    "files": [
+        "bin",
+        "lib",
+        "!lib/enu",
+        "LICENSE.txt",
+        "README.md",
+        "SECURITY.md",
+        "ThirdPartyNoticeText.txt",
+        "!**/.gitattributes"
+    ],
+---END---
+### Lock files
+package-lock.json: EXISTS
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 5
+ci_workflow_count: 18
+accept-baselines-fix-lints.yaml
+ci.yml
+close-issues.yml
+codeql.yml
+copilot-setup-steps.yml
+create-cherry-pick-pr.yml
+insiders.yaml
+lkg.yml
+new-release-branch.yaml
+nightly.yaml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.mjs: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 279 lines
+# Note
+
+<!-- CODING AGENTS: READ AGENTS.md BEFORE WRITING CODE -->
+
+🚨 **Important** 🚨: All code changes should be submitted to the https://github.com/microsoft/typescript-go repo. Development in this codebase [is winding down](https://devblogs.microsoft.com/typescript/progress-on-typescript-7-december-2025/#typescript-6.0-is-the-last-javascript-based-release) and PRs will only be merged if they fix **critical** 6.0 issues (at minimum, any bug that existed in 5.9 is not critical unless it's a security issue).
+
+# Instructions for Logging Issues
+
+## 1. Read the FAQ
+
+Please [read the FAQ](https://github.com/Microsoft/TypeScript/wiki/FAQ) before logging new issues, even if you think you have found a bug.
+
+Issues that ask questions answered in the FAQ will be closed without elaboration.
+
+## 2. Search for Duplicates
+
+[Search the existing issues in GitHub](https://github.com/Microsoft/TypeScript/search?type=Issues) or by the query `site:github.com/microsoft/TypeScript <your keywords>` in your favorite search engine before logging a new one. Search engines generally list more relevant and accurate results at the top than the GitHub searching feature.
+
+Some search tips:
+ * *Don't* restrict your search to only open issues. An issue with a title similar to yours may have been closed as a duplicate of one with a less-findable title.
+---END---
+
+## Scalability
+no env-based port config found
+app_type: CLI tool (has bin in package.json)
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  445952 total
+   54434 ./src/compiler/checker.ts
+   45109 ./src/lib/dom.generated.d.ts
+   15590 ./src/lib/webworker.generated.d.ts
+   12447 ./src/compiler/utilities.ts
+   10823 ./src/compiler/parser.ts
+   10670 ./src/compiler/types.ts
+    7542 ./src/compiler/factory/nodeFactory.ts
+    6378 ./src/compiler/emitter.ts
+    6173 ./src/services/completions.ts
+    5727 ./src/server/editorServices.ts
+
+=== END SIGNALS ===

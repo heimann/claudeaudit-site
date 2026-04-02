@@ -1,0 +1,213 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/anthropics-claude-code
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+### .claude/ contents
+FILE: .claude/commands/commit-push-pr.md (19 lines)
+---
+allowed-tools: Bash(git checkout --branch:*), Bash(git add:*), Bash(git status:*), Bash(git push:*), Bash(git commit:*), Bash(gh pr create:*)
+description: Commit, push, and open a PR
+---
+
+## Context
+
+- Current git status: !`git status`
+- Current git diff (staged and unstaged changes): !`git diff HEAD`
+- Current branch: !`git branch --show-current`
+
+## Your task
+
+Based on the above changes:
+1. Create a new branch if on main
+2. Create a single commit with an appropriate message
+3. Push the branch to origin
+4. Create a pull request using `gh pr create`
+5. You have the capability to call multiple tools in a single response. You MUST do all of the above in a single message. Do not use any other tools or do anything else. Do not send any other text or messages besides these tool calls.
+---END---
+FILE: .claude/commands/dedupe.md (27 lines)
+---
+allowed-tools: Bash(./scripts/gh.sh:*), Bash(./scripts/comment-on-duplicates.sh:*)
+description: Find duplicate GitHub issues
+---
+
+Find up to 3 likely duplicate issues for a given GitHub issue.
+
+To do this, follow these steps precisely:
+
+1. Use an agent to check if the Github issue (a) is closed, (b) does not need to be deduped (eg. because it is broad product feedback without a specific solution, or positive feedback), or (c) already has a duplicates comment that you made earlier. If so, do not proceed.
+2. Use an agent to view a Github issue, and ask the agent to return a summary of the issue
+3. Then, launch 5 parallel agents to search Github for duplicates of this issue, using diverse keywords and search approaches, using the summary from #1
+4. Next, feed the results from #1 and #2 into another agent, so that it can filter out false positives, that are likely not actually duplicates of the original issue. If there are no duplicates remaining, do not proceed.
+5. Finally, use the comment script to post duplicates:
+   ```
+   ./scripts/comment-on-duplicates.sh --potential-duplicates <dup1> <dup2> <dup3>
+   ```
+
+Notes (be sure to tell this to your agents, too):
+
+- Use `./scripts/gh.sh` to interact with Github, rather than web fetch or raw `gh`. Examples:
+  - `./scripts/gh.sh issue view 123` — view an issue
+  - `./scripts/gh.sh issue view 123 --comments` — view with comments
+  - `./scripts/gh.sh issue list --state open --limit 20` — list issues
+  - `./scripts/gh.sh search issues "query" --limit 10` — search for issues
+- Do not use other tools, beyond `./scripts/gh.sh` and the comment script (eg. don't use other MCP servers, file edit, etc.)
+- Make a todo list first
+---END---
+FILE: .claude/commands/triage-issue.md (70 lines)
+---
+allowed-tools: Bash(./scripts/gh.sh:*),Bash(./scripts/edit-issue-labels.sh:*)
+description: Triage GitHub issues by analyzing and applying labels
+---
+
+You're an issue triage assistant. Analyze the issue and manage labels.
+
+IMPORTANT: Don't post any comments or messages to the issue. Your only actions are adding or removing labels.
+
+Context:
+
+$ARGUMENTS
+
+TOOLS:
+- `./scripts/gh.sh` — wrapper for `gh` CLI. Only supports these subcommands and flags:
+  - `./scripts/gh.sh label list` — fetch all available labels
+  - `./scripts/gh.sh label list --limit 100` — fetch with limit
+  - `./scripts/gh.sh issue view 123` — read issue title, body, and labels
+  - `./scripts/gh.sh issue view 123 --comments` — read the conversation
+  - `./scripts/gh.sh issue list --state open --limit 20` — list issues
+  - `./scripts/gh.sh search issues "query"` — find similar or duplicate issues
+  - `./scripts/gh.sh search issues "query" --limit 10` — search with limit
+- `./scripts/edit-issue-labels.sh --add-label LABEL --remove-label LABEL` — add or remove labels (issue number is read from the workflow event)
+
+TASK:
+
+1. Run `./scripts/gh.sh label list` to fetch the available labels. You may ONLY use labels from this list. Never invent new labels.
+2. Run `./scripts/gh.sh issue view ISSUE_NUMBER` to read the issue details.
+3. Run `./scripts/gh.sh issue view ISSUE_NUMBER --comments` to read the conversation.
+
+**If EVENT is "issues" (new issue):**
+
+4. First, check if this issue is actually about Claude Code (the CLI/IDE tool). Issues about the Claude API, claude.ai, the Claude app, Anthropic billing, or other Anthropic products should be labeled `invalid`. If invalid, apply only that label and stop.
+
+5. Analyze and apply category labels:
+   - Type (bug, enhancement, question, etc.)
+   - Technical areas and platform
+   - Check for duplicates with `./scripts/gh.sh search issues`. Only mark as duplicate of OPEN issues.
+
+6. Evaluate lifecycle labels:
+   - `needs-repro` (bugs only, 7 days): Bug reports without clear steps to reproduce. A good repro has specific, followable steps that someone else could use to see the same issue.
+     Do NOT apply if the user already provided error messages, logs, file paths, or a description of what they did. Don't require a specific format — narrative descriptions count.
+     For model behavior issues (e.g. "Claude does X when it should do Y"), don't require traditional repro steps — examples and patterns are sufficient.
+   - `needs-info` (bugs only, 7 days): The issue needs something from the community before it can progress — e.g. error messages, versions, environment details, or answers to follow-up questions. Don't apply to questions or enhancements.
+     Do NOT apply if the user already provided version, environment, and error details. If the issue just needs engineering investigation, that's not `needs-info`.
+
+   Issues with these labels are automatically closed after the timeout if there's no response.
+   The goal is to avoid issues lingering without a clear next step.
+
+7. Apply all selected labels:
+---END---
+
+## Repository Structure
+### Top-level layout
+CHANGELOG.md
+demo.gif
+examples
+LICENSE.md
+plugins
+README.md
+Script
+scripts
+SECURITY.md
+
+### README
+FILE: README.md
+# Claude Code
+
+![](https://img.shields.io/badge/Node.js-18%2B-brightgreen?style=flat-square) [![npm]](https://www.npmjs.com/package/@anthropic-ai/claude-code)
+
+[npm]: https://img.shields.io/npm/v/@anthropic-ai/claude-code.svg?style=flat-square
+
+Claude Code is an agentic coding tool that lives in your terminal, understands your codebase, and helps you code faster by executing routine tasks, explaining complex code, and handling git workflows -- all through natural language commands. Use it in your terminal, IDE, or tag @claude on Github.
+
+**Learn more in the [official documentation](https://code.claude.com/docs/en/overview)**.
+
+<img src="./demo.gif" />
+
+## Get started
+> [!NOTE]
+> Installation via npm is deprecated. Use one of the recommended methods below.
+
+For more installation options, uninstall steps, and troubleshooting, see the [setup documentation](https://code.claude.com/docs/en/setup).
+
+1. Install Claude Code:
+
+    **MacOS/Linux (Recommended):**
+    ```bash
+    curl -fsSL https://claude.ai/install.sh | bash
+    ```
+
+    **Homebrew (MacOS/Linux):**
+    ```bash
+    brew install --cask claude-code
+    ```
+
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 0
+ci_workflow_count: 12
+auto-close-duplicates.yml
+backfill-duplicate-comments.yml
+claude-dedupe-issues.yml
+claude-issue-triage.yml
+claude.yml
+issue-lifecycle-comment.yml
+issue-opened-dispatch.yml
+lock-closed-issues.yml
+log-issue-events.yml
+non-write-users-check.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 1978 total
+  313 ./plugins/hookify/core/rule_engine.py
+  297 ./plugins/hookify/core/config_loader.py
+  280 ./plugins/security-guidance/hooks/security_reminder_hook.py
+  277 ./scripts/auto-close-duplicates.ts
+  212 ./scripts/backfill-duplicate-comments.ts
+  168 ./scripts/sweep.ts
+   83 ./examples/hooks/bash_command_validator_example.py
+   74 ./plugins/hookify/hooks/pretooluse.py
+   66 ./plugins/hookify/hooks/posttooluse.py
+   59 ./plugins/hookify/hooks/stop.py
+
+=== END SIGNALS ===

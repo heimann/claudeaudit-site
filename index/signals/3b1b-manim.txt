@@ -1,0 +1,108 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/3b1b-manim
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+docs
+example_scenes.py
+LICENSE.md
+logo
+MANIFEST.in
+manimlib
+pyproject.toml
+README.md
+requirements.txt
+setup.cfg
+setup.py
+
+### README
+FILE: README.md
+<p align="center">
+    <a href="https://github.com/3b1b/manim">
+        <img src="https://raw.githubusercontent.com/3b1b/manim/master/logo/cropped.png">
+    </a>
+</p>
+
+[![pypi version](https://img.shields.io/pypi/v/manimgl?logo=pypi)](https://pypi.org/project/manimgl/)
+[![MIT License](https://img.shields.io/badge/license-MIT-blue.svg?style=flat)](http://choosealicense.com/licenses/mit/)
+[![Manim Subreddit](https://img.shields.io/reddit/subreddit-subscribers/manim.svg?color=ff4301&label=reddit&logo=reddit)](https://www.reddit.com/r/manim/)
+[![Manim Discord](https://img.shields.io/discord/581738731934056449.svg?label=discord&logo=discord)](https://discord.com/invite/bYCyhM9Kz2)
+[![docs](https://github.com/3b1b/manim/workflows/docs/badge.svg)](https://3b1b.github.io/manim/)
+
+Manim is an engine for precise programmatic animations, designed for creating explanatory math videos.
+
+Note, there are two versions of manim.  This repository began as a personal project by the author of [3Blue1Brown](https://www.3blue1brown.com/) for the purpose of animating those videos, with video-specific code available [here](https://github.com/3b1b/videos).  In 2020 a group of developers forked it into what is now the [community edition](https://github.com/ManimCommunity/manim/), with a goal of being more stable, better tested, quicker to respond to community contributions, and all around friendlier to get started with. See [this page](https://docs.manim.community/en/stable/faq/installation.html#different-versions) for more details.
+
+## Installation
+> [!Warning]
+> **WARNING:** These instructions are for ManimGL _only_. Trying to use these instructions to install [Manim Community/manim](https://github.com/ManimCommunity/manim) or instructions there to install this version will cause problems. You should first decide which version you wish to install, then only follow the instructions for your desired version.
+
+> [!Note]
+> **Note**: To install manim directly through pip, please pay attention to the name of the installed package. This repository is ManimGL of 3b1b. The package name is `manimgl` instead of `manim` or `manimlib`. Please use `pip install manimgl` to install the version in this repository.
+
+Manim runs on Python 3.7 or higher.
+
+System requirements are [FFmpeg](https://ffmpeg.org/), [OpenGL](https://www.opengl.org/) and [LaTeX](https://www.latex-project.org) (optional, if you want to use LaTeX).
+For Linux, [Pango](https://pango.org) along with its development headers are required. See instruction [here](https://github.com/ManimCommunity/ManimPango#building).
+
+
+### Directly
+---END---
+
+## Dependencies
+FILE: pyproject.toml
+[build-system]
+requires = ["setuptools", "wheel"]---END---
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 0
+ci_workflow_count: 2
+docs.yml
+publish.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### mypy config
+no [tool.mypy] section
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 24062 total
+  2368 ./manimlib/mobject/mobject.py
+  1527 ./manimlib/mobject/geometry.py
+  1435 ./manimlib/mobject/types/vectorized_mobject.py
+   941 ./manimlib/scene/scene.py
+   780 ./manimlib/mobject/coordinate_systems.py
+   775 ./manimlib/mobject/svg/drawings.py
+   734 ./example_scenes.py
+   648 ./manimlib/scene/interactive_scene.py
+   585 ./manimlib/mobject/svg/string_mobject.py
+   568 ./manimlib/mobject/interactive.py
+
+=== END SIGNALS ===

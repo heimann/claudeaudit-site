@@ -1,0 +1,1679 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/n8n-io-n8n
+
+## Agent Documentation
+FILE: CLAUDE.md (1 lines)
+@AGENTS.md
+---END---
+FILE: AGENTS.md (224 lines)
+# AGENTS.md
+
+This file provides guidance on how to work with the n8n repository.
+
+## Project Overview
+
+n8n is a workflow automation platform written in TypeScript, using a monorepo
+structure managed by pnpm workspaces. It consists of a Node.js backend, Vue.js
+frontend, and extensible node-based workflow engine.
+
+## General Guidelines
+
+- Always use pnpm
+- We use Linear as a ticket tracking system
+- We use Posthog for feature flags
+- When starting to work on a new ticket – create a new branch from fresh
+  master with the name specified in Linear ticket
+- When creating a new branch for a ticket in Linear - use the branch name
+  suggested by Linear, **unless it is a security fix** (see Security Fix
+  Hygiene below)
+- Use mermaid diagrams in MD files when you need to visualise something
+
+## Essential Commands
+
+### Building
+Use `pnpm build` to build all packages. ALWAYS redirect the output of the
+build command to a file:
+
+```bash
+pnpm build > build.log 2>&1
+```
+
+You can inspect the last few lines of the build log file to check for errors:
+```bash
+tail -n 20 build.log
+```
+
+### Testing
+- `pnpm test` - Run all tests
+- `pnpm test:affected` - Runs tests based on what has changed since the last
+  commit
+
+Running a particular test file requires going to the directory of that test
+and running: `pnpm test <test-file>`.
+
+When changing directories, use `pushd` to navigate into the directory and
+`popd` to return to the previous directory. When in doubt, use `pwd` to check
+your current directory.
+
+### Code Quality
+- `pnpm lint` - Lint code
+- `pnpm typecheck` - Run type checks
+
+Always run lint and typecheck before committing code to ensure quality.
+Execute these commands from within the specific package directory you're
+working on (e.g., `cd packages/cli && pnpm lint`). Run the full repository
+check only when preparing the final PR. When your changes affect type
+definitions, interfaces in `@n8n/api-types`, or cross-package dependencies,
+build the system before running lint and typecheck.
+
+## Architecture Overview
+
+**Monorepo Structure:** pnpm workspaces with Turbo build orchestration
+
+### Package Structure
+
+The monorepo is organized into these key packages:
+
+- **`packages/@n8n/api-types`**: Shared TypeScript interfaces between frontend and backend
+- **`packages/workflow`**: Core workflow interfaces and types
+- **`packages/core`**: Workflow execution engine
+- **`packages/cli`**: Express server, REST API, and CLI commands
+- **`packages/editor-ui`**: Vue 3 frontend application
+- **`packages/@n8n/i18n`**: Internationalization for UI text
+- **`packages/nodes-base`**: Built-in nodes for integrations
+- **`packages/@n8n/nodes-langchain`**: AI/LangChain nodes
+- **`@n8n/design-system`**: Vue component library for UI consistency
+- **`@n8n/config`**: Centralized configuration management
+
+## Technology Stack
+
+- **Frontend:** Vue 3 + TypeScript + Vite + Pinia + Storybook UI Library
+- **Backend:** Node.js + TypeScript + Express + TypeORM
+- **Testing:** Jest (unit) + Playwright (E2E)
+- **Database:** TypeORM with SQLite/PostgreSQL support
+- **Code Quality:** Biome (for formatting) + ESLint + lefthook git hooks
+
+### Key Architectural Patterns
+
+1. **Dependency Injection**: Uses `@n8n/di` for IoC container
+2. **Controller-Service-Repository**: Backend follows MVC-like pattern
+3. **Event-Driven**: Internal event bus for decoupled communication
+4. **Context-Based Execution**: Different contexts for different node types
+5. **State Management**: Frontend uses Pinia stores
+6. **Design System**: Reusable components and design tokens are centralized in
+   `@n8n/design-system`, where all pure Vue components should be placed to
+   ensure consistency and reusability
+
+## Key Development Patterns
+
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json (29 lines)
+{
+	"permissions": {
+		"allow": [
+			"Bash(git log:*)",
+			"Bash(git show:*)",
+			"Bash(grep:*)",
+			"Bash(ls:*)",
+			"Bash(pnpm build)",
+			"Bash(pnpm lint:*)",
+			"Bash(pnpm test:*)",
+			"Bash(pnpm typecheck:*)",
+			"Bash(popd)",
+			"Bash(pushd:*)",
+			"Bash(mkdir -p .claude/plans)",
+			"Write(.claude/plans/*)"
+		]
+	},
+	"extraKnownMarketplaces": {
+		"n8n": {
+			"source": {
+				"source": "directory",
+				"path": "./.claude/plugins/n8n"
+			}
+		}
+	},
+	"enabledPlugins": {
+		"n8n@n8n": true
+	}
+}
+---END---
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+FILE: .github/CLAUDE.md (42 lines)
+@../AGENTS.md
+
+## .github Quick Reference
+
+This folder contains n8n's GitHub Actions infrastructure.
+
+### Key Files
+
+| File/Folder | Purpose |
+|-------------|---------|
+| `WORKFLOWS.md` | Complete CI/CD documentation |
+| `workflows/` | GitHub Actions workflows |
+| `actions/` | Reusable composite actions |
+| `scripts/` | Release & Docker automation |
+| `CODEOWNERS` | Team review ownership |
+
+### Workflow Naming
+
+| Prefix | Purpose |
+|--------|---------|
+| `test-` | Testing (unit, E2E, visual) |
+| `ci-` | Continuous integration |
+| `util-` | Utilities (notifications) |
+| `build-` | Build processes |
+| `release-` | Release automation |
+| `sec-` | Security scanning |
+
+Reusable workflows: add `-reusable` or `-callable` suffix.
+
+### Common Tasks
+
+**Add workflow:** Create in `workflows/`, document in `WORKFLOWS.md`
+
+**Add script:** Create `.mjs` in `scripts/`, document in `WORKFLOWS.md`
+
+### Reference
+
+See `WORKFLOWS.md` for:
+- Architecture diagrams
+- Workflow call graph
+- Scheduled jobs & triggers
+- Runners & secrets
+---END---
+FILE: packages/frontend/AGENTS.md (138 lines)
+# AGENTS.md
+
+Extra information, specific to the frontend codebase.
+
+### Style Review Rules
+
+For CSS/SCSS/Vue style changes and updates touching `@n8n/design-system`,
+follow `.agents/design-system-style-rules.md`.
+
+### CSS Variables Reference
+
+Use the following CSS variables to maintain consistency across the
+application. These variables cover colors, spacing, typography, and borders.
+
+#### Colors
+```css
+/* Primary Colors */
+--color--primary--shade-1
+--color--primary
+--color--primary--tint-1
+--color--primary--tint-2
+--color--primary--tint-3
+
+/* Secondary Colors */
+--color--secondary--shade-1
+--color--secondary
+--color--secondary--tint-1
+--color--secondary--tint-2
+
+/* Success Colors */
+--color--success--shade-1
+--color--success
+--color--success--tint-1
+--color--success--tint-2
+--color--success--tint-3
+--color--success--tint-4
+
+/* Warning Colors */
+--color--warning--shade-1
+--color--warning
+--color--warning--tint-1
+--color--warning--tint-2
+
+/* Danger Colors */
+--color--danger--shade-1
+--color--danger
+--color--danger--tint-3
+--color--danger--tint-4
+
+/* Text Colors */
+---END---
+FILE: packages/frontend/CLAUDE.md (1 lines)
+@AGENTS.md
+---END---
+FILE: packages/frontend/editor-ui/src/app/stores/workflowDocument/CLAUDE.md (71 lines)
+# workflowDocument store — Agent Guidelines
+
+## Core pattern: apply/public method split
+
+Every composable in this folder follows a two-layer pattern:
+
+**Public methods** (exposed) — represent user intent. Handle normalization,
+deduplication, and preparation. Call apply methods internally.
+
+**Apply methods** (private) — the **only** functions that mutate refs. Each
+apply method writes to the ref and fires an event hook. Never expose apply
+methods from the composable.
+
+```
+Component → publicMethod() → normalize → applyXxx() → ref + event hook
+```
+
+This split exists to support CRDT in the future: local user actions,
+remote CRDT sync, and undo/redo all converge on the same private apply
+methods inside the composable.
+
+## Event hooks
+
+Every composable exposes change notifications via `createEventHook` from
+`@vueuse/core`. Event payloads must extend `ChangeEvent` from `./types.ts`:
+
+```typescript
+import { createEventHook } from '@vueuse/core';
+import type { ChangeEvent, ChangeAction } from './types';
+
+type MyChangeEvent = ChangeEvent<{ /* domain-specific fields */ }>;
+const onMyChange = createEventHook<MyChangeEvent>();
+```
+
+- Fire `void onMyChange.trigger(...)` inside every apply method
+- Expose only the `.on` subscriber: `onMyChange: onMyChange.on`
+- Use `CHANGE_ACTION.ADD | UPDATE | DELETE` for the `action` field
+
+## Adding a new composable — checklist
+
+1. Create event hook with typed payload extending `ChangeEvent`
+2. Write private `apply*()` methods — each mutates the ref and fires the hook
+3. Write public methods — normalize input, then call apply
+4. Return: readonly refs, public methods, `onXxxChange: hook.on`
+5. Never return apply methods
+
+## Anti-patterns
+
+| Don't | Do instead |
+|-------|------------|
+---END---
+FILE: packages/@n8n/agents/AGENTS.md (138 lines)
+# AGENTS.md
+
+Conventions for the `@n8n/agents` package.
+
+## Code Style
+
+- **No `_` prefix on private properties** — use `private` access modifier
+  without underscore. Write `private name: string`, not `private _name: string`.
+- **Builder pattern with lazy build** — all public primitives use a fluent
+  builder API. **User code never calls `.build()`**. Builders are passed
+  directly to the consuming method (e.g. `agent.tool(myTool)`) which calls
+  `.build()` internally. Agent and Network have `run()`/`stream()` directly
+  on the class, which lazy-build via `ensureBuilt()` on first call. `build()`
+  is `protected` on Agent and Network to keep it out of the public API.
+- **Zod for schemas** — all input/output schemas use Zod.
+
+## Package Structure
+
+```
+src/
+  index.ts              # Public API barrel export
+  types/                # Public TypeScript types
+    index.ts            # Re-exports consumable types
+    telemetry.ts
+    sdk/                # Types aligned with builders (agent, eval, guardrail, mcp, memory, message, provider, tool)
+    runtime/            # Serializable runtime shapes (events, message lists)
+    utils/              # JSON typing helpers re-exported with public types
+  sdk/                  # Fluent builders and SDK entry points
+    agent.ts            # Agent builder
+    catalog.ts          # Provider catalog fetch
+    eval.ts             # Evaluation primitives
+    evaluate.ts         # Evaluation runner over agents + dataset
+    guardrail.ts        # Guardrail builder
+    mcp-client.ts       # MCP client integration
+    memory.ts           # Memory builder
+    message.ts          # LLM/DB message helpers
+    network.ts          # Network builder
+    provider-tools.ts   # Provider-defined tool factories
+    telemetry.ts        # Telemetry builder (OTel, redaction)
+    tool.ts             # Tool builder
+    verify.ts           # Verification utilities
+  evals/                # Built-in eval scorers; exported as namespace `evals` from index
+  runtime/              # Internal — never exported from index.ts
+    agent-runtime.ts    # Core agent execution engine (AI SDK)
+    tool-adapter.ts     # Tool execution, branded suspend detection
+    stream.ts           # Streaming helpers
+    model-factory.ts    # Model instantiation
+    memory-store.ts     # Conversation / working-memory persistence hooks
+    working-memory.ts   # In-run working memory
+    message-list.ts     # Message list + serialization for agent loop
+---END---
+FILE: packages/@n8n/ai-workflow-builder.ee/AGENTS.md (44 lines)
+# AGENTS.md
+
+Guidance for working with the AI Workflow Builder package.
+
+## Prompt Development
+
+Use the `PromptBuilder` utility for all LLM prompts. See `src/prompts/README.md`
+for detailed documentation.
+
+```typescript
+import { prompt } from '@/prompts/builder';
+
+const systemPrompt = prompt()
+  .section('role', 'You are an assistant')
+  .sectionIf(hasContext, 'context', () => buildContext())
+  .build();
+```
+
+Key methods:
+- `section(name, content)` - Always included
+- `sectionIf(condition, name, content)` - Conditionally included
+- `examples(name, items, formatter)` - Formatted example list
+- `build()` - Returns the final prompt string
+
+## Workflow Examples in Prompts
+
+When including workflow examples in prompts, use Mermaid flowcharts instead of
+raw JSON. Generate Mermaid from workflow JSON using:
+
+```bash
+pnpm workflow:mermaid path/to/workflow.json
+```
+
+This outputs a markdown file with a Mermaid diagram. The diagram is more
+readable for the LLM and uses fewer tokens than JSON.
+
+Options:
+- `--no-node-name` - Exclude node names
+- `--no-node-type` - Exclude node type comments
+- `--node-params` - Include node parameters
+
+## Evaluations
+
+Before modifying evaluations, judgement criteria, or scoring logic, read
+`evaluations/README.md` for the evaluation framework architecture and guidelines.---END---
+FILE: packages/@n8n/ai-workflow-builder.ee/CLAUDE.md (1 lines)
+@AGENTS.md
+---END---
+FILE: packages/@n8n/db/AGENTS.md (37 lines)
+# AGENTS.md
+
+Extra information specific to the `@n8n/db` package.
+
+## Migration DSL
+
+### UUID Primary Keys
+
+Do **not** use `autoGenerate` or `autoGenerate2` on UUID columns. Both cause
+TypeORM to emit `DEFAULT uuid_generate_v4()` in PostgreSQL, which requires the
+`uuid-ossp` extension in the `public` schema. This fails on managed Postgres
+services like Supabase where the extension lives in a different schema.
+
+**Instead**, generate UUIDs at the application level:
+
+Migration:
+```typescript
+column('id').uuid.primary.notNull,
+```
+
+Entity:
+```typescript
+import { randomUUID } from 'node:crypto';
+import { BeforeInsert, PrimaryColumn } from '@n8n/typeorm';
+
+@PrimaryColumn('uuid')
+id: string;
+
+@BeforeInsert()
+generateId() {
+  if (!this.id) {
+    this.id = randomUUID();
+  }
+}
+```
+
+`autoGenerate` / `autoGenerate2` are fine for **integer** columns (they use
+`serial` / `GENERATED BY DEFAULT AS IDENTITY` respectively).---END---
+FILE: packages/@n8n/node-cli/src/template/templates/shared/default/AGENTS.md (102 lines)
+# n8n community node
+
+## Overview
+This is a project containing code for an n8n community node. n8n is a workflow
+automation platform where users build workflows with nodes, which are the
+building block of a workflow. Nodes can perform a range of actions, such as
+starting a workflow (called a "trigger node"), fetching and sending data, or
+processing and manipulating it. Besides that there are credentials - entities
+that store sensitive information on how to connect to external services and
+APIs. A node can require some credentials to be used. Community nodes are a way
+for anyone to create such nodes and add them to be used in n8n. All community
+nodes are named in a format: `n8n-nodes-<n>` or `@org/n8n-nodes-<n>`.
+Community nodes can also be submitted for approval to be used on n8n Cloud
+version. In that case there are rules that the node needs to follow in order to
+be approved
+
+## Important notes
+- Follow the **rules and guidelines in this document and the linked docs
+  below** over any code examples.
+- All code blocks in these docs are **illustrative and incomplete**.
+  They **MUST NOT** be copied verbatim or assumed to be the final desired code.
+- Replace example names like `Example`, `Wordpress`, `wordpressApi`, etc.
+  with names that match the **actual service / node** you are building.
+- When in doubt, **generalize from the patterns**, don't replicate the exact
+  structure, fields, or values from the examples.
+- Produce the **full implementation** needed for the current project
+  (nodes, credentials, tests, etc.), not just fragments similar to examples.
+- If an example omits parts (e.g. types, operations, properties), **infer and
+  implement the missing parts** based on the real requirements / API docs.
+- Never output `Wordpress`-specific code unless the project is actually about
+  WordPress.
+
+## Project structure
+There are two main folders in this project:
+- `nodes` contains all of the nodes in a package (there can be more than 1).
+  The code for each node usually lives in its own folder
+- `credentials` contains all of the credentials in a package. Usually it's just
+  a single file for every credential
+So it looks something like this:
+.
+├── nodes/
+│   └── Example/
+│       ├── Example.node.ts
+│       └── ...
+├── credentials/
+│   └── Example.credentials.ts
+├── package.json
+└── ...
+It's important to note that `package.json` has a special field `n8n` that have
+information about nodes and credentials in a package:
+---END---
+FILE: packages/@n8n/node-cli/src/template/templates/shared/default/CLAUDE.md (1 lines)
+@AGENTS.md
+---END---
+FILE: packages/nodes-base/AGENTS.md (114 lines)
+# AGENTS.md
+
+Guidance for node development in the nodes-base package.
+
+## Node Structure
+
+Every node implements the `INodeType` interface with:
+- `description: INodeTypeDescription` - Node metadata and UI configuration
+- `execute?()` - For programmatic nodes
+- `poll?()` - For polling triggers (set `polling: true` in description)
+- `trigger?()` - For generic triggers
+- `webhook?()` - For webhook triggers
+- `webhookMethods?` - Webhook lifecycle (checkExists, create, delete)
+- `methods?` - loadOptions, listSearch, credentialTest, resourceMapping
+
+## Node Types
+
+### Programmatic Nodes
+Use `execute` function for custom logic. Example: `nodes/Discord/v2/DiscordV2.node.ts`
+
+### Declarative Nodes
+Use `requestDefaults` and routing configuration instead of `execute`. Example: `nodes/Okta/Okta.node.ts`
+
+### Trigger Nodes
+- **Webhook triggers**: Implement `webhook` and `webhookMethods` (checkExists, create, delete). Example: `nodes/Microsoft/Teams/MicrosoftTeamsTrigger.node.ts`
+- **Polling triggers**: Set `polling: true` and implement `poll`. Use `getWorkflowStaticData('node')` to persist state. Example: `nodes/Google/Gmail/GmailTrigger.node.ts`
+- **Generic triggers**: Implement `trigger` function. Example: `nodes/MQTT/MqttTrigger.node.ts`
+
+## Node Parameters
+
+Common parameter types:
+- `string` - Text input
+- `options` - Dropdown (static or dynamic via `loadOptionsMethod`)
+- `resourceLocator` - Select by list, ID, or URL
+- `collection` - Key-value pairs
+- `fixedCollection` - Structured collections
+
+Use `displayOptions` to show/hide fields based on other parameters. Use `noDataExpression: true` for resource/operation selectors.
+
+## Versioning
+
+- **Light versioning**: Use version arrays in description: `version: [3, 3.1, 3.2]`
+- **Full versioning**: Use `VersionedNodeType` class with separate version implementations. Example: `nodes/Set/Set.node.ts`
+
+## Credentials
+
+Credentials are defined in `credentials/` directory and implement `ICredentialType`:
+- `name` - Internal identifier
+- `displayName` - Human-readable name
+- `properties` - Credential fields
+---END---
+FILE: packages/nodes-base/CLAUDE.md (1 lines)
+@AGENTS.md
+---END---
+FILE: packages/testing/janitor/CLAUDE.md (1 lines)
+@README.md
+---END---
+FILE: packages/testing/playwright/AGENTS.md (426 lines)
+# AGENTS.md
+
+## Commands
+
+```bash
+# Run tests locally
+pnpm --filter=n8n-playwright test:local <file-path>
+pnpm --filter=n8n-playwright test:local tests/e2e/credentials/crud.spec.ts
+
+# Run with container capabilities (requires pnpm build:docker first)
+pnpm --filter=n8n-playwright test:container:sqlite --grep @capability:email
+
+# Lint and typecheck
+pnpm --filter=n8n-playwright lint
+pnpm --filter=n8n-playwright typecheck
+```
+
+Always trim output: `--reporter=list 2>&1 | tail -50`
+
+## Test Maintenance (Janitor)
+
+Static analysis for Playwright test architecture. Catches problems before they spread.
+
+> **CRITICAL: Always use TCR for code changes.**
+> When janitor identifies violations and you fix them, use `pnpm janitor tcr --execute` to safely commit. Never manually commit janitor-related fixes - TCR ensures tests pass before the commit lands.
+
+### Golden Rules
+
+1. **Analysis only?** Run `pnpm janitor` (no TCR needed)
+2. **Making code changes?** Use TCR: `pnpm janitor tcr --execute -m="chore: ..."`
+3. **Never** manually `git commit` janitor-related fixes - always go through TCR
+4. **Never** modify `.janitor-baseline.json` via TCR - baseline updates must be done manually
+
+### When to Use
+
+| User Says | Intent | Approach |
+|-----------|--------|----------|
+| "Clean up the test codebase" | Incremental cleanup | Create baseline first, then use `--max-diff-lines=500` for small PRs. |
+| "Start tracking violations" | Enable incremental cleanup | Run `janitor baseline` to snapshot current state, commit `.janitor-baseline.json`. |
+| "Add a test for X" | New test following patterns | After writing, run janitor to verify architecture compliance. |
+| "Fix architecture drift" | Enforce layered architecture | Run `selector-purity` and `no-page-in-flow` rules. |
+| "Find dead code" | Remove unused methods | Run `dead-code` rule with `--fix --write` for auto-removal. |
+| "Find copy-paste code" | Detect duplicates | Run `duplicate-logic` rule to find structural duplicates. |
+| "This file is messy" | Targeted cleanup | Analyze specific file, fix issues, TCR to safely commit. |
+| "Refactor this page object" | Safe refactoring | Use TCR - changes commit if tests pass, revert if they fail. |
+| "What tests would break?" | Impact analysis | Run `impact` command before changing shared code. |
+| "Prepare for PR" | Pre-commit check | Run janitor on changed files to catch violations early. |
+
+### Architecture Rules
+
+---END---
+FILE: packages/testing/playwright/CLAUDE.md (1 lines)
+@AGENTS.md
+---END---
+
+### .claude/ contents
+FILE: .claude/agents/n8n-developer.md (40 lines)
+---
+name: n8n-developer
+description: Use this agent for any n8n development task - frontend (Vue 3), backend (Node.js/TypeScript), workflow engine, node creation, or full-stack features. The agent automatically applies n8n conventions and best practices. Examples: <example>user: 'Add a new button to the workflow editor' assistant: 'I'll use the n8n-developer agent to implement this following n8n's design system.'</example> <example>user: 'Create an API endpoint for workflow export' assistant: 'I'll use the n8n-developer agent to build this API endpoint.'</example> <example>user: 'Fix the CSS issue in the node panel' assistant: 'I'll use the n8n-developer agent to fix this styling issue.'</example>
+model: inherit
+color: blue
+---
+
+You are an expert n8n developer with comprehensive knowledge of the n8n workflow automation platform. You handle both frontend (Vue 3 + Pinia + Design System) and backend (Node.js + TypeScript + Express + TypeORM) development.
+
+## Core Expertise
+
+**n8n Architecture**: Monorepo structure with pnpm workspaces, workflow engine (n8n-workflow, n8n-core), node development patterns, frontend (editor-ui package with Vue 3), backend (CLI package with Express), authentication flows, queue management, and event-driven patterns.
+
+**Key Packages**:
+- Frontend: packages/frontend/editor-ui (Vue 3 + Pinia), packages/frontend/@n8n/design-system, packages/frontend/@n8n/i18n
+- Backend: packages/cli (Express + REST API), packages/core (workflow execution), packages/@n8n/db (TypeORM)
+- Shared: packages/workflow, packages/@n8n/api-types
+
+## Development Standards
+
+**TypeScript**: Strict typing (never `any`), use `satisfies` over `as`, proper error handling with UnexpectedError from n8n-workflow.
+
+**Frontend**: Vue 3 Composition API, Pinia stores, n8n design system components, CSS variables from design system, proper i18n with @n8n/i18n.
+
+**Backend**: Controller-service-repository pattern, dependency injection with @n8n/di, @n8n/config for configuration, Zod schemas for validation, TypeORM with multi-database support.
+
+## Workflow
+
+1. **Analyze Requirements**: Identify affected packages and appropriate patterns using n8n conventions
+   - If working from a Linear ticket, use Linear MCP (`mcp__linear-server__get_issue`) to fetch complete context
+   - Review ticket description, comments, and linked GitHub issues
+   - Use `gh` CLI and `git` commands for GitHub/git operations (e.g., `gh pr view`, `git log`)
+2. **Plan Implementation**: Outline steps and dependencies
+3. **Follow Patterns**: Apply n8n architectural patterns consistently
+4. **Ensure Quality**: Run typecheck/lint, write tests, validate across databases
+5. **Complete Implementation**: Provide working code with proper error handling and logging. Review for security vulnerabilities and only finalize when confident the solution is secure
+
+Use pnpm for package management, work within appropriate package directories using pushd/popd, and build when type definitions change.
+
+You deliver maintainable, well-typed code that integrates seamlessly with n8n's monorepo architecture.
+---END---
+FILE: .claude/agents/n8n-linear-issue-triager.md (74 lines)
+---
+name: n8n-linear-issue-triager
+description: Use this agent proactively when a Linear issue is created, updated, or needs comprehensive analysis. This agent performs thorough issue investigation and triage including root cause analysis, severity assessment, and implementation scope identification.
+model: inherit
+color: red
+---
+
+You are an expert n8n Linear Issue Explorer and Analysis Agent, specializing in comprehensive investigation of Linear tickets and GitHub issues within the n8n workflow automation platform ecosystem.
+
+**n8n Conventions**: This agent has deep knowledge of n8n conventions, architecture patterns, and best practices embedded in its expertise.
+
+Your primary role is thorough investigation and context gathering to enable seamless handover to developers or implementation agents through comprehensive analysis and actionable intelligence.
+
+## Core Mission
+Provide thorough analysis and sufficient context for smooth handover - not implementation. Focus on investigation, root cause identification, and actionable intelligence gathering leveraging your deep n8n ecosystem knowledge.
+
+## Investigation Capabilities
+
+### 1. Deep Issue Analysis
+- Fetch Linear ticket details including descriptions, comments, attachments, and linked resources
+- Cross-reference related GitHub issues, pull requests, and community reports
+- Examine and analyze git history and identify specific problematic commits to understand code evolution and potential regressions
+- Analyze patterns and correlations across related issues within the n8n ecosystem
+- Check for related issues or PRs with similar descriptions or file paths.
+
+### 2. Root Cause Investigation
+- Trace issues to specific commits, files, and line numbers across the monorepo
+- Identify whether problems stem from recent changes, workflow engine updates, or node ecosystem changes
+- Distinguish between configuration issues, code bugs, architectural problems, and node integration issues
+- Analyze dependencies and cross-package impacts in TypeScript monorepo structure
+
+### 3. Context Gathering
+- **Implementation Area**: Clearly identify FRONTEND / BACKEND / BOTH / NODE ECOSYSTEM
+- **Technical Scope**: Specific packages, files, workflow components, and code areas involved
+- **User Impact**: Affected user segments, workflow types, and severity assessment
+- **Business Context**: Customer reports, enterprise vs community impact, node usage patterns
+- **Related Issues**: Historical context, similar resolved cases, and ecosystem-wide implications
+
+### 4. Severity Assessment Framework
+- **CRITICAL**: Data loss, silent failures, deployment blockers, workflow execution failures, security vulnerabilities
+- **HIGH**: Core functionality broken, affects multiple users, monitoring/observability issues, node integration problems
+- **MEDIUM**: UI/UX issues, non-critical feature problems, performance degradation, specific node issues
+- **LOW**: Enhancement requests, minor bugs, cosmetic issues, node improvements
+
+## Workflow
+
+1. **Fetch Issue Details**: Get Linear ticket, comments, attachments, and related resources
+   - Use Linear MCP tools (`mcp__linear-server__get_issue`, `mcp__linear-server__list_comments`) to fetch complete ticket data
+   - Get all comments, attachments, and linked GitHub issues
+   - Check for related Linear issues with similar symptoms
+---END---
+FILE: .claude/commands/n8n-plan.md (25 lines)
+---
+description: Plan n8n Linear ticket implementation
+argument-hint: [PAY-XXXX | DEV-XXXX | ENG-XXXX]
+allowed-tools: Task, Agent, Read, Glob, Grep, Write, Bash
+---
+
+Launch a Plan agent (built-in) to research and design an implementation plan for Linear issue $ARGUMENTS.
+
+The agent should:
+1. Fetch and analyze the Linear ticket using Linear MCP
+2. Identify affected packages and files
+3. Design implementation approach following n8n conventions
+4. Define testing strategy
+5. Document potential risks
+
+Apply n8n architectural patterns (monorepo structure, TypeScript standards, Vue 3 Composition API, Controller-Service-Repository, etc.).
+
+The agent should return the full plan as text (it cannot write files). After receiving the result, save it to `.claude/plans/<TICKET-ID>.md` (e.g. `.claude/plans/PAY-1234.md`). Create the directory if needed. This directory is gitignored.
+
+The plan file should contain:
+- The ticket title and link
+- A summary of the ticket
+- The full implementation plan
+- Testing strategy
+- Risks and open questions
+---END---
+FILE: .claude/commands/n8n-triage.md (7 lines)
+---
+description: Triage Linear issue with comprehensive analysis
+argument-hint: [PAY-XXXX | DEV-XXXX | ENG-XXXX]
+allowed-tools: Task
+---
+
+Use the n8n-linear-issue-triager agent to triage Linear issue $ARGUMENTS.
+---END---
+FILE: .claude/plugins/n8n/.claude-plugin/marketplace.json (12 lines)
+{
+  "name": "n8n",
+  "owner": {
+    "name": "n8n"
+  },
+  "plugins": [
+    {
+      "name": "n8n",
+      "source": "./"
+    }
+  ]
+}
+---END---
+FILE: .claude/plugins/n8n/.claude-plugin/plugin.json (4 lines)
+{
+  "name": "n8n",
+  "description": "n8n Claude Code plugin — shared skills, commands, and agents for n8n development"
+}
+---END---
+FILE: .claude/plugins/n8n/README.md (67 lines)
+# n8n Claude Code Plugin
+
+Shared skills, commands, and agents for n8n development.
+
+## Skills
+
+### `n8n:setup-mcps`
+
+Configures commonly used MCP servers for n8n engineers.
+
+**Usage:**
+```
+/n8n:setup-mcps
+```
+
+**What it does:**
+1. Checks which MCPs are already configured (matches by URL, not name)
+2. Presents a multi-select menu of available MCPs (Linear, Notion, Context7, Figma)
+3. For each selected MCP, asks which scope to install in:
+   - **user** (recommended) — available across all projects
+   - **local** — only in this project (`settings.local.json`)
+4. Installs using official recommended commands
+
+**Note:** Project scope is intentionally not offered since `.claude/settings.json` is tracked in git.
+
+## Design Decisions
+
+### Why a plugin instead of standalone skills?
+
+To get the `n8n:` namespace prefix for all n8n-specific skills, avoiding name
+collisions with built-in or personal skills. Claude Code only supports
+colon-namespaced skills (`n8n:setup-mcps`) through the plugin system —
+standalone `.claude/skills/` entries cannot be namespaced. This also provides a
+home for future n8n skills, commands, and agents under the same `n8n:` prefix.
+
+### Why only user and local scope (no project scope)?
+
+Project scope writes MCP config to `.claude/settings.json`, which is tracked in
+git. Since MCP credentials are personal (OAuth tokens, API keys), they should
+not end up in version control. User scope makes MCPs available across all
+projects; local scope (`settings.local.json`) keeps them project-specific but
+gitignored.
+
+### Why ask scope per MCP instead of once for all?
+
+Engineers may want different scopes for different MCPs. For example, Context7
+and Figma are useful across all projects (user scope), while Linear or Notion
+might only be needed for this project (local scope).
+
+## Plugin Structure
+---END---
+FILE: .claude/plugins/n8n/skills/setup-mcps/SKILL.md (75 lines)
+---
+description: >-
+  Configure MCP servers for n8n development. Use when the user says /setup-mcps
+  or asks to set up MCP servers for n8n.
+---
+
+# MCP Setup for n8n Development
+
+Configure commonly used MCP servers for n8n engineers.
+
+## Instructions
+
+1. First, check which MCPs are already configured by running:
+```bash
+claude mcp list
+```
+Parse the output and match by **URL/command**, not server name (users may have
+used different names). The URLs to check for:
+- Linear: `mcp.linear.app`
+- Notion: `mcp.notion.com`
+- Context7: `ctx7` or `context7-mcp`
+- Figma: `mcp.figma.com`
+
+Skip any MCP whose URL/command is already present (regardless of scope or name).
+
+2. Present the MCP selection menu using `AskUserQuestion` with `multiSelect: true`.
+Only show MCPs that are **not** already configured. If all are already configured,
+inform the user and skip the menu.
+
+| Option | Label | Description |
+|--------|-------|-------------|
+| Linear | `Linear` | Linear ticket management (HTTP, OAuth — opens browser to authenticate) |
+| Notion | `Notion` | Notion workspace integration (HTTP, OAuth — opens browser to authenticate) |
+| Context7 | `Context7` | Library documentation lookup (OAuth setup via CLI) |
+| Figma | `Figma` | Figma design integration (HTTP, OAuth — opens browser to authenticate) |
+
+3. Process each selected MCP **one at a time** in a loop. For each MCP:
+   a. Ask the user via `AskUserQuestion`: "Where should **{MCP name}** be installed?"
+      - **user** (default, recommended) — available in all projects
+      - **local** — only in this project
+   b. Run the install command for that MCP with the chosen scope
+   c. Then move to the next MCP and ask again
+
+Do NOT batch the scope question — ask separately for each MCP.
+Do NOT offer project scope — it modifies `.claude/settings.json` which is tracked in git.
+
+Commands per MCP:
+
+### Linear
+```bash
+---END---
+FILE: .claude/README.md (63 lines)
+# Claude Code Configuration
+
+This directory contains shared Claude Code configuration for the n8n team.
+
+## Setup
+
+### Linear MCP Server
+
+The Linear MCP server uses OAuth authentication. To connect:
+
+1. Start Claude Code in this repository
+2. Run `/mcp` command
+3. Click the Linear authentication link in your browser
+4. Authorize with your Linear account
+
+You only need to do this once per machine.
+
+### Permissions
+
+Configure tool permissions in your global Claude Code settings (`~/.claude/settings.json`), not in this repo. This allows each developer to customize their own approval preferences.
+
+To auto-approve Linear MCP tools, add to your global settings:
+
+```json
+{
+  "permissions": {
+    "allow": [
+      "mcp__linear-server__*"
+    ]
+  }
+}
+```
+
+**Note:** For GitHub/git operations, we use `gh` CLI and `git` commands instead of GitHub MCP.
+
+## Available Commands
+
+- `/n8n-triage PAY-XXX` - Analyze and triage a Linear issue
+- `/n8n-plan PAY-XXX` - Create implementation plan
+
+## Quick Reference
+
+- `/n8n-conventions` - Load detailed conventions guide (optional - agents already know n8n patterns)
+
+## Workflow
+
+**Recommended approach:**
+1. `/n8n-triage PAY-123` → Investigate root cause and severity (optional)
+2. `/n8n-plan PAY-123` → Create detailed implementation plan
+3. Review the plan in chat
+---END---
+FILE: .claude/skills/content-design/SKILL.md (330 lines)
+---
+name: content-design
+description: >
+  Product content designer for UI copy. Use when writing, reviewing, or auditing
+  user-facing text: button labels, error messages, tooltips, empty states, modal copy,
+  placeholder text, confirmation dialogs, onboarding flows, or i18n strings.
+  Also use when the user says /copy, /content, or /ux-copy.
+allowed-tools: Read, Grep, Glob, Edit
+---
+
+# n8n content design
+
+You are a Senior Content Designer specializing in SaaS tools. You've written UI
+copy for complex products — whiteboard tools, workflow automation, enterprise
+software — where terminology precision directly impacts user success. You treat
+content as interface: every label, error message, and tooltip is a design decision.
+
+You think about what the user needs to know first. In any UI surface — modal,
+tooltip, banner, empty state — you lead with the action or outcome, then add
+context only if it earns its space.
+
+You default to concise and neutral, but you know when a moment of warmth or
+encouragement earns its place — onboarding, empty states, success confirmations.
+You never force personality where clarity is the job.
+
+You check your work against the terminology glossary, voice and tone guidelines,
+and existing UI patterns below. When no guideline covers a case, you flag the
+inconsistency rather than guessing.
+
+You push back on feature names that sound good in marketing but confuse
+in-product. You know the difference between onboarding copy that holds hands
+and copy that respects user intelligence.
+
+You write in short sentences. You cut filler words. You prefer "Save" over
+"Save changes" and "Delete project?" over "Are you sure you want to delete this
+project?" unless disambiguation is genuinely needed. You understand that empty
+states, loading states, and error states are content design problems, not
+afterthoughts.
+
+---
+
+## How to work
+
+### Modes
+
+When invoked, determine what the user needs:
+
+1. **Write** — Draft new UI copy. Ask what surface (button, modal, tooltip,
+   error, empty state, and so on) and what the user action or system state is.
+   Deliver 1-3 options ranked by recommendation. For each option, include:
+---END---
+FILE: .claude/skills/create-issue/SKILL.md (361 lines)
+---
+name: create-issue
+description: Create Linear tickets or GitHub issues following n8n conventions. Use when the user asks to create a ticket, file a bug, open an issue, or says /create-issue.
+argument-hint: "[linear|github] <description of the issue>"
+compatibility:
+  requires:
+    - mcp: linear
+      description: Required for creating Linear tickets
+    - cli: gh
+      description: Required for creating GitHub issues. Must be authenticated (gh auth login)
+---
+
+# Create Issue
+
+Create a Linear ticket or GitHub issue for: **$ARGUMENTS**
+
+## Determine Target
+
+Decide where the issue should be created based on user input:
+
+- If the user says "Linear", "ticket", or provides a team key (e.g., AI, NODE, N8N) → **Linear**
+- If the user says "GitHub", "GH issue", or "open source" → **GitHub**
+- If ambiguous, **ask the user** which platform they want
+
+---
+
+## Linear Tickets
+
+### Prerequisites
+
+Verify the Linear MCP is connected before proceeding.
+
+### Style Guide
+
+#### Title
+
+- **Sentence case** — capitalize only the first word (e.g., "Add webhook verification to Trello trigger")
+- **Descriptive** — a reader should understand the scope without opening the ticket
+- **5–15 words** — long enough to be specific, short enough to scan
+- **Imperative mood for features/enhancements** — "Add ...", "Support ...", "Improve ..."
+- **Bug titles** — prefix with `Bug -` followed by a description of the symptom (e.g., "Bug - Pin data not updating after workflow edit")
+- **No ticket IDs in titles** — the identifier (AI-1234) is assigned automatically
+- **No trailing punctuation**
+
+#### Description
+
+Structure the description using markdown headers. Use the appropriate template:
+
+**For bugs:**
+
+---END---
+FILE: .claude/skills/create-pr/SKILL.md (196 lines)
+---
+name: create-pr
+description: Creates GitHub pull requests with properly formatted titles that pass the check-pr-title CI validation. Use when creating PRs, submitting changes for review, or when the user says /pr or asks to create a pull request.
+allowed-tools: Bash(git:*), Bash(gh:*), Read, Grep, Glob
+---
+
+# Create Pull Request
+
+Creates GitHub PRs with titles that pass n8n's `check-pr-title` CI validation.
+
+## PR Title Format
+
+```
+<type>(<scope>): <summary>
+```
+
+### Types (required)
+
+| Type       | Description                                      | Changelog |
+|------------|--------------------------------------------------|-----------|
+| `feat`     | New feature                                      | Yes       |
+| `fix`      | Bug fix                                          | Yes       |
+| `perf`     | Performance improvement                          | Yes       |
+| `test`     | Adding/correcting tests                          | No        |
+| `docs`     | Documentation only                               | No        |
+| `refactor` | Code change (no bug fix or feature)              | No        |
+| `build`    | Build system or dependencies                     | No        |
+| `ci`       | CI configuration                                 | No        |
+| `chore`    | Routine tasks, maintenance                       | No        |
+
+### Scopes (optional but recommended)
+
+- `API` - Public API changes
+- `benchmark` - Benchmark CLI changes
+- `core` - Core/backend/private API
+- `editor` - Editor UI changes
+- `* Node` - Specific node (e.g., `Slack Node`, `GitHub Node`)
+
+### Summary Rules
+
+- Use imperative present tense: "Add" not "Added"
+- Capitalize first letter
+- No period at the end
+- No ticket IDs (e.g., N8N-1234)
+- Add `(no-changelog)` suffix to exclude from changelog
+
+## Steps
+
+1. **Check current state**:
+   ```bash
+---END---
+FILE: .claude/skills/create-skill/SKILL.md (127 lines)
+---
+name: create-skill
+description: >-
+  Guides users through creating effective Agent Skills. Use when you want to
+  create, write, or author a new skill, or asks about skill structure, best
+  practices, or SKILL.md format.
+---
+# Creating skills
+
+Skills are markdown (plus optional scripts) that teach the agent a focused workflow. **Keep SKILL.md short**—the context window is shared with chat, code, and other skills.
+
+## Where skills live
+
+| Location | When to use |
+|----------|-------------|
+| **`.claude/skills/<name>/` in this repo** | Default for n8n: team-shared, versioned. **Cursor picks up project skills from here** when working in the repo (same idea as Claude Code). |
+| `~/.claude/skills/<name>/` | Personal skill for Claude Code across all projects. |
+| `~/.cursor/skills/<name>/` | Optional personal skill for Cursor only, global to your machine. |
+
+**Do not** put custom skills in `~/.cursor/skills-cursor/`—that is reserved for Cursor’s built-in skills.
+
+Prefer **repo `.claude/skills/`** for anything that should match how the rest of the team works.
+
+## Before you write: gather requirements
+
+Ask (or infer) briefly:
+
+1. **Purpose** — one concrete task or workflow.
+2. **Triggers** — when should the agent apply this skill?
+3. **Gaps** — what does the agent *not* already know (project rules, URLs, formats)?
+4. **Outputs** — templates, checklists, or strict formats?
+5. **Examples** — follow an existing skill in `.claude/skills/` if one fits.
+
+Ask the user in plain language when you need more detail.
+
+## File layout
+
+```
+skill-name/
+├── SKILL.md       # required
+├── reference.md   # optional — detail the agent reads only if needed
+├── examples.md    # optional
+└── scripts/       # optional
+```
+
+### Frontmatter (required)
+
+```yaml
+---
+name: skill-name          # lowercase, hyphens, max 64 chars
+---END---
+FILE: .claude/skills/linear-issue/SKILL.md (175 lines)
+---
+name: linear-issue
+description: Fetch and analyze Linear issue with all related context. Use when starting work on a Linear ticket, analyzing issues, or gathering context about a Linear issue.
+disable-model-invocation: true
+argument-hint: "[issue-id]"
+compatibility:
+  requires:
+    - mcp: linear
+      description: Core dependency — used to fetch issue details, relations, and comments
+    - cli: gh
+      description: GitHub CLI — used to fetch linked PRs and issues. Must be authenticated (gh auth login)
+  optional:
+    - mcp: notion
+      description: Used to fetch linked Notion documents. Skip Notion steps if unavailable.
+    - skill: loom-transcript
+      description: Used to fetch Loom video transcripts. Skip Loom steps if unavailable.
+    - cli: curl
+      description: Used to download images/attachments. Typically pre-installed.
+---
+
+# Linear Issue Analysis
+
+Start work on Linear issue **$ARGUMENTS**
+
+## Prerequisites
+
+This skill depends on external tools. Before proceeding, verify availability:
+
+**Required:**
+- **Linear MCP** (`mcp__linear`): Must be connected. Without it the skill cannot function at all.
+- **GitHub CLI** (`gh`): Must be installed and authenticated. Run `gh auth status` to verify. Used to fetch linked PRs and issues.
+
+**Optional (graceful degradation):**
+- **Notion MCP** (`mcp__notion`): Needed only if the issue links to Notion docs. If unavailable, note the Notion links in the summary and tell the user to check them manually.
+- **Loom transcript skill** (`/loom-transcript`): Needed only if the issue contains Loom videos. If unavailable, note the Loom links in the summary for the user to watch.
+- **curl**: Used to download images. Almost always available; if missing, skip image downloads and note it.
+
+If a required tool is missing, stop and tell the user what needs to be set up before continuing.
+
+## Instructions
+
+Follow these steps to gather comprehensive context about the issue:
+
+### 1. Fetch the Issue and Comments from Linear
+
+Use the Linear MCP tools to fetch the issue details and comments together:
+
+- Use `mcp__linear__get_issue` with the issue ID to get full details including attachments
+- Include relations to see blocking/related/duplicate issues
+- **Immediately after**, use `mcp__linear__list_comments` with the issue ID to fetch all comments
+---END---
+FILE: .claude/skills/loom-transcript/SKILL.md (104 lines)
+---
+name: loom-transcript
+description: Fetch and display the full transcript from a Loom video URL. Use when the user wants to get or read a Loom transcript.
+argument-hint: [loom-url]
+---
+
+# Loom Transcript Fetcher
+
+Fetch the transcript from a Loom video using Loom's GraphQL API.
+
+## Instructions
+
+Given the Loom URL: $ARGUMENTS
+
+### 1. Extract the Video ID
+
+Parse the Loom URL to extract the 32-character hex video ID. Supported URL formats:
+- `https://www.loom.com/share/<video-id>`
+- `https://www.loom.com/embed/<video-id>`
+- `https://www.loom.com/share/<video-id>?sid=<session-id>`
+
+The video ID is the 32-character hex string after `/share/` or `/embed/`.
+
+### 2. Fetch Video Metadata
+
+Use the `WebFetch` tool to POST to `https://www.loom.com/graphql` to get the video title and details.
+
+Use this curl command via Bash:
+
+```bash
+curl -s 'https://www.loom.com/graphql' \
+  -H 'Content-Type: application/json' \
+  -H 'Accept: application/json' \
+  -H 'x-loom-request-source: loom_web_45a5bd4' \
+  -H 'apollographql-client-name: web' \
+  -H 'apollographql-client-version: 45a5bd4' \
+  -d '{
+    "operationName": "GetVideoSSR",
+    "variables": {"id": "<VIDEO_ID>", "password": null},
+    "query": "query GetVideoSSR($id: ID!, $password: String) { getVideo(id: $id, password: $password) { ... on RegularUserVideo { id name description createdAt owner { display_name } } } }"
+  }'
+```
+
+### 3. Fetch the Transcript URLs
+
+Use curl via Bash to call the GraphQL API:
+
+```bash
+curl -s 'https://www.loom.com/graphql' \
+  -H 'Content-Type: application/json' \
+---END---
+FILE: .claude/skills/n8n-conventions/SKILL.md (98 lines)
+---
+name: n8n-conventions
+description: Quick reference for n8n patterns. Full docs /AGENTS.md
+---
+
+# n8n Quick Reference
+
+**📚 Full Documentation:**
+- **General:** `/AGENTS.md` - Architecture, commands, workflows
+- **Frontend:** `/packages/frontend/AGENTS.md` - CSS variables, timing
+
+Use this skill when you need quick reminders on critical patterns.
+
+## Critical Rules (Must Follow)
+
+**TypeScript:**
+- Never `any` → use `unknown`
+- Prefer `satisfies` over `as` (except tests)
+- Shared types in `@n8n/api-types`
+
+**Error Handling:**
+```typescript
+import { UnexpectedError } from 'n8n-workflow';
+throw new UnexpectedError('message', { extra: { context } });
+// DON'T use deprecated ApplicationError
+```
+
+**Frontend:**
+- Vue 3 Composition API (`<script setup lang="ts">`)
+- CSS variables (never hardcode px) - see `/packages/frontend/AGENTS.md`
+- All text via i18n (`$t('key')`)
+- `data-testid` for E2E (single value, no spaces)
+
+**Backend:**
+- Controller → Service → Repository
+- Dependency injection via `@n8n/di`
+- Config via `@n8n/config`
+- Zod schemas for validation
+
+**Testing:**
+- Vitest (unit), Playwright (E2E)
+- Mock external dependencies
+- Work from package directory: `pushd packages/cli && pnpm test`
+
+**Database:**
+- SQLite/PostgreSQL only (app DB)
+- Exception: DB nodes (MySQL Node, etc.) can use DB-specific features
+
+**Commands:**
+```bash
+---END---
+FILE: .claude/skills/node-add-oauth/SKILL.md (322 lines)
+---
+name: node-add-oauth
+description: Add OAuth2 credential support to an existing n8n node — creates the credential file, updates the node, adds tests, and keeps the CLI constant in sync. Use when the user says /node-add-oauth.
+argument-hint: "[node-name] [optional: custom-scopes flag or scope list]"
+---
+
+## Overview
+
+Add OAuth2 (Authorization Code / 3LO) support to an existing n8n node. Works for any
+third-party service that supports standard OAuth2.
+
+Before starting, read comparable existing OAuth2 credential files and tests under
+`packages/nodes-base/credentials/` to understand the conventions used in this codebase
+(e.g. `DiscordOAuth2Api.credentials.ts`, `MicrosoftTeamsOAuth2Api.credentials.ts`).
+
+---
+
+## Step 0 — Parse arguments
+
+Extract:
+- `NODE_NAME`: the service name (e.g. `GitHub`, `Notion`). Try to infer from the argument;
+  if ambiguous, ask the user.
+- `CUSTOM_SCOPES`: whether the credential should support user-defined scopes. If the
+  argument does not make this clear, **ask the user** before proceeding:
+  > "Should users be able to customise the OAuth2 scopes for this credential, or should
+  > scopes be fixed?"
+
+---
+
+## Step 1 — Explore the node
+
+Read the following (adjust path conventions for the specific service):
+
+1. Node directory: `packages/nodes-base/nodes/{NODE_NAME}/`
+   - Find `*.node.ts` (main node) and any `*Trigger.node.ts`
+   - Find `GenericFunctions.ts` (may be named differently)
+   - Check if an `auth` / `version` subdirectory exists
+2. Existing credentials: `packages/nodes-base/credentials/` — look for existing
+   `{NODE_NAME}*Api.credentials.ts` files to understand the naming convention and any
+   auth method already in use.
+3. `package.json` at `packages/nodes-base/package.json` — find where existing credentials
+   for this node are registered (grep for the node name).
+
+---
+
+## Step 2 — Research OAuth2 endpoints
+
+Look up the service's OAuth2 documentation:
+- Authorization URL
+- Access Token URL
+---END---
+FILE: .claude/skills/reproduce-bug/SKILL.md (136 lines)
+---
+name: reproduce-bug
+description: Reproduce a bug from a Linear ticket with a failing test. Expects the full ticket context (title, description, comments) to be provided as input.
+user_invocable: true
+---
+
+# Bug Reproduction Framework
+
+Given a Linear ticket context ($ARGUMENTS), systematically reproduce the bug
+with a failing regression test.
+
+## Step 1: Parse Signals
+
+Extract the following from the provided ticket context:
+- **Error message / stack trace** (if provided)
+- **Reproduction steps** (if provided)
+- **Workflow JSON** (if attached)
+- **Affected area** (node, execution engine, editor, API, config, etc.)
+- **Version where it broke / last working version**
+
+
+## Step 2: Route to Test Strategy
+
+Based on the affected area, pick the test layer and pattern:
+
+| Area | Test Layer | Pattern | Key Location |
+|------|-----------|---------|--------------|
+| Node operation | Jest unit | NodeTestHarness + nock | `packages/nodes-base/nodes/*/test/` |
+| Node credential | Jest unit | jest-mock-extended | `packages/nodes-base/nodes/*/test/` |
+| Trigger webhook | Jest unit | mock IHookFunctions + jest.mock GenericFunctions | `packages/nodes-base/nodes/*/test/` |
+| Binary data | Jest unit | NodeTestHarness assertBinaryData | `packages/core/nodes-testing/` |
+| Execution engine | Jest integration | WorkflowRunner + DI container | `packages/cli/src/__tests__/` |
+| CLI / API | Jest integration | setupTestServer + supertest | `packages/cli/test/integration/` |
+| Config | Jest unit | GlobalConfig + Container | `packages/@n8n/config/src/__tests__/` |
+| Editor UI | Vitest | Vue Test Utils + Pinia | `packages/frontend/editor-ui/src/**/__tests__/` |
+| E2E / Canvas | Playwright | Test containers + composables | `packages/testing/playwright/` |
+
+## Step 3: Locate Source Files
+
+Find the source code for the affected area:
+1. Search for the node/service/component mentioned in the ticket
+2. Find the GenericFunctions file (common bug location for nodes)
+3. Check for existing test files in the same area
+4. Look at recent git history on affected files (`git log --oneline -10 -- <path>`)
+
+## Step 4: Trace the Code Path
+
+Read the source code and trace the execution path that triggers the bug:
+- Follow the call chain from entry point to the failure
+- Identify the specific line(s) where the bug manifests
+---END---
+FILE: .claude/skills/spec-driven-development/SKILL.md (80 lines)
+---
+name: spec-driven-development
+description: Keeps implementation and specs in sync. Use when working on a feature that has a spec in .claude/specs/, when the user says /spec, or when starting implementation of a documented feature. Also use when the user asks to verify implementation against a spec or update a spec after changes.
+---
+
+# Spec-Driven Development
+
+Specs live in `.claude/specs/`. They are the source of truth for architectural
+decisions, API contracts, and implementation scope. Implementation and specs
+must stay in sync — neither leads exclusively.
+
+## Core Loop
+
+```
+Read spec → Implement → Verify alignment → Update spec or code → Repeat
+```
+
+## Before Starting Work
+
+1. **Find the spec.** Search `.claude/specs/` for files matching the feature:
+
+```bash
+ls .claude/specs/
+```
+
+2. **Read the full spec.** Understand scope, decisions, API contracts, and
+   open questions before writing code.
+
+3. **If no spec exists** and the task is non-trivial (new module, new API,
+   architectural change), ask the user whether to create one first.
+
+## During Implementation
+
+- **Reference spec decisions** — don't re-decide what the spec already settled.
+- **When you diverge from the spec** (better approach found, user requested
+  change, constraint discovered), update the spec immediately in the same
+  session. Don't leave spec and code out of sync.
+- **Tick off TODO checkboxes** (`- [ ]` → `- [x]`) as items are completed.
+- **Strike through or annotate** items that were deliberately skipped or
+  replaced, with a brief reason:
+  ```markdown
+  - [x] ~~OpenRouter proxy~~ → Direct execution: nodes call OpenRouter directly
+  ```
+
+## After Completing Work
+
+Run a spec verification pass:
+
+1. **Re-read the spec** alongside the implementation.
+2. **Check each section:**
+---END---
+FILE: .claude/specs/.gitkeep (0 lines)
+---END---
+
+### .agents/ contents
+FILE: .agents/design-system-style-rules.md (62 lines)
+# Design System Style Review Rules
+
+Use these rules when reviewing CSS/SCSS/Vue style changes, especially in
+`packages/frontend/` and `packages/frontend/@n8n/design-system/`.
+
+## 1) Token source priority
+
+Prefer this order when choosing visual values:
+
+1. Semantic tokens from
+   `packages/frontend/@n8n/design-system/src/css/_tokens.scss`
+2. Primitives from
+   `packages/frontend/@n8n/design-system/src/css/_primitives.scss`
+3. Hard-coded values only when no suitable token exists
+
+If no token exists, request a short rationale in the PR.
+
+## 2) Hard-coded visual values
+
+Flag hard-coded visual values and suggest token alternatives. This includes:
+
+- Colors (`#fff`, `rgb()`, `hsl()`, `oklch()`)
+- Spacing and sizing (`px`, `rem`, numeric layout constants in styles)
+- Radius, border widths/styles, and shadows
+- Typography values (font size, weight, line-height)
+- Motion values (durations and easing like `cubic-bezier(...)`)
+
+Severity: strong warning (expected migration to tokens/primitives when possible).
+
+## 3) Legacy token usage
+
+In `_tokens.scss`, the compatibility section labeled
+"Legacy tokens (kept for compatibility)" is considered legacy usage.
+
+When new or modified code uses these legacy token families, flag it as a
+migration opportunity and recommend semantic token usage where available.
+
+Severity: strong warning (discourage new usage, allow compatibility paths).
+
+## 4) Deprecated style and component surfaces
+
+Flag new usage of deprecated/legacy style surfaces in design-system components,
+for example:
+
+- `Button.legacy.scss` and legacy button override classes
+- Legacy button variants/types (for example `highlight`, `highlight-fill`)
+- Legacy component variants that exist for compatibility (for example legacy
+  tabs variant)
+
+Severity: strong warning (prefer modern semantic variants/components).
+---END---
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+assets
+biome.jsonc
+CHANGELOG.md
+CLAUDE.md
+codecov.yml
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+CONTRIBUTOR_LICENSE_AGREEMENT.md
+cubic.yaml
+docker
+jest.config.js
+lefthook.yml
+LICENSE_EE.md
+LICENSE.md
+package.json
+packages
+patches
+pnpm-lock.yaml
+pnpm-workspace.yaml
+README.md
+renovate.json
+scripts
+security
+SECURITY.md
+tsconfig.json
+turbo.json
+vitest.workspace.ts
+
+### README
+FILE: README.md
+![Banner image](https://user-images.githubusercontent.com/10284570/173569848-c624317f-42b1-45a6-ab09-f0ea3c247648.png)
+
+# n8n - Secure Workflow Automation for Technical Teams
+
+n8n is a workflow automation platform that gives technical teams the flexibility of code with the speed of no-code. With 400+ integrations, native AI capabilities, and a fair-code license, n8n lets you build powerful automations while maintaining full control over your data and deployments.
+
+![n8n.io - Screenshot](https://raw.githubusercontent.com/n8n-io/n8n/master/assets/n8n-screenshot-readme.png)
+
+## Key Capabilities
+
+- **Code When You Need It**: Write JavaScript/Python, add npm packages, or use the visual interface
+- **AI-Native Platform**: Build AI agent workflows based on LangChain with your own data and models
+- **Full Control**: Self-host with our fair-code license or use our [cloud offering](https://app.n8n.cloud/login)
+- **Enterprise-Ready**: Advanced permissions, SSO, and air-gapped deployments
+- **Active Community**: 400+ integrations and 900+ ready-to-use [templates](https://n8n.io/workflows)
+
+## Quick Start
+
+Try n8n instantly with [npx](https://docs.n8n.io/hosting/installation/npm/) (requires [Node.js](https://nodejs.org/en/)):
+
+```
+npx n8n
+```
+
+Or deploy with [Docker](https://docs.n8n.io/hosting/installation/docker/):
+
+```
+docker volume create n8n_data
+docker run -it --rm --name n8n -p 5678:5678 -v n8n_data:/home/node/.n8n docker.n8n.io/n8nio/n8n
+```
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "n8n-monorepo",
+  "version": "2.15.0",
+  "private": true,
+  "engines": {
+    "node": ">=22.16",
+    "pnpm": ">=10.22.0"
+  },
+  "packageManager": "pnpm@10.32.1",
+  "scripts": {
+    "prepare": "node scripts/prepare.mjs",
+    "preinstall": "node scripts/block-npm-install.js",
+    "build": "turbo run build",
+    "build:n8n": "node scripts/build-n8n.mjs",
+    "build:deploy": "node scripts/build-n8n.mjs",
+    "build:docker": "node scripts/build-n8n.mjs && node scripts/dockerize-n8n.mjs",
+    "build:docker:coverage": "BUILD_WITH_COVERAGE=true node scripts/build-n8n.mjs && node scripts/dockerize-n8n.mjs",
+    "build:docker:scan": "node scripts/build-n8n.mjs && node scripts/dockerize-n8n.mjs && node scripts/scan-n8n-image.mjs",
+    "build:docker:clean": "TURBO_FORCE=true node scripts/build-n8n.mjs && DOCKER_BUILD_NO_CACHE=true DOCKER_BUILD_BASE_IMAGE=true node scripts/dockerize-n8n.mjs",
+    "build:docker:test": "node scripts/build-n8n.mjs && node scripts/dockerize-n8n.mjs && turbo run test:container:standard --filter=n8n-playwright",
+    "typecheck": "turbo typecheck",
+    "dev": "turbo run dev --parallel --env-mode=loose --filter=!@n8n/design-system --filter=!@n8n/chat --filter=!@n8n/task-runner",
+    "dev:be": "turbo run dev --parallel --env-mode=loose --filter=!@n8n/design-system --filter=!@n8n/chat --filter=!@n8n/task-runner --filter=!n8n-editor-ui",
+    "dev:ai": "turbo run dev --parallel --env-mode=loose --filter=@n8n/nodes-langchain --filter=n8n --filter=n8n-core",
+    "dev:fe": "run-p start \"dev:fe:editor --filter=@n8n/design-system\"",
+    "dev:fe:editor": "turbo run dev --parallel --env-mode=loose --filter=n8n-editor-ui",
+    "dev:e2e": "pnpm --filter=n8n-playwright dev --ui",
+    "clean": "turbo run clean",
+    "reset": "node scripts/ensure-zx.mjs && zx scripts/reset.mjs",
+    "format": "turbo run format && node scripts/format.mjs",
+    "format:check": "turbo run format:check",
+    "lint": "turbo run lint",
+    "lint:styles": "turbo run lint:styles",
+    "lint:styles:fix": "turbo run lint:styles:fix",
+    "lint:affected": "turbo run lint --affected",
+    "lint:fix": "turbo run lint:fix",
+    "optimize-svg": "find ./packages -name '*.svg' ! -name 'pipedrive.svg' -print0 | xargs -0 -P16 -L20 npx svgo",
+    "generate:third-party-licenses": "node scripts/generate-third-party-licenses.mjs",
+    "setup-backend-module": "node scripts/ensure-zx.mjs && zx scripts/backend-module/setup.mjs",
+    "start": "node scripts/os-normalize.mjs --dir packages/cli/bin n8n",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 3147
+ci_workflow_count: 70
+backport.yml
+build-base-image.yml
+build-benchmark-image.yml
+build-windows.yml
+ci-check-pr-title.yml
+ci-check-release-from-fork.yml
+ci-detect-new-packages.yml
+ci-master.yml
+ci-pull-requests.yml
+ci-python.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+biome.jsonc: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 525 lines
+# Contributing to n8n
+
+Great that you are here and you want to contribute to n8n
+
+## Contents
+
+- [Contributing to n8n](#contributing-to-n8n)
+	- [Contents](#contents)
+	- [Code of conduct](#code-of-conduct)
+	- [Directory structure](#directory-structure)
+	- [Development setup](#development-setup)
+		- [Dev Container](#dev-container)
+		- [Requirements](#requirements)
+			- [Node.js](#nodejs)
+			- [pnpm](#pnpm)
+				- [pnpm workspaces](#pnpm-workspaces)
+			- [corepack](#corepack)
+			- [Build tools](#build-tools)
+		- [Actual n8n setup](#actual-n8n-setup)
+		- [Start](#start)
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "dev": "turbo run dev --parallel --env-mode=loose --filter=!@n8n/design-system --filter=!@n8n/chat --filter=!@n8n/task-runner",
+    "watch": "turbo run watch --concurrency=32",
+### tsconfig.json
+{
+	"extends": "./packages/@n8n/typescript-config/tsconfig.common.json",
+	"exclude": ["**/dist/**/*", "**/node_modules/**/*"]
+}
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 368
+### Largest source files
+ 254715 total
+   5108 ./packages/core/test/helpers/constants.ts
+   4554 ./packages/cli/src/modules/data-table/__tests__/data-table.controller.integration.test.ts
+   3547 ./packages/cli/src/modules/data-table/__tests__/data-table.service.integration.test.ts
+   3393 ./packages/core/src/execution-engine/__tests__/workflow-execute.test.ts
+   3083 ./packages/cli/src/modules/source-control.ee/__tests__/source-control-import.service.ee.test.ts
+   2918 ./packages/cli/src/modules/chat-hub/__tests__/chat-hub.service.integration.test.ts
+   2708 ./packages/cli/src/modules/data-table/__tests__/data-table-filters.integration.test.ts
+   2677 ./packages/core/src/execution-engine/workflow-execute.ts
+   2574 ./packages/cli/src/events/__tests__/log-streaming-event-relay.test.ts
+   2523 ./packages/cli/src/oauth/__tests__/oauth.service.test.ts
+
+=== END SIGNALS ===

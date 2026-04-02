@@ -1,0 +1,143 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/microsoft-terminal
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+build
+CODE_OF_CONDUCT.md
+common.openconsole.props
+consolegit2gitfilters.json
+CONTRIBUTING.md
+custom.props
+dep
+Directory.Build.props
+Directory.Build.targets
+dirs
+doc
+LICENSE
+NOTICE.md
+NuGet.Config
+OpenConsole.slnx
+oss
+policies
+README.md
+res
+samples
+scratch
+Scratch.sln
+SECURITY.md
+src
+SUPPORT.md
+tools
+vcpkg.json
+XamlStyler.json
+
+### README
+FILE: README.md
+![terminal-logos](https://github.com/microsoft/terminal/assets/91625426/333ddc76-8ab2-4eb4-a8c0-4d7b953b1179)
+
+[![Terminal Build Status](https://dev.azure.com/shine-oss/terminal/_apis/build/status%2FTerminal%20CI?branchName=main)](https://dev.azure.com/shine-oss/terminal/_build/latest?definitionId=1&branchName=main)
+
+# Welcome to the Windows Terminal, Console and Command-Line repo
+
+<details>
+  <summary><strong>Table of Contents</strong></summary>
+
+- [Installing and running Windows Terminal](#installing-and-running-windows-terminal)
+  - [Microsoft Store \[Recommended\]](#microsoft-store-recommended)
+  - [Other install methods](#other-install-methods)
+    - [Via GitHub](#via-github)
+    - [Via Windows Package Manager CLI (aka winget)](#via-windows-package-manager-cli-aka-winget)
+    - [Via Chocolatey (unofficial)](#via-chocolatey-unofficial)
+    - [Via Scoop (unofficial)](#via-scoop-unofficial)
+- [Installing Windows Terminal Canary](#installing-windows-terminal-canary)
+- [Terminal \& Console Overview](#terminal--console-overview)
+  - [Windows Terminal](#windows-terminal)
+  - [The Windows Console Host](#the-windows-console-host)
+  - [Shared Components](#shared-components)
+  - [Creating the new Windows Terminal](#creating-the-new-windows-terminal)
+- [Resources](#resources)
+- [FAQ](#faq)
+  - [I built and ran the new Terminal, but it looks just like the old console](#i-built-and-ran-the-new-terminal-but-it-looks-just-like-the-old-console)
+- [Documentation](#documentation)
+- [Contributing](#contributing)
+- [Communicating with the Team](#communicating-with-the-team)
+- [Developer Guidance](#developer-guidance)
+- [Prerequisites](#prerequisites)
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 2
+ci_workflow_count: 3
+addToProject.yml
+spelling2.yml
+winget.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 179 lines
+# Terminal Contributor's Guide
+
+Below is our guidance for how to report issues, propose new features, and submit contributions via Pull Requests (PRs).
+
+## Open Development Workflow
+
+The Windows Terminal team is VERY active in this GitHub Repo. In fact, we live in it all day long and carry out all our development in the open!
+
+When the team finds issues we file them in the repo. When we propose new ideas or think-up new features, we file new feature requests. When we work on fixes or features, we create branches and work on those improvements. And when PRs are reviewed, we review in public - including all the good, the bad, and the ugly parts.
+
+The point of doing all this work in public is to ensure that we are holding ourselves to a high degree of transparency, and so that the community sees that we apply the same processes and hold ourselves to the same quality-bar as we do to community-submitted issues and PRs. We also want to make sure that we expose our team culture and "tribal knowledge" that is inherent in any closely-knit team, which often contains considerable value to those new to the project who are trying to figure out "why the heck does this thing look/work like this???"
+
+### Repo Bot
+
+The team triages new issues several times a week. During triage, the team uses labels to categorize, manage, and drive the project workflow.
+
+We employ [a bot engine](./doc/bot.md) to help us automate common processes within our workflow.
+
+We drive the bot by tagging issues with specific labels which cause the bot engine to close issues, merge branches, etc. This bot engine helps us keep the repo clean by automating the process of notifying appropriate parties if/when information/follow-up is needed, and closing stale issues/PRs after reminders have remained unanswered for several days.
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 248081 total
+   8480 ./src/host/ut_host/ScreenBufferTests.cpp
+   5781 ./src/cascadia/TerminalApp/TerminalPage.cpp
+   4865 ./src/terminal/adapter/adaptDispatch.cpp
+   4211 ./src/interactivity/win32/ut_interactivity_win32/GeneratedUiaTextRangeMovementTests.g.cpp
+   4160 ./src/cascadia/TerminalControl/TermControl.cpp
+   4034 ./src/terminal/adapter/ut_adapter/adapterTest.cpp
+   3574 ./src/terminal/parser/ut_parser/OutputEngineTest.cpp
+   3560 ./src/buffer/out/textBuffer.cpp
+   3079 ./src/cascadia/TerminalApp/Pane.cpp
+   2944 ./src/cascadia/TerminalControl/ControlCore.cpp
+
+=== END SIGNALS ===

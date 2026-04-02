@@ -1,0 +1,124 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/golang-go
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+api
+codereview.cfg
+CONTRIBUTING.md
+doc
+go.env
+lib
+LICENSE
+misc
+PATENTS
+README.md
+SECURITY.md
+src
+test
+
+### README
+FILE: README.md
+# The Go Programming Language
+
+Go is an open source programming language that makes it easy to build simple,
+reliable, and efficient software.
+
+![Gopher image](https://golang.org/doc/gopher/fiveyears.jpg)
+*Gopher image by [Renee French][rf], licensed under [Creative Commons 4.0 Attribution license][cc4-by].*
+
+Our canonical Git repository is located at https://go.googlesource.com/go.
+There is a mirror of the repository at https://github.com/golang/go.
+
+Unless otherwise noted, the Go source files are distributed under the
+BSD-style license found in the LICENSE file.
+
+### Download and Install
+
+#### Binary Distributions
+
+Official binary distributions are available at https://go.dev/dl/.
+
+After downloading a binary release, visit https://go.dev/doc/install
+for installation instructions.
+
+#### Install From Source
+
+If a binary distribution is not available for your combination of
+operating system and architecture, visit
+https://go.dev/doc/install/source
+for source installation instructions.
+
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 1963
+ci: DOES NOT EXIST
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 35 lines
+# Contributing to Go
+
+Go is an open source project.
+
+It is the work of hundreds of contributors. We appreciate your help!
+
+## Before filing an issue
+
+If you are unsure whether you have found a bug, please consider asking in the [golang-nuts mailing
+list](https://groups.google.com/forum/#!forum/golang-nuts) or [other forums](https://golang.org/help/) first. If
+the behavior you are seeing is confirmed as a bug or issue, it can easily be re-raised in the issue tracker.
+
+## Filing issues
+
+Sensitive security-related issues should be reported to [security@golang.org](mailto:security@golang.org).
+See the [security policy](https://golang.org/security) for details.
+
+The recommended way to file an issue is by running `go bug`.
+Otherwise, when filing an issue, make sure to answer these five questions:
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 143
+### Largest source files
+ 321973 total
+   8924 ./src/simd/archsimd/internal/simd_test/unary_helpers_test.go
+   8751 ./src/simd/archsimd/ops_amd64.go
+   4082 ./src/os/os_test.go
+   3580 ./src/cmd/cgo/gcc.go
+   2543 ./src/cmd/cgo/internal/test/test.go
+   2507 ./src/bytes/bytes_test.go
+   2381 ./src/os/os_windows_test.go
+   2102 ./src/cmd/cgo/out.go
+   2101 ./src/syscall/zerrors_linux_loong64.go
+   2059 ./src/os/root_test.go
+
+=== END SIGNALS ===

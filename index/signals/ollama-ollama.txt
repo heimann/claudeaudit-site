@@ -1,0 +1,209 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/ollama-ollama
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+anthropic
+api
+app
+auth
+CMakeLists.txt
+CMakePresets.json
+cmd
+CONTRIBUTING.md
+convert
+discover
+Dockerfile
+docs
+envconfig
+format
+fs
+go.mod
+go.sum
+harmony
+integration
+internal
+kvcache
+LICENSE
+llama
+llm
+logutil
+main.go
+Makefile.sync
+manifest
+middleware
+ml
+MLX_C_VERSION
+MLX_VERSION
+model
+openai
+parser
+progress
+readline
+README.md
+runner
+sample
+scripts
+SECURITY.md
+server
+template
+thinking
+tokenizer
+tools
+types
+version
+x
+
+### README
+FILE: README.md
+<p align="center">
+  <a href="https://ollama.com">
+    <img src="https://github.com/ollama/ollama/assets/3325447/0d0b44e2-8f4a-4e99-9b52-a5c1c741c8f7" alt="ollama" width="200"/>
+  </a>
+</p>
+
+# Ollama
+
+Start building with open models.
+
+## Download
+
+### macOS
+
+```shell
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+or [download manually](https://ollama.com/download/Ollama.dmg)
+
+### Windows
+
+```shell
+irm https://ollama.com/install.ps1 | iex
+```
+
+or [download manually](https://ollama.com/download/OllamaSetup.exe)
+
+### Linux
+
+---END---
+
+## Dependencies
+FILE: go.mod
+module github.com/ollama/ollama
+
+go 1.24.1
+
+require (
+	github.com/TheTitanrain/w32 v0.0.0-20180517000239-4f5cfb03fabf
+	github.com/containerd/console v1.0.3
+	github.com/gin-gonic/gin v1.10.0
+	github.com/golang/protobuf v1.5.4 // indirect
+	github.com/google/go-cmp v0.7.0
+	github.com/google/uuid v1.6.0
+	github.com/ledongthuc/pdf v0.0.0-20250511090121-5959a4027728
+	github.com/mattn/go-sqlite3 v1.14.24
+	github.com/olekukonko/tablewriter v0.0.5
+	github.com/spf13/cobra v1.7.0
+	github.com/stretchr/testify v1.10.0
+	github.com/x448/float16 v0.8.4
+	golang.org/x/sync v0.17.0
+	golang.org/x/sys v0.37.0
+)
+
+require (
+	github.com/agnivade/levenshtein v1.1.1
+	github.com/charmbracelet/bubbletea v1.3.10
+	github.com/charmbracelet/lipgloss v1.1.0
+	github.com/d4l3k/go-bfloat16 v0.0.0-20211005043715-690c3bdd05f1
+	github.com/dlclark/regexp2 v1.11.4
+	github.com/emirpasic/gods/v2 v2.0.0-alpha
+	github.com/klauspost/compress v1.18.3
+	github.com/mattn/go-runewidth v0.0.16
+	github.com/nlpodyssey/gopickle v0.3.0
+	github.com/pdevine/tensor v0.0.0-20240510204454-f88f4562727c
+	github.com/pkg/browser v0.0.0-20240102092130-5ac0b6a4141c
+	github.com/tkrajina/typescriptify-golang-structs v0.2.0
+	github.com/tree-sitter/go-tree-sitter v0.25.0
+	github.com/tree-sitter/tree-sitter-cpp v0.23.4
+	github.com/wk8/go-ordered-map/v2 v2.1.8
+	golang.org/x/image v0.22.0
+	golang.org/x/mod v0.30.0
+	golang.org/x/tools v0.38.0
+---END---
+### Lock files
+go.sum: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 236
+ci_workflow_count: 4
+latest.yaml
+release.yaml
+test-install.yaml
+test.yaml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.golangci.yaml: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 88 lines
+# Contributing to Ollama
+
+Thank you for your interest in contributing to Ollama! Here are a few guidelines to help get you started.
+
+## Set up
+
+See the [development documentation](./docs/development.md) for instructions on how to build and run Ollama locally.
+
+### Ideal issues
+
+* [Bugs](https://github.com/ollama/ollama/issues?q=is%3Aissue+is%3Aopen+label%3Abug): issues where Ollama stops working or where it results in an unexpected error.
+* [Performance](https://github.com/ollama/ollama/issues?q=is%3Aissue+is%3Aopen+label%3Aperformance): issues to make Ollama faster at model inference, downloading or uploading.
+* [Security](https://github.com/ollama/ollama/blob/main/SECURITY.md): issues that could lead to a security vulnerability. As mentioned in [SECURITY.md](https://github.com/ollama/ollama/blob/main/SECURITY.md), please do not disclose security vulnerabilities publicly.
+
+### Issues that are harder to review
+
+* New features: new features (e.g. API fields, environment variables) add surface area to Ollama and make it harder to maintain in the long run as they cannot be removed without potentially breaking users in the future.
+* Refactoring: large code improvements are important, but can be harder or take longer to review and merge.
+* Documentation: small updates to fill in or correct missing documentation are helpful, however large documentation additions can be hard to maintain over time.
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: Go binary
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 15
+### Largest source files
+  393899 total
+   15330 ./ml/backend/ggml/ggml/src/ggml-vulkan/ggml-vulkan.cpp
+   10516 ./ml/backend/ggml/ggml/src/ggml-cpu/ops.cpp
+    8060 ./llama/llama.cpp/src/llama-model.cpp
+    7605 ./ml/backend/ggml/ggml/src/ggml.c
+    7034 ./llama/llama.cpp/src/unicode-data.cpp
+    6307 ./ml/backend/ggml/ggml/src/ggml-cpu/arch/x86/repack.cpp
+    5954 ./x/imagegen/mlx/mlx.c
+    5325 ./ml/backend/ggml/ggml/src/ggml-quants.c
+    4156 ./ml/backend/ggml/ggml/src/ggml-metal/ggml-metal-ops.cpp
+    4052 ./ml/backend/ggml/ggml/src/ggml-cpu/arch/arm/quants.c
+
+=== END SIGNALS ===

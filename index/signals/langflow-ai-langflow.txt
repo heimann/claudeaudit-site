@@ -1,0 +1,345 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/langflow-ai-langflow
+
+## Agent Documentation
+FILE: CLAUDE.md (5 lines)
+# CLAUDE.md
+
+See [AGENTS.md](./AGENTS.md) for project instructions.
+
+This project uses [AGENTS.md](https://agents.md/) as the standard for providing context to AI coding agents. The AGENTS.md file contains all the information needed to understand and contribute to this codebase.
+---END---
+FILE: AGENTS.md (200 lines)
+# AGENTS.md
+
+This file provides guidance to AI coding agents when working with code in this repository.
+
+## Project Overview
+
+Langflow is a visual workflow builder for AI-powered agents. It has a Python/FastAPI backend, React/TypeScript frontend, and a lightweight executor CLI (lfx).
+
+## Prerequisites
+
+- **Python:** 3.10-3.13
+- **uv:** >=0.4 (Python package manager)
+- **Node.js:** >=20.19.0 (v22.12 LTS recommended)
+- **npm:** v10.9+
+- **make:** For build coordination
+
+## Common Commands
+
+### Development Setup
+```bash
+make init              # Install all dependencies + pre-commit hooks
+make run_cli           # Build and run Langflow (http://localhost:7860)
+make run_clic          # Clean build and run (use when frontend issues occur)
+```
+
+### Development Mode (Hot Reload)
+```bash
+make backend           # FastAPI on port 7860 (terminal 1)
+make frontend          # Vite dev server on port 3000 (terminal 2)
+```
+
+For component development, enable dynamic loading:
+```bash
+LFX_DEV=1 make backend                    # Load all components dynamically
+LFX_DEV=mistral,openai make backend       # Load only specific modules
+```
+
+### Code Quality
+```bash
+make format_backend    # Format Python (ruff) - run FIRST before lint
+make format_frontend   # Format TypeScript (biome)
+make format            # Both
+make lint              # mypy type checking
+```
+
+### Testing
+```bash
+make unit_tests                    # Backend unit tests (pytest, parallel)
+make unit_tests async=false        # Sequential tests
+uv run pytest path/to/test.py      # Single test file
+uv run pytest path/to/test.py::test_name  # Single test
+
+make test_frontend                 # Jest unit tests
+make tests_frontend                # Playwright e2e tests
+```
+
+### Database Migrations
+```bash
+make alembic-revision message="Description"  # Create migration
+make alembic-upgrade                         # Apply migrations
+make alembic-downgrade                       # Rollback one version
+```
+
+## Architecture
+
+### Monorepo Structure
+```
+src/
+├── backend/
+│   ├── base/langflow/     # Core backend package (langflow-base)
+│   │   ├── api/           # FastAPI routes (v1/, v2/)
+│   │   ├── components/    # Built-in Langflow components
+│   │   ├── services/      # Service layer (auth, database, cache, etc.)
+│   │   ├── graph/         # Flow graph execution engine
+│   │   └── custom/        # Custom component framework
+│   └── tests/             # Backend tests
+├── frontend/              # React/TypeScript UI
+│   └── src/
+│       ├── components/    # UI components
+│       ├── stores/        # Zustand state management
+│       └── icons/         # Component icons
+└── lfx/                   # Lightweight executor CLI
+```
+
+### Key Packages
+- **langflow**: Main package with all integrations
+- **langflow-base**: Core framework (api, services, graph engine)
+- **lfx**: Standalone CLI for running flows (`lfx serve`, `lfx run`)
+
+### Service Layer
+Backend services in `src/backend/base/langflow/services/`:
+- `auth/` - Authentication
+- `database/` - SQLAlchemy models and migrations
+- `cache/` - Caching layer
+- `storage/` - File storage
+- `tracing/` - Observability integrations
+
+## Component Development
+
+Components live in `src/backend/base/langflow/components/`. To add a new component:
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+AGENTS-example.md
+AGENTS.md
+CLAUDE.md
+codecov.yml
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+deploy
+DEVELOPMENT.md
+docker
+docker_example
+docs
+LICENSE
+Makefile
+Makefile.frontend
+package.json
+package-lock.json
+pyproject.toml
+README.md
+RELEASE.md
+render.yaml
+scripts
+SECURITY.md
+src
+test-results
+uv.lock
+
+### README
+FILE: README.md
+<!-- markdownlint-disable MD030 -->
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./docs/static/img/langflow-logo-color-blue-bg.svg">
+  <img src="./docs/static/img/langflow-logo-color-black-solid.svg" alt="Langflow logo">
+</picture>
+
+[![Release Notes](https://img.shields.io/github/release/langflow-ai/langflow?style=flat-square)](https://github.com/langflow-ai/langflow/releases)
+[![PyPI - License](https://img.shields.io/badge/license-MIT-orange)](https://opensource.org/licenses/MIT)
+[![PyPI - Downloads](https://img.shields.io/pypi/dm/langflow?style=flat-square)](https://pypistats.org/packages/langflow)
+[![Twitter](https://img.shields.io/twitter/url/https/twitter.com/langflow-ai.svg?style=social&label=Follow%20%40Langflow)](https://twitter.com/langflow_ai)
+[![YouTube Channel](https://img.shields.io/youtube/channel/subscribers/UCn2bInQrjdDYKEEmbpwblLQ?label=Subscribe)](https://www.youtube.com/@Langflow)
+[![Discord Server](https://img.shields.io/discord/1116803230643527710?logo=discord&style=social&label=Join)](https://discord.gg/EqksyE2EX9)
+[![Ask DeepWiki](https://deepwiki.com/badge.svg)](https://deepwiki.com/langflow-ai/langflow)
+
+[Langflow](https://langflow.org) is a powerful platform for building and deploying AI-powered agents and workflows. It provides developers with both a visual authoring experience and built-in API and MCP servers that turn every workflow into a tool that can be integrated into applications built on any framework or stack. Langflow comes with batteries included and supports all major LLMs, vector databases and a growing library of AI tools.
+
+## ✨ Highlight features
+
+- **Visual builder interface** to quickly get started and iterate.
+- **Source code access** lets you customize any component using Python.
+- **Interactive playground** to immediately test and refine your flows with step-by-step control.
+- **Multi-agent orchestration** with conversation management and retrieval.
+- **Deploy as an API** or export as JSON for Python apps.
+- **Deploy as an MCP server** and turn your flows into tools for MCP clients.
+- **Observability** with LangSmith, LangFuse and other integrations.
+- **Enterprise-ready** security and scalability.
+
+## 🖥️  Langflow Desktop
+
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "devDependencies": {
+    "@types/node": "^24.7.0"
+  }
+}
+---END---
+### Lock files
+package-lock.json: EXISTS
+uv.lock: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+.PHONY: all init format_backend format lint build run_backend dev help tests coverage clean_python_cache clean_npm_cache clean_frontend_build clean_all run_clic load_test_setup load_test_setup_basic load_test_list_flows load_test_run load_test_langflow_quick load_test_stress load_test_example load_test_clean load_test_remote_setup load_test_remote_run load_test_help docs docs_build docs_install
+
+# Configurations
+VERSION=$(shell grep "^version" pyproject.toml | sed 's/.*\"\(.*\)\"$$/\1/')
+DOCKER=podman
+DOCKERFILE=docker/build_and_push.Dockerfile
+DOCKERFILE_BACKEND=docker/build_and_push_backend.Dockerfile
+DOCKERFILE_FRONTEND=docker/frontend/build_and_push_frontend.Dockerfile
+DOCKER_COMPOSE=docker_example/docker-compose.yml
+PYTHON_REQUIRED=$(shell grep '^requires-python[[:space:]]*=' pyproject.toml | sed -n 's/.*"\([^"]*\)".*/\1/p')
+RED=\033[0;31m
+NC=\033[0m # No Color
+GREEN=\033[0;32m
+YELLOW=\033[1;33m
+
+log_level ?= debug
+host ?= 0.0.0.0
+port ?= 7860
+env ?= .env
+open_browser ?= true
+path = src/backend/base/langflow/frontend
+workers ?= 1
+async ?= true
+lf ?= false
+ff ?= true
+all: help
+
+######################
+# UTILITIES
+######################
+---END---
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 810
+ci_workflow_count: 35
+add-labels.yml
+auto-update.yml
+ci.yml
+codeql.yml
+community-label.yml
+conventional-labels.yml
+create-release.yml
+cross-platform-test.md
+cross-platform-test.yml
+deploy-docs-draft.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-case-conflict
+      - id: end-of-file-fixer
+        # python, js and ts only
+        files: \.(py|js|ts)$
+      - id: mixed-line-ending
+        files: \.(py|js|ts)$
+        args:
+          - --fix=lf
+      - id: trailing-whitespace
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff check
+        entry: uv run ruff check
+        language: system
+        types_or: [python, pyi]
+        args: [--fix]
+      - id: ruff-format
+        name: ruff format
+        entry: uv run ruff format
+        language: system
+        types_or: [python, pyi]
+        args: [--config, pyproject.toml]
+      - id: validate-migrations
+        name: Validate Alembic Migrations (Expand-Contract)
+        entry: python src/backend/base/langflow/alembic/migration_validator.py
+        language: python
+        files: (alembic|migrations)/versions/.*\.py$
+        additional_dependencies: [sqlalchemy, alembic]
+        pass_filenames: true
+        always_run: false
+        verbose: true
+      - id: check-migration-phase
+        name: Check Migration Phase Documentation
+        entry: python -c "import sys, re; content = open(sys.argv[1]).read(); sys.exit(0 if re.search(r'Phase:\s*(EXPAND|MIGRATE|CONTRACT)', content) else 1)"
+        language: python
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.eslintrc.json: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 32 lines
+# How to contribute to Langflow
+
+Thank you for your interest in contributing!
+
+## How to Contribute
+
+1. Fork the [Langflow GitHub repository](https://github.com/langflow-ai/langflow).
+2. Create a new branch for your changes.
+3. Open a GitHub pull request against the active `release-X.Y.Z` release candidate branch.
+Do not target `main`.
+For example, if the latest released version is `1.8.0`, your pull request should target the `release-1.9.0` branch.
+Include a clear title and description.
+Reference any issues fixed, for example `Fixes #1234`.
+Ensure your PR title follows [semantic commit conventions](https://www.conventionalcommits.org/).
+4. A maintainer will review your PR and may request changes.
+
+## Development Environment Setup
+
+For detailed instructions on setting up your local development environment, see [DEVELOPMENT.md](./DEVELOPMENT.md).
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### mypy config
+[tool.mypy]
+plugins = ["pydantic.mypy"]
+follow_imports = "skip"
+disable_error_code = ["type-var"]
+namespace_packages = true
+mypy_path = "langflow"
+### Determinism
+sleep_pattern_count_in_tests: 108
+### Largest source files
+ 122922 total
+   2621 ./src/lfx/src/lfx/base/composio/composio_base.py
+   2527 ./src/frontend/src/utils/reactflowUtils.ts
+   1980 ./src/lfx/src/lfx/components/elastic/opensearch_multimodal.py
+   1776 ./src/lfx/src/lfx/base/models/unified_models.py
+   1739 ./src/lfx/src/lfx/base/mcp/util.py
+   1181 ./src/frontend/src/stores/flowStore.ts
+   1164 ./src/frontend/tests/extended/features/mcp-server.spec.ts
+   1043 ./src/frontend/src/utils/utils.ts
+   1015 ./src/frontend/src/constants/constants.ts
+   1012 ./src/frontend/tests/core/unit/fileUploadComponent.spec.ts
+
+=== END SIGNALS ===

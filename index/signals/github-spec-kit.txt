@@ -1,0 +1,286 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/github-spec-kit
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md (454 lines)
+# AGENTS.md
+
+## About Spec Kit and Specify
+
+**GitHub Spec Kit** is a comprehensive toolkit for implementing Spec-Driven Development (SDD) - a methodology that emphasizes creating clear specifications before implementation. The toolkit includes templates, scripts, and workflows that guide development teams through a structured approach to building software.
+
+**Specify CLI** is the command-line interface that bootstraps projects with the Spec Kit framework. It sets up the necessary directory structures, templates, and AI agent integrations to support the Spec-Driven Development workflow.
+
+The toolkit supports multiple AI coding assistants, allowing teams to use their preferred tools while maintaining consistent project structure and development practices.
+
+---
+
+## Adding New Agent Support
+
+This section explains how to add support for new AI agents/assistants to the Specify CLI. Use this guide as a reference when integrating new AI tools into the Spec-Driven Development workflow.
+
+### Overview
+
+Specify supports multiple AI agents by generating agent-specific command files and directory structures when initializing projects. Each agent has its own conventions for:
+
+- **Command file formats** (Markdown, TOML, etc.)
+- **Directory structures** (`.claude/commands/`, `.windsurf/workflows/`, etc.)
+- **Command invocation patterns** (slash commands, CLI tools, etc.)
+- **Argument passing conventions** (`$ARGUMENTS`, `{{args}}`, etc.)
+
+### Current Supported Agents
+
+| Agent                      | Directory              | Format   | CLI Tool        | Description                 |
+| -------------------------- | ---------------------- | -------- | --------------- | --------------------------- |
+| **Claude Code**            | `.claude/commands/`    | Markdown | `claude`        | Anthropic's Claude Code CLI |
+| **Gemini CLI**             | `.gemini/commands/`    | TOML     | `gemini`        | Google's Gemini CLI         |
+| **GitHub Copilot**         | `.github/agents/`      | Markdown | N/A (IDE-based) | GitHub Copilot in VS Code   |
+| **Cursor**                 | `.cursor/commands/`    | Markdown | N/A (IDE-based) | Cursor IDE (`--ai cursor-agent`) |
+| **Qwen Code**              | `.qwen/commands/`      | Markdown | `qwen`          | Alibaba's Qwen Code CLI     |
+| **opencode**               | `.opencode/command/`   | Markdown | `opencode`      | opencode CLI                |
+| **Codex CLI**              | `.agents/skills/`      | Markdown | `codex`         | Codex CLI (`--ai codex --ai-skills`) |
+| **Windsurf**               | `.windsurf/workflows/` | Markdown | N/A (IDE-based) | Windsurf IDE workflows      |
+| **Junie**                  | `.junie/commands/`     | Markdown | `junie`         | Junie by JetBrains          |
+| **Kilo Code**              | `.kilocode/workflows/` | Markdown | N/A (IDE-based) | Kilo Code IDE               |
+| **Auggie CLI**             | `.augment/commands/`   | Markdown | `auggie`        | Auggie CLI                  |
+| **Roo Code**               | `.roo/commands/`       | Markdown | N/A (IDE-based) | Roo Code IDE                |
+| **CodeBuddy CLI**          | `.codebuddy/commands/` | Markdown | `codebuddy`     | CodeBuddy CLI               |
+| **Qoder CLI**              | `.qoder/commands/`     | Markdown | `qodercli`      | Qoder CLI                   |
+| **Kiro CLI**               | `.kiro/prompts/`       | Markdown | `kiro-cli`      | Kiro CLI                    |
+| **Amp**                    | `.agents/commands/`    | Markdown | `amp`           | Amp CLI                     |
+| **SHAI**                   | `.shai/commands/`      | Markdown | `shai`          | SHAI CLI                    |
+| **Tabnine CLI**            | `.tabnine/agent/commands/` | TOML | `tabnine`       | Tabnine CLI                 |
+| **Kimi Code**              | `.kimi/skills/`        | Markdown | `kimi`          | Kimi Code CLI (Moonshot AI) |
+| **Pi Coding Agent**        | `.pi/prompts/`         | Markdown | `pi`            | Pi terminal coding agent    |
+| **iFlow CLI**              | `.iflow/commands/`     | Markdown | `iflow`         | iFlow CLI (iflow-ai)        |
+| **IBM Bob**                | `.bob/commands/`       | Markdown | N/A (IDE-based) | IBM Bob IDE                 |
+| **Trae**                   | `.trae/rules/`         | Markdown | N/A (IDE-based) | Trae IDE                    |
+| **Antigravity**            | `.agent/commands/`     | Markdown | N/A (IDE-based) | Antigravity IDE (`--ai agy --ai-skills`) |
+| **Mistral Vibe**           | `.vibe/prompts/`       | Markdown | `vibe`          | Mistral Vibe CLI            |
+| **Generic**                | User-specified via `--ai-commands-dir` | Markdown | N/A | Bring your own agent        |
+
+### Step-by-Step Integration Guide
+
+Follow these steps to add a new agent (using a hypothetical new agent as an example):
+
+#### 1. Add to AGENT_CONFIG
+
+**IMPORTANT**: Use the actual CLI tool name as the key, not a shortened version.
+
+Add the new agent to the `AGENT_CONFIG` dictionary in `src/specify_cli/__init__.py`. This is the **single source of truth** for all agent metadata:
+
+```python
+AGENT_CONFIG = {
+    # ... existing agents ...
+    "new-agent-cli": {  # Use the ACTUAL CLI tool name (what users type in terminal)
+        "name": "New Agent Display Name",
+        "folder": ".newagent/",  # Directory for agent files
+        "commands_subdir": "commands",  # Subdirectory name for command files (default: "commands")
+        "install_url": "https://example.com/install",  # URL for installation docs (or None if IDE-based)
+        "requires_cli": True,  # True if CLI tool required, False for IDE-based agents
+    },
+}
+```
+
+**Key Design Principle**: The dictionary key should match the actual executable name that users install. For example:
+
+- ✅ Use `"cursor-agent"` because the CLI tool is literally called `cursor-agent`
+- ❌ Don't use `"cursor"` as a shortcut if the tool is `cursor-agent`
+
+This eliminates the need for special-case mappings throughout the codebase.
+
+**Field Explanations**:
+
+- `name`: Human-readable display name shown to users
+- `folder`: Directory where agent-specific files are stored (relative to project root)
+- `commands_subdir`: Subdirectory name within the agent folder where command/prompt files are stored (default: `"commands"`)
+  - Most agents use `"commands"` (e.g., `.claude/commands/`)
+  - Some agents use alternative names: `"agents"` (copilot), `"workflows"` (windsurf, kilocode), `"prompts"` (codex, kiro-cli, pi), `"command"` (opencode - singular)
+  - This field enables `--ai-skills` to locate command templates correctly for skill generation
+- `install_url`: Installation documentation URL (set to `None` for IDE-based agents)
+- `requires_cli`: Whether the agent requires a CLI tool check during initialization
+
+#### 2. Update CLI Help Text
+
+Update the `--ai` parameter help text in the `init()` command to include the new agent:
+---END---
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+AGENTS.md
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+docs
+extensions
+LICENSE
+media
+newsletters
+presets
+pyproject.toml
+README.md
+scripts
+SECURITY.md
+spec-driven.md
+spec-kit.code-workspace
+src
+SUPPORT.md
+templates
+TESTING.md
+tests
+
+### README
+FILE: README.md
+<div align="center">
+    <img src="./media/logo_large.webp" alt="Spec Kit Logo" width="200" height="200"/>
+    <h1>🌱 Spec Kit</h1>
+    <h3><em>Build high-quality software faster.</em></h3>
+</div>
+
+<p align="center">
+    <strong>An open source toolkit that allows you to focus on product scenarios and predictable outcomes instead of vibe coding every piece from scratch.</strong>
+</p>
+
+<p align="center">
+    <a href="https://github.com/github/spec-kit/releases/latest"><img src="https://img.shields.io/github/v/release/github/spec-kit" alt="Latest Release"/></a>
+    <a href="https://github.com/github/spec-kit/stargazers"><img src="https://img.shields.io/github/stars/github/spec-kit?style=social" alt="GitHub stars"/></a>
+    <a href="https://github.com/github/spec-kit/blob/main/LICENSE"><img src="https://img.shields.io/github/license/github/spec-kit" alt="License"/></a>
+    <a href="https://github.github.io/spec-kit/"><img src="https://img.shields.io/badge/docs-GitHub_Pages-blue" alt="Documentation"/></a>
+</p>
+
+---
+
+## Table of Contents
+
+- [🤔 What is Spec-Driven Development?](#-what-is-spec-driven-development)
+- [⚡ Get Started](#-get-started)
+- [📽️ Video Overview](#️-video-overview)
+- [🧩 Community Extensions](#-community-extensions)
+- [🎨 Community Presets](#-community-presets)
+- [🚶 Community Walkthroughs](#-community-walkthroughs)
+- [🛠️ Community Friends](#️-community-friends)
+- [🤖 Supported AI Agents](#-supported-ai-agents)
+- [🔧 Specify CLI Reference](#-specify-cli-reference)
+---END---
+
+## Dependencies
+FILE: pyproject.toml
+[project]
+name = "specify-cli"
+version = "0.4.5.dev0"
+description = "Specify CLI, part of GitHub Spec Kit. A tool to bootstrap your projects for Spec-Driven Development (SDD)."
+requires-python = ">=3.11"
+dependencies = [
+    "typer",
+    "click>=8.1",
+    "rich",
+    "httpx[socks]",
+    "platformdirs",
+    "readchar",
+    "truststore>=0.10.4",
+    "pyyaml>=6.0",
+    "packaging>=23.0",
+    "pathspec>=0.12.0",
+    "json5>=0.13.0",
+]
+
+[project.scripts]
+specify = "specify_cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/specify_cli"]
+
+[tool.hatch.build.targets.wheel.force-include]
+# Bundle core assets so `specify init` works without network access (air-gapped / enterprise)
+# Page templates (exclude commands/ — bundled separately below to avoid duplication)
+"templates/agent-file-template.md" = "specify_cli/core_pack/templates/agent-file-template.md"
+"templates/checklist-template.md" = "specify_cli/core_pack/templates/checklist-template.md"
+"templates/constitution-template.md" = "specify_cli/core_pack/templates/constitution-template.md"
+"templates/plan-template.md" = "specify_cli/core_pack/templates/plan-template.md"
+"templates/spec-template.md" = "specify_cli/core_pack/templates/spec-template.md"
+"templates/tasks-template.md" = "specify_cli/core_pack/templates/tasks-template.md"
+"templates/vscode-settings.json" = "specify_cli/core_pack/templates/vscode-settings.json"
+# Command templates
+---END---
+### Lock files
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 39
+ci_workflow_count: 7
+codeql.yml
+docs.yml
+lint.yml
+RELEASE-PROCESS.md
+release-trigger.yml
+release.yml
+scripts
+stale.yml
+test.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 163 lines
+# Contributing to Spec Kit
+
+Hi there! We're thrilled that you'd like to contribute to Spec Kit. Contributions to this project are [released](https://help.github.com/articles/github-terms-of-service/#6-contributions-under-repository-license) to the public under the [project's open source license](LICENSE).
+
+Please note that this project is released with a [Contributor Code of Conduct](CODE_OF_CONDUCT.md). By participating in this project you agree to abide by its terms.
+
+## Prerequisites for running and testing code
+
+These are one time installations required to be able to test your changes locally as part of the pull request (PR) submission process.
+
+1. Install [Python 3.11+](https://www.python.org/downloads/)
+1. Install [uv](https://docs.astral.sh/uv/) for package management
+1. Install [Git](https://git-scm.com/downloads)
+1. Have an [AI coding agent available](README.md#-supported-ai-agents)
+
+<details>
+<summary><b>💡 Hint if you are using <code>VSCode</code> or <code>GitHub Codespaces</code> as your IDE</b></summary>
+
+<br>
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### mypy config
+no [tool.mypy] section
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 23755 total
+  4724 ./src/specify_cli/__init__.py
+  3668 ./tests/test_extensions.py
+  2764 ./tests/test_presets.py
+  2520 ./src/specify_cli/extensions.py
+  1842 ./src/specify_cli/presets.py
+  1339 ./tests/test_ai_skills.py
+   741 ./tests/test_extension_skills.py
+   635 ./src/specify_cli/integrations/base.py
+   626 ./src/specify_cli/agents.py
+   613 ./tests/test_core_pack_scaffold.py
+
+=== END SIGNALS ===

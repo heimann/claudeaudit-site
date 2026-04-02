@@ -1,0 +1,150 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/firecrawl-firecrawl
+
+## Agent Documentation
+FILE: CLAUDE.md (18 lines)
+Firecrawl is a web scraper API. The directory you have access to is a monorepo:
+ - `apps/api` has the actual API and worker code
+ - `apps/js-sdk`, `apps/python-sdk`, `apps/rust-sdk` and `apps/java-sdk` are various SDKs
+
+When making changes to the API, here are the general steps you should take:
+1. Write some end-to-end tests that assert your win conditions, if they don't already exist
+  - 1 happy path (more is encouraged if there are multiple happy paths with significantly different code paths taken)
+  - 1+ failure path(s)
+  - Generally, E2E (called `snips` in the API) is always preferred over unit testing.
+  - In the API, always use `scrapeTimeout` from `./lib` to set the timeout you use for scrapes.
+  - These tests will be ran on a variety of configurations. You should gate tests in the following manner:
+    - If it requires fire-engine: `!process.env.TEST_SUITE_SELF_HOSTED`
+    - If it requires AI: `!process.env.TEST_SUITE_SELF_HOSTED || process.env.OPENAI_API_KEY || process.env.OLLAMA_BASE_URL`
+2. Write code to achieve your win conditions
+3. Run your tests using `pnpm harness jest ...`
+  - `pnpm harness` is a command that gets the API server and workers up for you to run the tests. Don't try to `pnpm start` manually.
+  - The full test suite takes a long time to run, so you should try to only execute the relevant tests locally, and let CI run the full test suite.
+4. Push to a branch, open a PR, and let CI run to verify your win condition.
+Keep these steps in mind while building your TODO list.---END---
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+apps
+CLAUDE.md
+CONTRIBUTING.md
+docker-compose.yaml
+examples
+img
+LICENSE
+README.md
+requests.http
+SELF_HOST.md
+
+### README
+FILE: README.md
+<h3 align="center">
+  <a name="readme-top"></a>
+  <img
+    src="https://raw.githubusercontent.com/firecrawl/firecrawl/main/img/firecrawl_logo.png"
+    height="200"
+  >
+</h3>
+
+<div align="center">
+  <a href="https://github.com/firecrawl/firecrawl/blob/main/LICENSE">
+    <img src="https://img.shields.io/github/license/firecrawl/firecrawl" alt="License">
+  </a>
+  <a href="https://pepy.tech/project/firecrawl-py">
+    <img src="https://static.pepy.tech/badge/firecrawl-py" alt="Downloads">
+  </a>
+  <a href="https://GitHub.com/firecrawl/firecrawl/graphs/contributors">
+    <img src="https://img.shields.io/github/contributors/firecrawl/firecrawl.svg" alt="GitHub Contributors">
+  </a>
+  <a href="https://firecrawl.dev">
+    <img src="https://img.shields.io/badge/Visit-firecrawl.dev-orange" alt="Visit firecrawl.dev">
+  </a>
+</div>
+
+<div>
+  <p align="center">
+    <a href="https://twitter.com/firecrawl">
+      <img src="https://img.shields.io/badge/Follow%20on%20X-000000?style=for-the-badge&logo=x&logoColor=white" alt="Follow on X" />
+    </a>
+    <a href="https://www.linkedin.com/company/104100957">
+      <img src="https://img.shields.io/badge/Follow%20on%20LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white" alt="Follow on LinkedIn" />
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 160
+ci_workflow_count: 19
+deploy-go-service.yaml
+deploy-image-staging.yml
+deploy-image.yml
+deploy-nuq-postgres.yml
+deploy-playwright.yml
+deploy-redis.yml
+eval-prod.yml
+ghcr-clean.yml
+npm-audit.yml
+publish-elixir-sdk.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 140 lines
+# Contributors guide:
+
+Welcome to [Firecrawl](https://firecrawl.dev) 🔥! Here are some instructions on how to get the project locally, so you can run it on your own (and contribute)
+
+If you're contributing, note that the process is similar to other open source repos i.e. (fork firecrawl, make changes, run tests, PR). If you have any questions, and would like help getting on board, reach out to help@firecrawl.com for more or submit an issue!
+
+## Running the project locally
+
+First, start by installing dependencies:
+
+1. node.js [instructions](https://nodejs.org/en/learn/getting-started/how-to-install-nodejs)
+2. rust [instructions](https://www.rust-lang.org/tools/install)
+3. pnpm [instructions](https://pnpm.io/installation)
+4. redis [instructions](https://redis.io/docs/latest/operate/oss_and_stack/install/install-redis/)
+5. postgresql
+6. Docker (optional) (for running postgres)
+
+You need to set up the PostgreSQL database by running the SQL file at `apps/nuq-postgres/nuq.sql`. Easiest way is to use the docker image inside `apps/nuq-postgres`. With Docker running, build the image:
+
+```bash
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 180
+### Largest source files
+ 197033 total
+  22390 ./apps/api/src/lib/extract/usage/model-prices.ts
+   5216 ./apps/python-sdk/firecrawl/v1/client.py
+   4635 ./apps/python-sdk/firecrawl/firecrawl.backup.py
+   2282 ./apps/js-sdk/firecrawl/src/v1/index.ts
+   2261 ./apps/api/src/lib/validate-country.ts
+   2146 ./apps/js-sdk/firecrawl/src/index.backup.ts
+   2084 ./apps/api/src/__tests__/snips/v2/scrape.test.ts
+   1859 ./apps/api/src/controllers/v2/types.ts
+   1795 ./apps/api/src/__tests__/snips/v1/scrape.test.ts
+   1754 ./apps/api/src/__tests__/e2e_full_withAuth/index.test.ts
+
+=== END SIGNALS ===

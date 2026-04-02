@@ -1,0 +1,254 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/rustdesk-rustdesk
+
+## Agent Documentation
+FILE: CLAUDE.md (91 lines)
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Development Commands
+
+### Build Commands
+- `cargo run` - Build and run the desktop application (requires libsciter library)
+- `python3 build.py --flutter` - Build Flutter version (desktop)
+- `python3 build.py --flutter --release` - Build Flutter version in release mode
+- `python3 build.py --hwcodec` - Build with hardware codec support
+- `python3 build.py --vram` - Build with VRAM feature (Windows only)
+- `cargo build --release` - Build Rust binary in release mode
+- `cargo build --features hwcodec` - Build with specific features
+
+### Flutter Mobile Commands
+- `cd flutter && flutter build android` - Build Android APK
+- `cd flutter && flutter build ios` - Build iOS app
+- `cd flutter && flutter run` - Run Flutter app in development mode
+- `cd flutter && flutter test` - Run Flutter tests
+
+### Testing
+- `cargo test` - Run Rust tests
+- `cd flutter && flutter test` - Run Flutter tests
+
+### Platform-Specific Build Scripts
+- `flutter/build_android.sh` - Android build script
+- `flutter/build_ios.sh` - iOS build script
+- `flutter/build_fdroid.sh` - F-Droid build script
+
+## Project Architecture
+
+### Directory Structure
+- **`src/`** - Main Rust application code
+  - `src/ui/` - Legacy Sciter UI (deprecated, use Flutter instead)
+  - `src/server/` - Audio/clipboard/input/video services and network connections
+  - `src/client.rs` - Peer connection handling
+  - `src/platform/` - Platform-specific code
+- **`flutter/`** - Flutter UI code for desktop and mobile
+- **`libs/`** - Core libraries
+  - `libs/hbb_common/` - Video codec, config, network wrapper, protobuf, file transfer utilities
+  - `libs/scrap/` - Screen capture functionality
+  - `libs/enigo/` - Platform-specific keyboard/mouse control
+  - `libs/clipboard/` - Cross-platform clipboard implementation
+
+### Key Components
+- **Remote Desktop Protocol**: Custom protocol implemented in `src/rendezvous_mediator.rs` for communicating with rustdesk-server
+- **Screen Capture**: Platform-specific screen capture in `libs/scrap/`
+- **Input Handling**: Cross-platform input simulation in `libs/enigo/`
+- **Audio/Video Services**: Real-time audio/video streaming in `src/server/`
+- **File Transfer**: Secure file transfer implementation in `libs/hbb_common/`
+
+### UI Architecture
+- **Legacy UI**: Sciter-based (deprecated) - files in `src/ui/`
+- **Modern UI**: Flutter-based - files in `flutter/`
+  - Desktop: `flutter/lib/desktop/`
+  - Mobile: `flutter/lib/mobile/`
+  - Shared: `flutter/lib/common/` and `flutter/lib/models/`
+
+## Important Build Notes
+
+### Dependencies
+- Requires vcpkg for C++ dependencies: `libvpx`, `libyuv`, `opus`, `aom`
+- Set `VCPKG_ROOT` environment variable
+- Download appropriate Sciter library for legacy UI support
+
+### Ignore Patterns
+When working with files, ignore these directories:
+- `target/` - Rust build artifacts
+- `flutter/build/` - Flutter build output
+- `flutter/.dart_tool/` - Flutter tooling files
+
+### Cross-Platform Considerations
+- Windows builds require additional DLLs and virtual display drivers
+- macOS builds need proper signing and notarization for distribution
+- Linux builds support multiple package formats (deb, rpm, AppImage)
+- Mobile builds require platform-specific toolchains (Android SDK, Xcode)
+
+### Feature Flags
+- `hwcodec` - Hardware video encoding/decoding
+- `vram` - VRAM optimization (Windows only)
+- `flutter` - Enable Flutter UI
+- `unix-file-copy-paste` - Unix file clipboard support
+- `screencapturekit` - macOS ScreenCaptureKit (macOS only)
+
+### Config
+All configurations or options are under `libs/hbb_common/src/config.rs` file, 4 types:
+- Settings
+- Local
+- Display
+- Built-in
+---END---
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+appimage
+build.py
+build.rs
+Cargo.lock
+Cargo.toml
+CLAUDE.md
+Dockerfile
+docs
+entrypoint.sh
+examples
+fastlane
+flatpak
+flutter
+libs
+LICENCE
+README.md
+res
+src
+vcpkg.json
+
+### README
+FILE: README.md
+<p align="center">
+  <img src="res/logo-header.svg" alt="RustDesk - Your remote desktop"><br>
+  <a href="#raw-steps-to-build">Build</a> •
+  <a href="#how-to-build-with-docker">Docker</a> •
+  <a href="#file-structure">Structure</a> •
+  <a href="#snapshot">Snapshot</a><br>
+  [<a href="docs/README-UA.md">Українська</a>] | [<a href="docs/README-CS.md">česky</a>] | [<a href="docs/README-ZH.md">中文</a>] | [<a href="docs/README-HU.md">Magyar</a>] | [<a href="docs/README-ES.md">Español</a>] | [<a href="docs/README-FA.md">فارسی</a>] | [<a href="docs/README-FR.md">Français</a>] | [<a href="docs/README-DE.md">Deutsch</a>] | [<a href="docs/README-PL.md">Polski</a>] | [<a href="docs/README-ID.md">Indonesian</a>] | [<a href="docs/README-FI.md">Suomi</a>] | [<a href="docs/README-ML.md">മലയാളം</a>] | [<a href="docs/README-JP.md">日本語</a>] | [<a href="docs/README-NL.md">Nederlands</a>] | [<a href="docs/README-IT.md">Italiano</a>] | [<a href="docs/README-RU.md">Русский</a>] | [<a href="docs/README-PTBR.md">Português (Brasil)</a>] | [<a href="docs/README-EO.md">Esperanto</a>] | [<a href="docs/README-KR.md">한국어</a>] | [<a href="docs/README-AR.md">العربي</a>] | [<a href="docs/README-VN.md">Tiếng Việt</a>] | [<a href="docs/README-DA.md">Dansk</a>] | [<a href="docs/README-GR.md">Ελληνικά</a>] | [<a href="docs/README-TR.md">Türkçe</a>] | [<a href="docs/README-NO.md">Norsk</a>] | [<a href="docs/README-RO.md">Română</a>]<br>
+  <b>We need your help to translate this README, <a href="https://github.com/rustdesk/rustdesk/tree/master/src/lang">RustDesk UI</a> and <a href="https://github.com/rustdesk/doc.rustdesk.com">RustDesk Doc</a> to your native language</b>
+</p>
+
+> [!Caution]
+> **Misuse Disclaimer:** <br>
+> The developers of RustDesk do not condone or support any unethical or illegal use of this software. Misuse, such as unauthorized access, control or invasion of privacy, is strictly against our guidelines. The authors are not responsible for any misuse of the application.
+
+
+Chat with us: [Discord](https://discord.gg/nDceKgxnkV) | [Twitter](https://twitter.com/rustdesk) | [Reddit](https://www.reddit.com/r/rustdesk) | [YouTube](https://www.youtube.com/@rustdesk)
+
+[![RustDesk Server Pro](https://img.shields.io/badge/RustDesk%20Server%20Pro-Advanced%20Features-blue)](https://rustdesk.com/pricing.html)
+
+Yet another remote desktop solution, written in Rust. Works out of the box with no configuration required. You have full control of your data, with no concerns about security. You can use our rendezvous/relay server, [set up your own](https://rustdesk.com/server), or [write your own rendezvous/relay server](https://github.com/rustdesk/rustdesk-server-demo).
+
+![image](https://user-images.githubusercontent.com/71636191/171661982-430285f0-2e12-4b1d-9957-4a58e375304d.png)
+
+RustDesk welcomes contribution from everyone. See [CONTRIBUTING.md](docs/CONTRIBUTING.md) for help getting started.
+
+[**FAQ**](https://github.com/rustdesk/rustdesk/wiki/FAQ)
+
+[**BINARY DOWNLOAD**](https://github.com/rustdesk/rustdesk/releases)
+
+[**NIGHTLY BUILD**](https://github.com/rustdesk/rustdesk/releases/tag/nightly)
+---END---
+
+## Dependencies
+FILE: Cargo.toml
+[package]
+name = "rustdesk"
+version = "1.4.6"
+authors = ["rustdesk <info@rustdesk.com>"]
+edition = "2021"
+build= "build.rs"
+description = "RustDesk Remote Desktop"
+default-run = "rustdesk"
+rust-version = "1.75"
+
+[lib]
+name = "librustdesk"
+crate-type = ["cdylib", "staticlib", "rlib"]
+
+[[bin]]
+name = "naming"
+path = "src/naming.rs"
+
+[[bin]]
+name = "service"
+path = "src/service.rs"
+
+[features]
+inline = []
+cli = []
+use_samplerate = ["samplerate"]
+use_rubato = ["rubato"]
+use_dasp = ["dasp"]
+flutter = ["flutter_rust_bridge"]
+default = ["use_dasp"]
+hwcodec = ["scrap/hwcodec"]
+vram = ["scrap/vram"]
+mediacodec = ["scrap/mediacodec"]
+plugin_framework = []
+linux-pkg-config = ["magnum-opus/linux-pkg-config", "scrap/linux-pkg-config"]
+unix-file-copy-paste = [
+    "dep:x11-clipboard",
+    "dep:x11rb",
+    "dep:percent-encoding",
+    "dep:once_cell",
+---END---
+### Lock files
+Cargo.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 1
+ci_workflow_count: 10
+bridge.yml
+ci.yml
+clear-cache.yml
+fdroid.yml
+flutter-build.yml
+flutter-ci.yml
+flutter-nightly.yml
+flutter-tag.yml
+playground.yml
+third-party-RustDeskTempTopMostWindow.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 209159 total
+   5671 ./src/server/connection.rs
+   4370 ./src/platform/windows.rs
+   4198 ./src/client.rs
+   4188 ./flutter/lib/models/model.dart
+   4161 ./flutter/lib/common.dart
+   3380 ./libs/clipboard/src/windows/wf_cliprdr.c
+   3124 ./flutter/lib/desktop/pages/desktop_setting_page.dart
+   3082 ./src/flutter_ffi.rs
+   2867 ./flutter/lib/common/widgets/dialog.dart
+   2801 ./flutter/lib/desktop/widgets/remote_toolbar.dart
+
+=== END SIGNALS ===

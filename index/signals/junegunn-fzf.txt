@@ -1,0 +1,182 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/junegunn-fzf
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+ADVANCED.md
+bin
+BUILD.md
+CHANGELOG.md
+doc
+Dockerfile
+Gemfile
+Gemfile.lock
+go.mod
+go.sum
+install
+install.ps1
+LICENSE
+main.go
+Makefile
+man
+plugin
+README.md
+README-VIM.md
+SECURITY.md
+shell
+src
+test
+typos.toml
+uninstall
+
+### README
+FILE: README.md
+<div align="center">
+  <img src="https://raw.githubusercontent.com/junegunn/i/master/fzf-color.png" alt="fzf - a command-line fuzzy finder">
+  <a href="https://github.com/junegunn/fzf/actions"><img src="https://github.com/junegunn/fzf/actions/workflows/linux.yml/badge.svg?branch=master" alt="Build Status"></a>
+  <a href="http://github.com/junegunn/fzf/releases"><img src="https://img.shields.io/github/v/tag/junegunn/fzf" alt="Version"></a>
+  <a href="https://github.com/junegunn/fzf?tab=MIT-1-ov-file#readme"><img src="https://img.shields.io/github/license/junegunn/fzf" alt="License"></a>
+  <a href="https://github.com/junegunn/fzf/graphs/contributors"><img src="https://img.shields.io/github/contributors/junegunn/fzf" alt="Contributors"></a>
+  <a href="https://github.com/sponsors/junegunn"><img src="https://img.shields.io/github/sponsors/junegunn" alt="Sponsors"></a>
+  <a href="https://github.com/junegunn/fzf/stargazers"><img src="https://img.shields.io/github/stars/junegunn/fzf?style=flat" alt="Stars"></a>
+</div>
+
+---
+
+fzf is a general-purpose command-line fuzzy finder.
+
+<img src="https://raw.githubusercontent.com/junegunn/i/master/fzf-preview.png" width=640>
+
+It's an interactive filter program for any kind of list; files, command
+history, processes, hostnames, bookmarks, git commits, etc. It implements
+a "fuzzy" matching algorithm, so you can quickly type in patterns with omitted
+characters and still get the results you want.
+
+Highlights
+----------
+
+- **Portable** — Distributed as a single binary for easy installation
+- **Fast** — Optimized to process millions of items instantly
+- **Versatile** — Fully customizable through an event-action binding mechanism
+- **All-inclusive** — Comes with integrations for Bash, Zsh, Fish, Vim, and Neovim
+
+Table of Contents
+---END---
+
+## Dependencies
+FILE: go.mod
+module github.com/junegunn/fzf
+
+require (
+	github.com/charlievieth/fastwalk v1.0.14
+	github.com/gdamore/tcell/v2 v2.9.0
+	github.com/junegunn/go-shellwords v0.0.0-20250127100254-2aa3b3277741
+	github.com/mattn/go-isatty v0.0.20
+	github.com/rivo/uniseg v0.4.7
+	golang.org/x/sys v0.35.0
+	golang.org/x/term v0.34.0
+)
+
+require (
+	github.com/gdamore/encoding v1.0.1 // indirect
+	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
+	github.com/mattn/go-runewidth v0.0.16 // indirect
+	golang.org/x/text v0.28.0 // indirect
+)
+
+go 1.23.0
+---END---
+### Lock files
+go.sum: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+GO             ?= go
+DOCKER         ?= docker
+GOOS           ?= $(shell $(GO) env GOOS)
+
+MAKEFILE       := $(realpath $(lastword $(MAKEFILE_LIST)))
+ROOT_DIR       := $(shell dirname $(MAKEFILE))
+SOURCES        := $(wildcard *.go src/*.go src/*/*.go shell/*sh man/man1/*.1) $(MAKEFILE)
+
+BASH_SCRIPTS   := $(ROOT_DIR)/bin/fzf-preview.sh \
+					$(ROOT_DIR)/bin/fzf-tmux \
+					$(ROOT_DIR)/install \
+					$(ROOT_DIR)/uninstall \
+					$(ROOT_DIR)/shell/common.sh \
+					$(ROOT_DIR)/shell/update.sh \
+					$(ROOT_DIR)/shell/completion.bash \
+					$(ROOT_DIR)/shell/key-bindings.bash
+
+ifdef FZF_VERSION
+VERSION        := $(FZF_VERSION)
+else
+VERSION        := $(shell git describe --abbrev=0 2> /dev/null | sed "s/^v//")
+endif
+ifeq ($(VERSION),)
+$(error Not on git repository; cannot determine $$FZF_VERSION)
+endif
+VERSION_TRIM   := $(shell echo $(VERSION) | sed "s/^v//; s/-.*//")
+VERSION_REGEX  := $(subst .,\.,$(VERSION_TRIM))
+
+ifdef FZF_REVISION
+REVISION       := $(FZF_REVISION)
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+.tool-versions: golang 1.23
+ruby 3.4
+shfmt 3.12
+
+## Tests
+test_file_count: 31
+ci_workflow_count: 8
+codeql-analysis.yml
+depsreview.yaml
+labeler.yml
+linux.yml
+macos.yml
+sponsors.yml
+typos.yml
+winget.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: Go binary
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 43
+### Largest source files
+  36283 total
+   7944 ./src/terminal.go
+   3934 ./src/options.go
+   2686 ./test/test_core.rb
+   1537 ./src/tui/light.go
+   1420 ./src/tui/tui.go
+   1301 ./test/test_layout.rb
+   1105 ./test/test_shell_integration.rb
+   1102 ./src/tui/tcell.go
+   1030 ./src/algo/algo.go
+    770 ./src/terminal_test.go
+
+=== END SIGNALS ===

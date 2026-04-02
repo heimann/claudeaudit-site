@@ -1,0 +1,135 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/localsend-localsend
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+app
+CHANGELOG.md
+cli
+common
+CONTRIBUTING.md
+core
+fastlane
+LICENSE
+msix
+readme_i18n
+README.md
+scripts
+server
+submodules
+
+### README
+FILE: README.md
+# LocalSend
+
+[![CI status][ci-badge]][ci-workflow]
+[![Translations][translate-badge]][translate-link]
+[![Packaging status][packaging-badge]][packaging-link]
+
+[ci-badge]: https://github.com/localsend/localsend/actions/workflows/ci.yml/badge.svg
+[ci-workflow]: https://github.com/localsend/localsend/actions/workflows/ci.yml
+[translate-badge]: https://hosted.weblate.org/widget/localsend/app/svg-badge.svg
+[translate-link]: https://hosted.weblate.org/engage/localsend/
+[packaging-badge]: https://repology.org/badge/tiny-repos/localsend.svg
+[packaging-link]: https://repology.org/project/localsend/versions
+
+[Homepage][homepage] • [Discord][discord] • [GitHub][github] • [Codeberg][codeberg]
+
+[English (Default)](README.md) • [Español](readme_i18n/README_ES.md) • [فارسی](readme_i18n/README_FA.md) • [Filipino](readme_i18n/README_PH.md) • [Français](readme_i18n/README_FR.md) • [Indonesia](readme_i18n/README_ID.md) • [Italiano](readme_i18n/README_IT.md) • [日本語](readme_i18n/README_JA.md) • [ភាសាខ្មែរ](readme_i18n/README_KM.md) • [한국어](readme_i18n/README_KO.md) • [Polski](readme_i18n/README_PL.md) • [Português Brasil](readme_i18n/README_PT_BR.md) • [Русский](readme_i18n/README_RU.md) • [ภาษาไทย](readme_i18n/README_TH.md) • [Türkçe](readme_i18n/README_TR.md) • [Українська](readme_i18n/README_UK.md) • [Tiếng Việt](readme_i18n/README_VI.md) • [中文](readme_i18n/README_ZH.md)
+
+[homepage]: https://localsend.org
+[discord]: https://discord.gg/GSRWmQNP87
+[github]: https://github.com/localsend/localsend
+[codeberg]: https://codeberg.org/localsend/localsend
+
+LocalSend is a free, open-source app that allows you to securely share files and messages with nearby devices over your local network without needing an internet connection.
+
+- [About](#about)
+- [Sponsors](#sponsors)
+- [Screenshots](#screenshots)
+- [Download](#download)
+- [How It Works](#how-it-works)
+- [Getting Started](#getting-started)
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 18
+ci_workflow_count: 11
+ci.yml
+clear_workflows.yml
+compile_apk.yml
+compile_arm64_appimage.yml
+linux_build.yml
+release.yml
+test_arm64_deb.yml
+test_arm64_tar.yml
+test_rpm.yml
+test_zip.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: 200 lines
+# Contributing to LocalSend
+
+LocalSend is an open-source project, and we welcome contributions from anyone who is interested in helping improve the app. Whether you're a developer, a translator, or a documentation writer, there are many ways to get involved.
+
+## Getting Started
+
+If you're interested in contributing code to LocalSend, you'll need to follow these steps:
+
+## Run
+
+After you have installed [Flutter](https://flutter.dev), then you can start this app by typing the following commands:
+
+```shell
+cd app
+flutter pub get
+dart run build_runner build -d
+flutter run
+```
+
+## Translation
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 2
+### Largest source files
+ 132153 total
+   4905 ./app/lib/rust/frb_generated.dart
+   4776 ./app/rust/src/frb_generated.rs
+   1767 ./app/lib/gen/strings_en.g.dart
+   1587 ./app/lib/rust/frb_generated.io.dart
+   1526 ./app/lib/gen/strings_fi.g.dart
+   1524 ./app/lib/gen/strings_pt_PT.g.dart
+   1519 ./app/lib/gen/strings_sv.g.dart
+   1519 ./app/lib/gen/strings_bn.g.dart
+   1518 ./app/lib/gen/strings_sk.g.dart
+   1517 ./app/lib/gen/strings_gu.g.dart
+
+=== END SIGNALS ===

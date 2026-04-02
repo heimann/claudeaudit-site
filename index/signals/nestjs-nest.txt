@@ -1,0 +1,183 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/nestjs-nest
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+eslint.config.mjs
+gulpfile.js
+hooks
+integration
+lerna.json
+LICENSE
+package.json
+package-lock.json
+packages
+readme_jp.md
+readme_kr.md
+Readme.md
+readme_zh.md
+renovate.json
+sample
+scripts
+SECURITY.md
+tools
+tsconfig.json
+tsconfig.spec.json
+
+### README
+
+## Dependencies
+FILE: package.json
+{
+  "name": "@nestjs/core",
+  "version": "11.1.10",
+  "description": "Modern, fast, powerful node.js web framework",
+  "homepage": "https://nestjs.com",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nestjs/nest.git"
+  },
+  "funding": {
+    "type": "opencollective",
+    "url": "https://opencollective.com/nest"
+  },
+  "license": "MIT",
+  "author": "Kamil Mysliwiec",
+  "scripts": {
+    "build": "tsc -b -v packages",
+    "postbuild": "npm run move:node_modules",
+    "build:dev": "tsc -b -v packages --watch",
+    "prebuild:prod": "npm run clean",
+    "build:prod": "tsc -b -v packages",
+    "changelog": "lerna-changelog",
+    "clean": "tsc -b --clean packages",
+    "move:samples": "gulp move:samples",
+    "move:node_modules": "gulp move:node_modules",
+    "build:samples": "gulp install:samples && npm run build && npm run move:samples && gulp build:samples && gulp test:samples && gulp test:e2e:samples",
+    "codechecks:benchmarks": "codechecks ./tools/benchmarks/check-benchmarks.ts",
+    "coverage": "nyc report --reporter=text-lcov | coveralls -v",
+    "format": "prettier \"**/*.ts\" \"packages/**/*.json\" --ignore-path ./.prettierignore --write && git status",
+    "postinstall": "opencollective",
+    "test": "mocha packages/**/*.spec.ts",
+    "test:dev": "mocha -w --watch-files \"packages\" packages/**/*.spec.ts",
+    "pretest:cov": "npm run clean",
+    "test:cov": "nyc mocha packages/**/*.spec.ts --reporter spec",
+    "test:integration": "mocha --reporter-option maxDiffSize=0 \"integration/*/{,!(node_modules)/**/}/*.spec.ts\"",
+    "test:docker:up": "docker-compose -f integration/docker-compose.yml up -d",
+    "test:docker:down": "docker-compose -f integration/docker-compose.yml down",
+    "lint": "concurrently 'npm run lint:packages' 'npm run lint:integration' 'npm run lint:spec'",
+    "lint:fix": "concurrently 'npm run lint:packages -- --fix' 'npm run lint:integration -- --fix' 'npm run lint:spec -- --fix'",
+    "lint:integration": "node --max-old-space-size=4096 ./node_modules/.bin/eslint 'integration/**/*.ts'",
+---END---
+### Lock files
+package-lock.json: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 382
+ci_workflow_count: 1
+codeql-analysis.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+FILE: .husky/pre-commit
+npx lint-staged
+---END---
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.mjs: EXISTS
+.prettierrc: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 334 lines
+# Contributing to Nest
+
+We would love for you to contribute to Nest and help make it even better than it is
+today! As a contributor, here are the guidelines we would like you to follow:
+
+<!--* [Code of Conduct](#coc)-->
+
+- [Question or Problem?](#question)
+- [Issues and Bugs](#issue)
+- [Feature Requests](#feature)
+- [Submission Guidelines](#submit)
+- [Development Setup](#development)
+- [Coding Rules](#rules)
+- [Commit Message Guidelines](#commit)
+  <!-- - [Signing the CLA](#cla) -->
+
+<!-- ## <a name="coc"></a> Code of Conduct
+Help us keep Nest open and inclusive. Please read and follow our [Code of Conduct][coc]. -->
+
+## <a name="question"></a> Got a Question or Problem?
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### tsconfig.json
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "noUnusedLocals": false,
+    "removeComments": true,
+    "strictNullChecks": true,
+    "strictPropertyInitialization": false,
+    "forceConsistentCasingInFileNames": true,
+    "noLib": false,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "useUnknownInCatchVariables": false,
+    "target": "ES2021",
+    "sourceMap": true,
+    "allowJs": false,
+    "outDir": "dist",
+    "baseUrl": ".",
+    "paths": {
+      "@nestjs/common": ["./packages/common"],
+      "@nestjs/common/*": ["./packages/common/*"],
+      "@nestjs/core": ["./packages/core"],
+      "@nestjs/core/*": ["./packages/core/*"],
+      "@nestjs/microservices": ["./packages/microservices"],
+      "@nestjs/microservices/*": ["./packages/microservices/*"],
+      "@nestjs/websockets": ["./packages/websockets"],
+      "@nestjs/websockets/*": ["./packages/websockets/*"],
+      "@nestjs/testing": ["./packages/testing"],
+      "@nestjs/testing/*": ["./packages/testing/*"],
+      "@nestjs/platform-express": ["./packages/platform-express"],
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  88203 total
+   1325 ./packages/microservices/external/kafka.interface.ts
+   1109 ./packages/core/injector/injector.ts
+   1036 ./packages/common/test/services/logger.service.spec.ts
+   1023 ./packages/core/test/injector/instance-wrapper.spec.ts
+    990 ./packages/microservices/test/server/server-grpc.spec.ts
+    967 ./integration/versioning/e2e/custom-versioning-fastify.spec.ts
+    917 ./packages/platform-fastify/adapters/fastify-adapter.ts
+    911 ./packages/microservices/test/client/client-kafka.spec.ts
+    882 ./packages/core/test/injector/injector.spec.ts
+    838 ./packages/common/test/decorators/route-params.decorator.spec.ts
+
+=== END SIGNALS ===

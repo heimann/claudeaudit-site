@@ -1,0 +1,253 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/open-webui-open-webui
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+backend
+banner.png
+CHANGELOG.md
+CODE_OF_CONDUCT.md
+confirm_remove.sh
+contribution_stats.py
+CONTRIBUTOR_LICENSE_AGREEMENT
+cypress
+cypress.config.ts
+demo.png
+docker-compose.a1111-test.yaml
+docker-compose.amdgpu.yaml
+docker-compose.api.yaml
+docker-compose.data.yaml
+docker-compose.gpu.yaml
+docker-compose.otel.yaml
+docker-compose.playwright.yaml
+docker-compose.yaml
+Dockerfile
+docs
+hatch_build.py
+i18next-parser.config.ts
+LICENSE
+LICENSE_HISTORY
+LICENSE_NOTICE
+Makefile
+package.json
+package-lock.json
+postcss.config.js
+pyproject.toml
+README.md
+run-compose.sh
+run-ollama-docker.sh
+run.sh
+scripts
+src
+static
+svelte.config.js
+tailwind.config.js
+test
+TROUBLESHOOTING.md
+tsconfig.json
+update_ollama_models.sh
+uv.lock
+vite.config.ts
+
+### README
+FILE: README.md
+# Open WebUI 👋
+
+![GitHub stars](https://img.shields.io/github/stars/open-webui/open-webui?style=social)
+![GitHub forks](https://img.shields.io/github/forks/open-webui/open-webui?style=social)
+![GitHub watchers](https://img.shields.io/github/watchers/open-webui/open-webui?style=social)
+![GitHub repo size](https://img.shields.io/github/repo-size/open-webui/open-webui)
+![GitHub language count](https://img.shields.io/github/languages/count/open-webui/open-webui)
+![GitHub top language](https://img.shields.io/github/languages/top/open-webui/open-webui)
+![GitHub last commit](https://img.shields.io/github/last-commit/open-webui/open-webui?color=red)
+[![Discord](https://img.shields.io/badge/Discord-Open_WebUI-blue?logo=discord&logoColor=white)](https://discord.gg/5rJgQTnV4s)
+[![](https://img.shields.io/static/v1?label=Sponsor&message=%E2%9D%A4&logo=GitHub&color=%23fe8e86)](https://github.com/sponsors/tjbck)
+
+![Open WebUI Banner](./banner.png)
+
+**Open WebUI is an [extensible](https://docs.openwebui.com/features/extensibility/plugin), feature-rich, and user-friendly self-hosted AI platform designed to operate entirely offline.** It supports various LLM runners like **Ollama** and **OpenAI-compatible APIs**, with **built-in inference engine** for RAG, making it a **powerful AI deployment solution**.
+
+Passionate about open-source AI? [Join our team →](https://careers.openwebui.com/)
+
+![Open WebUI Demo](./demo.png)
+
+> [!TIP]  
+> **Looking for an [Enterprise Plan](https://docs.openwebui.com/enterprise)?** – **[Speak with Our Sales Team Today!](https://docs.openwebui.com/enterprise)**
+>
+> Get **enhanced capabilities**, including **custom theming and branding**, **Service Level Agreement (SLA) support**, **Long-Term Support (LTS) versions**, and **more!**
+
+For more information, be sure to check out our [Open WebUI Documentation](https://docs.openwebui.com/).
+
+## Key Features of Open WebUI ⭐
+
+- 🚀 **Effortless Setup**: Install seamlessly using Docker or Kubernetes (kubectl, kustomize or helm) for a hassle-free experience with support for both `:ollama` and `:cuda` tagged images.
+---END---
+
+## Dependencies
+FILE: package.json
+{
+	"name": "open-webui",
+	"version": "0.8.12",
+	"private": true,
+	"scripts": {
+		"dev": "npm run pyodide:fetch && vite dev --host",
+		"dev:5050": "npm run pyodide:fetch && vite dev --port 5050",
+		"build": "npm run pyodide:fetch && vite build",
+		"build:watch": "npm run pyodide:fetch && vite build --watch",
+		"preview": "vite preview",
+		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
+		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
+		"lint": "npm run lint:frontend ; npm run lint:types ; npm run lint:backend",
+		"lint:frontend": "eslint . --fix",
+		"lint:types": "npm run check",
+		"lint:backend": "pylint backend/",
+		"format": "prettier --plugin-search-dir --write \"**/*.{js,ts,svelte,css,md,html,json}\"",
+		"format:backend": "ruff format . --exclude .venv --exclude venv",
+		"i18n:parse": "i18next --config i18next-parser.config.ts && prettier --write \"src/lib/i18n/**/*.{js,json}\"",
+		"cy:open": "cypress open",
+		"test:frontend": "vitest --passWithNoTests",
+		"pyodide:fetch": "node scripts/prepare-pyodide.js"
+	},
+	"devDependencies": {
+		"@sveltejs/adapter-auto": "3.2.2",
+		"@sveltejs/adapter-static": "^3.0.2",
+		"@sveltejs/kit": "^2.5.27",
+		"@sveltejs/vite-plugin-svelte": "^4.0.0",
+		"@tailwindcss/container-queries": "^0.1.1",
+		"@tailwindcss/postcss": "^4.0.0",
+		"@tailwindcss/typography": "^0.5.13",
+		"@typescript-eslint/eslint-plugin": "^8.31.1",
+		"@typescript-eslint/parser": "^8.31.1",
+		"cypress": "^13.15.0",
+		"eslint": "^8.56.0",
+		"eslint-config-prettier": "^9.1.0",
+		"eslint-plugin-cypress": "^3.4.0",
+		"eslint-plugin-svelte": "^2.45.1",
+		"i18next-parser": "^9.0.1",
+		"postcss": "^8.4.31",
+---END---
+### Lock files
+package-lock.json: EXISTS
+uv.lock: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+
+ifneq ($(shell which docker-compose 2>/dev/null),)
+    DOCKER_COMPOSE := docker-compose
+else
+    DOCKER_COMPOSE := docker compose
+endif
+
+install:
+	$(DOCKER_COMPOSE) up -d
+
+remove:
+	@chmod +x confirm_remove.sh
+	@./confirm_remove.sh
+
+start:
+	$(DOCKER_COMPOSE) start
+startAndBuild: 
+	$(DOCKER_COMPOSE) up -d --build
+
+stop:
+	$(DOCKER_COMPOSE) stop
+
+update:
+	# Calls the LLM update script
+	chmod +x update_ollama_models.sh
+	@./update_ollama_models.sh
+	@git pull
+	$(DOCKER_COMPOSE) down
+	# Make sure the ollama-webui container is stopped before rebuilding
+	@docker stop open-webui || true
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 5
+ci_workflow_count: 5
+build-release.yml
+codespell.disabled
+docker-build.yaml
+format-backend.yaml
+format-build-frontend.yaml
+integration-test.disabled
+lint-backend.disabled
+lint-frontend.disabled
+release-pypi.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.15.5
+    hooks:
+      - id: ruff
+        args: [--fix, backend]
+      - id: ruff-format
+        args: [backend]
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.prettierrc: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### npm scripts with watch/dev
+		"dev": "npm run pyodide:fetch && vite dev --host",
+### tsconfig.json
+{
+	"extends": "./.svelte-kit/tsconfig.json",
+	"compilerOptions": {
+		"allowJs": true,
+		"checkJs": true,
+		"esModuleInterop": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"skipLibCheck": true,
+		"sourceMap": true,
+		"strict": true
+	}
+	// Path aliases are handled by https://kit.svelte.dev/docs/configuration#alias
+	//
+	// If you want to overwrite includes/excludes, make sure to copy over the relevant includes/excludes
+	// from the referenced tsconfig.json - TypeScript does not merge them in
+}
+---END---
+### mypy config
+no [tool.mypy] section
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 176378 total
+  72362 ./backend/open_webui/static/swagger-ui/swagger-ui-bundle.js
+   4738 ./backend/open_webui/utils/middleware.py
+   4030 ./backend/open_webui/config.py
+   2676 ./backend/open_webui/routers/retrieval.py
+   2593 ./backend/open_webui/main.py
+   2326 ./backend/open_webui/tools/builtin.py
+   1885 ./backend/open_webui/routers/ollama.py
+   1855 ./src/lib/utils/index.ts
+   1822 ./backend/open_webui/routers/channels.py
+   1778 ./src/lib/apis/index.ts
+
+=== END SIGNALS ===

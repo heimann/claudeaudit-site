@@ -1,0 +1,246 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/godotengine-godot
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+AUTHORS.md
+CHANGELOG.md
+CONTRIBUTING.md
+COPYRIGHT.txt
+core
+doc
+DONORS.md
+drivers
+editor
+gles3_builders.py
+glsl_builders.py
+icon_outlined.png
+icon_outlined.svg
+icon.png
+icon.svg
+LICENSE.txt
+LOGO_LICENSE.txt
+logo_outlined.png
+logo_outlined.svg
+logo.png
+logo.svg
+main
+methods.py
+misc
+modules
+platform
+platform_methods.py
+pyproject.toml
+README.md
+scene
+SConstruct
+scu_builders.py
+servers
+tests
+thirdparty
+version.py
+
+### README
+FILE: README.md
+# Godot Engine
+
+<p align="center">
+  <a href="https://godotengine.org">
+    <img src="logo_outlined.svg" width="400" alt="Godot Engine logo">
+  </a>
+</p>
+
+## 2D and 3D cross-platform game engine
+
+**[Godot Engine](https://godotengine.org) is a feature-packed, cross-platform
+game engine to create 2D and 3D games from a unified interface.** It provides a
+comprehensive set of [common tools](https://godotengine.org/features), so that
+users can focus on making games without having to reinvent the wheel. Games can
+be exported with one click to a number of platforms, including the major desktop
+platforms (Linux, macOS, Windows), mobile platforms (Android, iOS), as well as
+Web-based platforms and [consoles](https://godotengine.org/consoles).
+
+## Free, open source and community-driven
+
+Godot is completely free and open source under the very permissive [MIT license](https://godotengine.org/license).
+No strings attached, no royalties, nothing. The users' games are theirs, down
+to the last line of engine code. Godot's development is fully independent and
+community-driven, empowering users to help shape their engine to match their
+expectations. It is supported by the [Godot Foundation](https://godot.foundation/)
+not-for-profit.
+
+Before being open sourced in [February 2014](https://github.com/godotengine/godot/commit/0b806ee0fc9097fa7bda7ac0109191c9c5e0a1ac),
+Godot had been developed by [Juan Linietsky](https://github.com/reduz) and
+[Ariel Manzur](https://github.com/punto-) for several years as an in-house
+---END---
+
+## Dependencies
+FILE: pyproject.toml
+[tool.mypy]
+disallow_any_generics = true
+explicit_package_bases = true
+ignore_missing_imports = true
+namespace_packages = true
+no_implicit_optional = true
+pretty = true
+show_column_numbers = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+exclude = ["thirdparty/"]
+python_version = "3.9"
+
+[tool.ruff]
+extend-exclude = ["thirdparty"]
+extend-include = ["*SConstruct", "*SCsub"]
+target-version = "py39"
+line-length = 120
+preview = true
+fix = true
+
+[tool.ruff.lint]
+# NOTE: Starting with `0.15.2`, ruff uses a SIGNIFICANTLY expanded set of default rules for
+#  preview builds. While expanding into these new rulesets is something we're interested in,
+#  we'll adopt them gradually, depending on our needs. As such, our base `select` utilizes the
+#  legacy defaults.
+select = ["E4", "E7", "E9", "F"]
+extend-select = [
+	"FA",    # flake8-future-annotations.
+	"I",     # isort.
+	"UP006", # Use {to} instead of {from} for type annotation.
+	"UP007", # Use `X | Y` for type annotations.
+	"UP037", # Remove quotes from type annotation.
+]
+extend-safe-fixes = ["FA", "UP006", "UP007"]
+
+[tool.ruff.lint.per-file-ignores]
+"{SConstruct,SCsub}" = [
+	"E402", # Module level import not at top of file.
+---END---
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 192
+ci_workflow_count: 8
+android_builds.yml
+ios_builds.yml
+linux_builds.yml
+macos_builds.yml
+runner.yml
+static_checks.yml
+web_builds.yml
+windows_builds.yml
+
+## Code Quality
+FILE: .pre-commit-config.yaml
+default_language_version:
+  python: python3
+
+exclude: |
+  (?x)^(
+    .*thirdparty/.*|
+    .*-(dll|dylib|so)_wrap\.[ch]|
+    platform/android/java/editor/src/main/java/com/android/.*|
+    platform/android/java/lib/src/main/java/com/google/.*
+  )$
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v6.0.0
+    hooks:
+      - id: check-executables-have-shebangs
+      - id: check-shebang-scripts-are-executable
+        exclude: (SConstruct|SCsub)$ # SCons files use shebangs for syntax highlighting only.
+
+  - repo: https://github.com/pre-commit/mirrors-clang-format
+    rev: v21.1.7
+    hooks:
+      - id: clang-format
+        files: \.(c|h|cpp|hpp|cc|hh|cxx|hxx|m|mm|inc|java)$
+        types_or: [text]
+      - id: clang-format
+        name: clang-format-glsl
+        files: \.glsl$
+        types_or: [text]
+        args: [-style=file:misc/utility/clang_format_glsl.yml]
+
+  # Not automatically triggered (because it requires compile_commands.json to be up-to-date).
+  # Invoke it manually via `pre-commit run --hook-stage manual clang-tidy`
+  - repo: https://github.com/pocc/pre-commit-hooks
+    rev: v1.3.5
+    hooks:
+      - id: clang-tidy
+        # TODO .inc ignored for now because they don't include their parent header.
+        # TODO Platform-specific subfolders currently fail, we should try to include them
+        files: ^(core|main|scene)/.*\.(c|h|cpp|hpp|cc|hh|cxx|hxx|m|mm|java)$
+---END---
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 213 lines
+# Contributors guidelines
+
+This document summarizes the most important points for people interested in
+contributing to Godot, especially via bug reports or pull requests.
+
+Godot has a dedicated [Contributing documentation](https://contributing.godotengine.org/en/latest/organization/how_to_contribute.html)
+which details these points and more, and is a recommended read.
+
+## Table of contents
+
+- [Reporting bugs](#reporting-bugs)
+- [Proposing features or improvements](#proposing-features-or-improvements)
+- [Contributing pull requests](#contributing-pull-requests)
+- [Contributing to Godot translations](#contributing-to-godot-translations)
+- [Communicating with developers](#communicating-with-developers)
+
+## Reporting bugs
+
+Report bugs [here](https://github.com/godotengine/godot/issues/new?assignees=&labels=&template=bug_report.yml).
+Please follow the instructions in the template when you do.
+---END---
+
+## Scalability
+no env-based port config found
+app_type: Python package
+
+## Ergonomics
+### mypy config
+[tool.mypy]
+disallow_any_generics = true
+explicit_package_bases = true
+ignore_missing_imports = true
+namespace_packages = true
+no_implicit_optional = true
+### Determinism
+sleep_pattern_count_in_tests: 4
+### Largest source files
+  922338 total
+   23974 ./thirdparty/basis_universal/transcoder/basisu_transcoder.cpp
+   14314 ./thirdparty/pcre2/src/pcre2_jit_compile.c
+   14004 ./drivers/alsa/asound-so_wrap.c
+   11343 ./thirdparty/pcre2/src/pcre2_compile.c
+   10196 ./thirdparty/d3d12ma/D3D12MemAlloc.cpp
+   10187 ./thirdparty/mbedtls/library/ssl_tls.c
+   10044 ./thirdparty/xatlas/xatlas.cpp
+    9479 ./thirdparty/mbedtls/library/psa_crypto.c
+    8244 ./thirdparty/pcre2/src/pcre2_match.c
+    7843 ./thirdparty/zstd/compress/zstd_compress.c
+
+=== END SIGNALS ===

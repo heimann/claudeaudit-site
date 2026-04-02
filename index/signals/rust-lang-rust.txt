@@ -1,0 +1,243 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/rust-lang-rust
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+FILE: src/tools/rust-analyzer/AGENTS.md (40 lines)
+**Reminder: All AI usage must be disclosed in commit messages, see
+CONTRIBUTING.md for more details.**
+
+## Build Commands
+
+```bash
+cargo build                    # Build all crates
+cargo test                     # Run all tests
+cargo test -p <crate>          # Run tests for a specific crate (e.g., cargo test -p hir-ty)
+cargo lint                     # Run clippy on all targets
+cargo xtask codegen            # Run code generation
+cargo xtask tidy               # Run tidy checks
+UPDATE_EXPECT=1 cargo test     # Update test expectations (snapshot tests)
+RUN_SLOW_TESTS=1 cargo test    # Run heavy/slow tests
+```
+
+## Key Architectural Invariants
+
+- Typing in a function body never invalidates global derived data
+- Parser/syntax tree is built per-file to enable parallel parsing
+- The server is stateless (HTTP-like); context must be re-created from request parameters
+- Cancellation uses salsa's cancellation mechanism; computations panic with a `Cancelled` payload
+
+### Code Generation
+
+Generated code is committed to the repo. Grammar and AST are generated from `ungrammar`. Run `cargo test -p xtask` after adding inline parser tests (`// test test_name` comments).
+
+## Testing
+
+Tests are snapshot-based using `expect-test`. Test fixtures use a mini-language:
+- `$0` marks cursor position
+- `// ^^^^` labels attach to the line above
+- `//- minicore: sized, fn` includes parts of minicore (minimal core library)
+- `//- /path/to/file.rs crate:name deps:dep1,dep2` declares files/crates
+
+## Style Notes
+
+- Use `stdx::never!` and `stdx::always!` instead of `assert!` for recoverable invariants
+- Use `T![fn]` macro instead of `SyntaxKind::FN_KW`
+- Use keyword name mangling over underscore prefixing for identifiers: `crate` → `krate`, `fn` → `func`, `struct` → `strukt`, `type` → `ty`
+---END---
+FILE: src/tools/rust-analyzer/CLAUDE.md (40 lines)
+**Reminder: All AI usage must be disclosed in commit messages, see
+CONTRIBUTING.md for more details.**
+
+## Build Commands
+
+```bash
+cargo build                    # Build all crates
+cargo test                     # Run all tests
+cargo test -p <crate>          # Run tests for a specific crate (e.g., cargo test -p hir-ty)
+cargo lint                     # Run clippy on all targets
+cargo xtask codegen            # Run code generation
+cargo xtask tidy               # Run tidy checks
+UPDATE_EXPECT=1 cargo test     # Update test expectations (snapshot tests)
+RUN_SLOW_TESTS=1 cargo test    # Run heavy/slow tests
+```
+
+## Key Architectural Invariants
+
+- Typing in a function body never invalidates global derived data
+- Parser/syntax tree is built per-file to enable parallel parsing
+- The server is stateless (HTTP-like); context must be re-created from request parameters
+- Cancellation uses salsa's cancellation mechanism; computations panic with a `Cancelled` payload
+
+### Code Generation
+
+Generated code is committed to the repo. Grammar and AST are generated from `ungrammar`. Run `cargo test -p xtask` after adding inline parser tests (`// test test_name` comments).
+
+## Testing
+
+Tests are snapshot-based using `expect-test`. Test fixtures use a mini-language:
+- `$0` marks cursor position
+- `// ^^^^` labels attach to the line above
+- `//- minicore: sized, fn` includes parts of minicore (minimal core library)
+- `//- /path/to/file.rs crate:name deps:dep1,dep2` declares files/crates
+
+## Style Notes
+
+- Use `stdx::never!` and `stdx::always!` instead of `assert!` for recoverable invariants
+- Use `T![fn]` macro instead of `SyntaxKind::FN_KW`
+- Use keyword name mangling over underscore prefixing for identifiers: `crate` → `krate`, `fn` → `func`, `struct` → `strukt`, `type` → `ty`
+---END---
+
+## Repository Structure
+### Top-level layout
+bootstrap.example.toml
+Cargo.lock
+Cargo.toml
+CODE_OF_CONDUCT.md
+compiler
+configure
+CONTRIBUTING.md
+COPYRIGHT
+INSTALL.md
+library
+LICENSE-APACHE
+license-metadata.json
+LICENSE-MIT
+LICENSES
+package.json
+README.md
+RELEASES.md
+REUSE.toml
+rust-bors.toml
+rustfmt.toml
+src
+tests
+triagebot.toml
+typos.toml
+x
+x.ps1
+x.py
+yarn.lock
+
+### README
+FILE: README.md
+<div align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/rust-lang/www.rust-lang.org/master/static/images/rust-social-wide-dark.svg">
+    <source media="(prefers-color-scheme: light)" srcset="https://raw.githubusercontent.com/rust-lang/www.rust-lang.org/master/static/images/rust-social-wide-light.svg">
+    <img alt="The Rust Programming Language: A language empowering everyone to build reliable and efficient software"
+         src="https://raw.githubusercontent.com/rust-lang/www.rust-lang.org/master/static/images/rust-social-wide-light.svg"
+         width="50%">
+  </picture>
+
+[Website][Rust] | [Getting started] | [Learn] | [Documentation] | [Contributing]
+</div>
+
+This is the main source code repository for [Rust]. It contains the compiler,
+standard library, and documentation.
+
+[Rust]: https://www.rust-lang.org/
+[Getting Started]: https://www.rust-lang.org/learn/get-started
+[Learn]: https://www.rust-lang.org/learn
+[Documentation]: https://www.rust-lang.org/learn#learn-use
+[Contributing]: CONTRIBUTING.md
+
+## Why Rust?
+
+- **Performance:** Fast and memory-efficient, suitable for critical services, embedded devices, and easily integrated with other languages.
+
+- **Reliability:** Our rich type system and ownership model ensure memory and thread safety, reducing bugs at compile-time.
+
+- **Productivity:** Comprehensive documentation, a compiler committed to providing great diagnostics, and advanced tooling including package manager and build tool ([Cargo]), auto-formatter ([rustfmt]), linter ([Clippy]) and editor support ([rust-analyzer]).
+
+[Cargo]: https://github.com/rust-lang/cargo
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "dependencies": {
+    "browser-ui-test": "^0.23.3",
+    "es-check": "^9.4.4",
+    "eslint": "^8.57.1",
+    "typescript": "^5.8.3"
+  }
+}
+---END---
+### Lock files
+yarn.lock: EXISTS
+Cargo.lock: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 98
+ci_workflow_count: 4
+ci.yml
+dependencies.yml
+ghcr.yml
+post-merge.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+rustfmt.toml: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 50 lines
+# Contributing to Rust
+
+Thank you for your interest in contributing to Rust! There are many ways to contribute
+and we appreciate all of them.
+
+The best way to get started is by asking for help in the [#new
+members](https://rust-lang.zulipchat.com/#narrow/stream/122652-new-members)
+Zulip stream. We have a lot of documentation below on how to get started on your own, but
+the Zulip stream is the best place to *ask* for help.
+
+Documentation for contributing to the compiler or tooling is located in the [Guide to Rustc
+Development][rustc-dev-guide], commonly known as the [rustc-dev-guide]. Documentation for the
+standard library is in the [Standard library developers Guide][std-dev-guide], commonly known as the [std-dev-guide].
+
+## Making changes to subtrees and submodules
+
+For submodules, changes need to be made against the repository corresponding to the
+submodule, and not the main `rust-lang/rust` repository.
+
+For subtrees, prefer sending a PR against the subtree's repository if it does
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+no watch/dev scripts
+### Determinism
+sleep_pattern_count_in_tests: 1
+### Largest source files
+  343788 total
+    5844 ./library/core/src/slice/mod.rs
+    4948 ./library/alloc/src/sync.rs
+    4509 ./library/alloc/src/vec/mod.rs
+    4508 ./library/core/src/sync/atomic.rs
+    4339 ./library/core/src/iter/traits/iterator.rs
+    4189 ./library/core/src/num/uint_macros.rs
+    4032 ./library/core/src/num/int_macros.rs
+    3825 ./library/alloc/src/collections/vec_deque/mod.rs
+    3714 ./library/alloc/src/collections/btree/map.rs
+    3606 ./library/alloc/src/string.rs
+
+=== END SIGNALS ===

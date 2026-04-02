@@ -1,0 +1,240 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/vitejs-vite
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md (50 lines)
+This is a TypeScript project that implements a frontend build tooling called Vite. Please follow these guidelines when contributing:
+
+## Code Standards
+
+- Run `pnpm run lint` to ensure that your code adheres to the code standards.
+- Run `pnpm run format` to format your code.
+- Build: `pnpm run build`
+- Test: `pnpm run test` (uses Vitest and Playwright)
+
+## Repository Structure
+
+- `docs/`: Documentation
+- `packages/create-vite`: The source code for the `create-vite` command
+- `packages/plugin-legacy`: The source code for the `@vitejs/plugin-legacy` plugin
+- `packages/vite`: The source code for the Vite core
+- `playground/`: E2E tests
+
+## PR Guidelines
+
+### PR Title & Commit Messages
+
+- Follow the [commit message convention](./commit-convention.md)
+
+### PR Description
+
+- What does this PR solve? - Clear problem/feature description
+- Why was this approach chosen? - Implementation rationale
+- If this is a new feature, include a convincing reason.
+- If this adds a new config option, verify problem can't be solved with smarter defaults, existing options, or a plugin
+- If this is a bug fix, explain what caused the bug - Link to relevant code if possible
+
+### Code Style & Standards
+
+- Code follows TypeScript best practices
+- Maintains existing code structure and organization
+- Comments explain "why", not "what"
+
+### Testing
+
+- Prefer unit tests if it can be tested without using mocks
+- E2E tests should be added in the `playground/` directory
+
+### Documentation
+
+- Update documentation for public API changes
+- Documentation changes go in `docs/` folder
+
+### Other Considerations
+
+- No concerning performance impacts
+---END---
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+docs
+eslint.config.js
+LICENSE
+netlify.toml
+package.json
+packages
+patches
+playground
+pnpm-lock.yaml
+pnpm-workspace.yaml
+README.md
+scripts
+vitest.config.e2e.ts
+vitest.config.ts
+
+### README
+FILE: README.md
+<p align="center">
+  <br>
+  <br>
+  <a href="https://vite.dev" target="_blank" rel="noopener noreferrer">
+    <picture>
+      <source media="(prefers-color-scheme: dark)" srcset="https://vite.dev/vite-light.svg">
+      <source media="(prefers-color-scheme: light)" srcset="https://vite.dev/vite-dark.svg">
+      <img alt="vite logo" src="https://vite.dev/vite-dark.svg" height="60">
+    </picture>
+  </a>
+  <br>
+  <br>
+</p>
+<br/>
+<p align="center">
+  <a href="https://npmjs.com/package/vite"><img src="https://img.shields.io/npm/v/vite.svg" alt="npm package"></a>
+  <a href="https://nodejs.org/en/about/previous-releases"><img src="https://img.shields.io/node/v/vite.svg" alt="node compatibility"></a>
+  <a href="https://github.com/vitejs/vite/actions/workflows/ci.yml"><img src="https://github.com/vitejs/vite/actions/workflows/ci.yml/badge.svg?branch=main" alt="build status"></a>
+  <a href="https://docs.warp.dev/support-and-community/community/open-source-partnership"><img src="https://img.shields.io/badge/Oz%20agents-triaging%20issues-white?logo=warp" alt="issue triage powered by Oz"></a>
+  <a href="https://chat.vite.dev"><img src="https://img.shields.io/badge/chat-discord-blue?style=flat&logo=discord" alt="discord chat"></a>
+</p>
+<br/>
+
+# Vite ⚡
+
+> Next Generation Frontend Tooling
+
+- 💡 Instant Server Start
+- ⚡️ Lightning Fast HMR
+- 🛠️ Rich Features
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "@vitejs/vite-monorepo",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  },
+  "homepage": "https://vite.dev/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vitejs/vite.git"
+  },
+  "keywords": [
+    "frontend",
+    "hmr",
+    "dev-server",
+    "build-tool",
+    "vite"
+  ],
+  "scripts": {
+    "preinstall": "npx only-allow pnpm",
+    "postinstall": "simple-git-hooks",
+    "format": "prettier --write --cache . --experimental-cli",
+    "lint": "eslint --cache . --concurrency auto",
+    "typecheck": "tsc -p scripts && pnpm -r --parallel run typecheck",
+    "test": "pnpm test-unit && pnpm test-serve && pnpm test-build",
+    "test-serve": "vitest run -c vitest.config.e2e.ts",
+    "test-build": "VITE_TEST_BUILD=1 vitest run -c vitest.config.e2e.ts",
+    "test-unit": "vitest run",
+    "test-docs": "pnpm run docs-build",
+    "debug-serve": "VITE_DEBUG_SERVE=1 vitest run -c vitest.config.e2e.ts",
+    "debug-build": "VITE_TEST_BUILD=1 VITE_PRESERVE_BUILD_ARTIFACTS=1 vitest run -c vitest.config.e2e.ts",
+    "docs": "pnpm --filter=./docs run docs",
+    "docs-build": "pnpm --filter=./docs run docs-build",
+    "docs-serve": "pnpm --filter=./docs run docs-serve",
+    "build": "pnpm -r --filter='./packages/*' run build",
+    "dev": "pnpm -r --parallel --filter='./packages/*' run dev",
+    "release": "tsx scripts/release.ts",
+    "ci-publish": "tsx scripts/publishCI.ts",
+    "ci-docs": "pnpm build && pnpm docs-build",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 165
+ci_workflow_count: 12
+ci.yml
+copilot-setup-steps.yml
+ecosystem-ci-trigger.yml
+issue-close-require.yml
+issue-labeled.yml
+issue-template-check.yml
+lock-closed-issues.yml
+preview-release.yml
+publish.yml
+pull-request-template-check.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+eslint.config.js: EXISTS
+.prettierrc.json: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 359 lines
+# Vite Contributing Guide
+
+Hi! We're really excited that you're interested in contributing to Vite! Before submitting your contribution, please read through the following guide. We also suggest you read the [Project Philosophy](https://vite.dev/guide/philosophy) in our documentation.
+
+## Repo Setup
+
+To develop locally, fork the Vite repository and clone it in your local machine. The Vite repo is a monorepo using pnpm workspaces. The package manager used to install and link dependencies must be [pnpm](https://pnpm.io/). You can find the required pnpm version in `package.json` under the `packageManager` key.
+
+To develop and test the core `vite` package:
+
+1. Run `pnpm i` in Vite's root folder.
+
+2. Run `pnpm run build` in Vite's root folder.
+
+3. If you are developing Vite itself, you can go to `packages/vite` and run `pnpm run dev` to automatically rebuild Vite whenever you change its code.
+
+> If you are working on multiple projects with different versions of pnpm, it's recommended to enable [Corepack](https://github.com/nodejs/corepack) by running `corepack enable`.
+
+### Cloning the repo on Windows
+
+---END---
+
+## Scalability
+pnpm-lock.yaml:1356:      '@vitejs/test-resolve-exports-env':
+pnpm-lock.yaml:1357:        specifier: link:./exports-env
+pnpm-lock.yaml:1358:        version: link:exports-env
+pnpm-lock.yaml:1428:  playground/resolve/exports-env: {}
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "dev": "pnpm -r --parallel --filter='./packages/*' run dev",
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 10487 total
+   777 ./playground/assets/__tests__/assets.spec.ts
+   556 ./playground/css/__tests__/tests.ts
+   550 ./playground/fs-serve/__tests__/commonTests.ts
+   545 ./playground/html/__tests__/html.spec.ts
+   409 ./playground/optimize-deps/__tests__/optimize-deps.spec.ts
+   310 ./playground/glob-import/__tests__/glob-import.spec.ts
+   300 ./playground/html/vite.config.js
+   276 ./playground/css-sourcemap/__tests__/lightningcss/lightningcss.spec.ts
+   275 ./playground/css-sourcemap/__tests__/css-sourcemap.spec.ts
+   244 ./playground/assets/__tests__/relative-base/assets-relative-base.spec.ts
+
+=== END SIGNALS ===

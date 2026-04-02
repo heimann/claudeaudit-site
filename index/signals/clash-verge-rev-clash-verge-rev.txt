@@ -1,0 +1,232 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/clash-verge-rev-clash-verge-rev
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+Cargo.lock
+Cargo.toml
+Changelog.md
+CONTRIBUTING.md
+crates
+deny.toml
+docs
+eslint.config.ts
+LICENSE
+Makefile.toml
+package.json
+pnpm-lock.yaml
+README.md
+renovate.json
+rustfmt.toml
+rust-toolchain.toml
+scripts
+scripts-workflow
+src
+src-tauri
+template
+tsconfig.json
+vite.config.mts
+
+### README
+FILE: README.md
+<h1 align="center">
+  <img src="./src-tauri/icons/icon.png" alt="Clash" width="128" />
+  <br>
+  Continuation of <a href="https://github.com/zzzgydi/clash-verge">Clash Verge</a>
+  <br>
+</h1>
+
+<h3 align="center">
+A Clash Meta GUI based on <a href="https://github.com/tauri-apps/tauri">Tauri</a>.
+</h3>
+
+<p align="center">
+  Languages:
+  <a href="./README.md">简体中文</a> ·
+  <a href="./docs/README_en.md">English</a> ·
+  <a href="./docs/README_es.md">Español</a> ·
+  <a href="./docs/README_ru.md">Русский</a> ·
+  <a href="./docs/README_ja.md">日本語</a> ·
+  <a href="./docs/README_ko.md">한국어</a> ·
+  <a href="./docs/README_fa.md">فارسی</a>
+</p>
+
+## Preview
+
+| Dark                             | Light                             |
+| -------------------------------- | --------------------------------- |
+| ![预览](./docs/preview_dark.png) | ![预览](./docs/preview_light.png) |
+
+## Install
+
+---END---
+
+## Dependencies
+FILE: package.json
+{
+  "name": "clash-verge",
+  "version": "2.4.8",
+  "license": "GPL-3.0-only",
+  "scripts": {
+    "prepare": "husky || true",
+    "dev": "cross-env RUST_BACKTRACE=full tauri dev -f verge-dev",
+    "dev:diff": "cross-env RUST_BACKTRACE=full tauri dev -f verge-dev",
+    "dev:trace": "cross-env RUST_BACKTRACE=full RUSTFLAGS=\"--cfg tokio_unstable\" tauri dev -f verge-dev tokio-trace",
+    "dev:tauri": "cross-env RUST_BACKTRACE=full tauri dev -f tauri-dev",
+    "build": "cross-env NODE_OPTIONS='--max-old-space-size=4096' tauri build",
+    "build:fast": "cross-env NODE_OPTIONS='--max-old-space-size=4096' tauri build -- --profile fast-release",
+    "tauri": "tauri",
+    "web:dev": "vite",
+    "web:build": "tsc --noEmit && vite build",
+    "web:serve": "vite preview",
+    "prebuild": "node scripts/prebuild.mjs",
+    "updater": "node scripts/updater.mjs",
+    "updater-fixed-webview2": "node scripts/updater-fixed-webview2.mjs",
+    "portable": "node scripts/portable.mjs",
+    "portable-fixed-webview2": "node scripts/portable-fixed-webview2.mjs",
+    "fix-alpha-version": "node scripts/fix-alpha_version.mjs",
+    "release-version": "node scripts/release-version.mjs",
+    "release:autobuild": "pnpm release-version autobuild",
+    "release:deploytest": "pnpm release-version deploytest",
+    "publish-version": "node scripts/publish-version.mjs",
+    "lint": "eslint -c eslint.config.ts --max-warnings=0 --cache --cache-location .eslintcache src",
+    "lint:fix": "eslint -c eslint.config.ts --max-warnings=0 --cache --cache-location .eslintcache --fix src",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "i18n:check": "node scripts/cleanup-unused-i18n.mjs",
+    "i18n:format": "node scripts/cleanup-unused-i18n.mjs --align --apply",
+    "i18n:types": "node scripts/generate-i18n-keys.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@dnd-kit/core": "^6.3.1",
+    "@dnd-kit/sortable": "^10.0.0",
+    "@dnd-kit/utilities": "^3.2.2",
+    "@emotion/react": "^11.14.0",
+---END---
+### Lock files
+pnpm-lock.yaml: EXISTS
+Cargo.lock: EXISTS
+### Setup
+.devcontainer: EXISTS
+Dockerfile: DOES NOT EXIST
+.tool-versions: nodejs 21.7.1
+
+## Tests
+test_file_count: 1
+ci_workflow_count: 13
+autobuild-check-test.yml
+autobuild.yml
+check-commit-needs-build.yml
+clean-old-assets.yml
+cross_check.yaml
+dev.yml
+frontend-check.yml
+lint-clippy.yml
+pr-ai-slop-review.lock.yml
+pr-ai-slop-review.md
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+FILE: .husky/pre-commit
+#!/bin/bash
+set -euo pipefail
+
+if ! command -v "cargo-make" >/dev/null 2>&1; then
+  echo "❌ cargo-make is required for pre-commit checks."
+  cargo install --force cargo-make
+fi
+
+if ! command -v pnpm >/dev/null 2>&1; then
+  echo "❌ pnpm is required for pre-commit checks."
+  exit 1
+fi
+
+cargo make pre-commit
+---END---
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.prettierrc: EXISTS
+rustfmt.toml: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 136 lines
+# CONTRIBUTING
+
+Thank you for your interest in contributing to **Clash Verge Rev**! This guide provides instructions to help you set up your development environment and start contributing effectively.
+
+## Internationalization (i18n)
+
+We welcome translations and improvements to existing locales. For details on contributing translations, please see [CONTRIBUTING_i18n.md](docs/CONTRIBUTING_i18n.md).
+
+## Development Setup
+
+Before contributing, you need to set up your development environment. Follow the steps below carefully.
+
+### Prerequisites
+
+1. **Install Rust and Node.js**  
+   Our project requires both Rust and Node.js. Follow the official installation instructions [here](https://tauri.app/start/prerequisites/).
+
+### Windows Users
+
+> [!NOTE]  
+---END---
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### npm scripts with watch/dev
+    "dev": "cross-env RUST_BACKTRACE=full tauri dev -f verge-dev",
+### tsconfig.json
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "lib": ["DOM", "ESNext"],
+    "allowJs": false,
+    "skipLibCheck": true,
+    "strict": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@root/*": ["./*"]
+    },
+    "types": ["vite/client", "vite-plugin-svgr/client"]
+  },
+  "include": ["./src"]
+}
+---END---
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 32408 total
+  1406 ./src/types/generated/i18n-resources.ts
+  1088 ./src/types/global.d.ts
+   985 ./src-tauri/src/core/tray/mod.rs
+   828 ./src-tauri/src/enhance/mod.rs
+   804 ./src/types/generated/i18n-keys.ts
+   613 ./src-tauri/src/config/prfitem.rs
+   594 ./src-tauri/src/config/profiles.rs
+   577 ./src-tauri/src/config/verge.rs
+   565 ./src/services/cmds.ts
+   556 ./src-tauri/src/core/service.rs
+
+=== END SIGNALS ===

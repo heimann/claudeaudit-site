@@ -1,0 +1,113 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /home/exedev/claudeaudit/index/clones/Genymobile-scrcpy
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+app
+assets
+build.gradle
+bump_version
+config
+cross_win32.txt
+cross_win64.txt
+doc
+FAQ.md
+gradle
+gradle.properties
+gradlew
+gradlew.bat
+install_release.sh
+LICENSE
+meson.build
+meson_options.txt
+README.md
+release
+run
+server
+settings.gradle
+
+### README
+FILE: README.md
+**This GitHub repo (<https://github.com/Genymobile/scrcpy>) is the only official
+source for the project. Do not download releases from random websites, even if
+their name contains `scrcpy`.**
+
+# scrcpy (v3.3.4)
+
+<img src="app/data/icon.svg" width="128" height="128" alt="scrcpy" align="right" />
+
+_pronounced "**scr**een **c**o**py**"_
+
+This application mirrors Android devices (video and audio) connected via USB or
+[TCP/IP](doc/connection.md#tcpip-wireless) and allows control using the
+computer's keyboard and mouse. It does not require _root_ access or an app
+installed on the device. It works on _Linux_, _Windows_, and _macOS_.
+
+![screenshot](assets/screenshot-debian-600.jpg)
+
+It focuses on:
+
+ - **lightness**: native, displays only the device screen
+ - **performance**: 30~120fps, depending on the device
+ - **quality**: 1920×1080 or above
+ - **low latency**: [35~70ms][lowlatency]
+ - **low startup time**: ~1 second to display the first image
+ - **non-intrusiveness**: nothing is left installed on the Android device
+ - **user benefits**: no account, no ads, no internet required
+ - **freedom**: free and open source software
+
+[lowlatency]: https://github.com/Genymobile/scrcpy/pull/646
+
+---END---
+
+## Dependencies
+### Lock files
+### Setup
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 13
+ci_workflow_count: 1
+release.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+  35080 total
+   3374 ./app/src/cli.c
+   1200 ./app/src/server.c
+   1087 ./app/src/input_manager.c
+   1068 ./app/src/scrcpy.c
+    947 ./app/src/screen.c
+    853 ./app/src/recorder.c
+    792 ./app/src/adb/adb.c
+    757 ./server/src/main/java/com/genymobile/scrcpy/control/Controller.java
+    651 ./server/src/main/java/com/genymobile/scrcpy/Options.java
+    496 ./server/src/test/java/com/genymobile/scrcpy/control/ControlMessageReaderTest.java
+
+=== END SIGNALS ===

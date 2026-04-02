@@ -1,0 +1,218 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/jesseduffield-lazygit
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+cmd
+CODE-OF-CONDUCT.md
+CONTRIBUTING.md
+default.nix
+demo
+Dockerfile
+docs
+docs-master
+flake.lock
+flake.nix
+go.mod
+go.sum
+LICENSE
+main.go
+Makefile
+pkg
+README.md
+schema
+schema-master
+scripts
+shell.nix
+test
+vendor
+VISION.md
+
+### README
+FILE: README.md
+<div align="center">
+<sup>Special thanks to:</sup>
+<br>
+<br>
+<a href="https://www.warp.dev/?utm_source=github&utm_medium=referral&utm_campaign=lazygit_20231023">
+  <div>
+    <img src="https://github.com/warpdotdev/brand-assets/blob/main/Github/Sponsor/Warp-Github-LG-02.png?raw=true" width="400" alt="Warp">
+  </div>
+  <b>Warp, the intelligent terminal</b>
+  <br>
+  <b>Available for macOS and Linux</b>
+  <br>
+  <div>
+    <sup>Visit warp.dev to learn more.</sup>
+  </div>
+</a>
+<br>
+<hr>
+<a href="https://tuple.app/lazygit">
+  <div>
+    <img src="../assets/tuple.png" width="400" alt="Tuple">
+  </div>
+  <b>Tuple, the premier screen sharing app for developers on macOS and Windows.</b>
+</a>
+<br>
+<hr>
+<br>
+<a href="https://www.subble.com">
+  <div>
+    <img src="../assets/subble.webp" width="400" alt="Subble">
+---END---
+
+## Dependencies
+FILE: go.mod
+module github.com/jesseduffield/lazygit
+
+go 1.25.0
+
+// This is necessary to ignore test files when executing gofumpt.
+ignore ./test
+
+require (
+	dario.cat/mergo v1.0.1
+	github.com/adrg/xdg v0.5.3
+	github.com/atotto/clipboard v0.1.4
+	github.com/aybabtme/humanlog v0.4.1
+	github.com/cli/go-gh/v2 v2.13.0
+	github.com/cloudfoundry/jibber_jabber v0.0.0-20151120183258-bcc4c8345a21
+	github.com/creack/pty v1.1.24
+	github.com/gdamore/tcell/v2 v2.13.8
+	github.com/go-errors/errors v1.5.1
+	github.com/gookit/color v1.4.2
+	github.com/integrii/flaggy v1.8.0
+	github.com/jesseduffield/generics v0.0.0-20250517122708-b0b4a53a6f5c
+	github.com/jesseduffield/gocui v0.3.1-0.20260327132312-944dab3bc980
+	github.com/jesseduffield/lazycore v0.0.0-20221012050358-03d2e40243c5
+	github.com/kardianos/osext v0.0.0-20190222173326-2bc1f35cddc0
+	github.com/karimkhaleel/jsonschema v0.0.0-20231001195015-d933f0d94ea3
+	github.com/kyokomi/emoji/v2 v2.2.8
+	github.com/lucasb-eyer/go-colorful v1.4.0
+	github.com/mgutz/str v1.2.0
+	github.com/mitchellh/go-ps v1.0.0
+	github.com/rivo/uniseg v0.4.7
+	github.com/sahilm/fuzzy v0.1.1
+	github.com/samber/lo v1.31.0
+	github.com/sanity-io/litter v1.5.8
+	github.com/sasha-s/go-deadlock v0.3.9
+	github.com/sirupsen/logrus v1.9.3
+	github.com/spf13/afero v1.15.0
+	github.com/spkg/bom v1.0.1
+	github.com/stefanhaller/git-todo-parser v0.0.7-0.20250905083220-c50528f08304
+	github.com/stretchr/testify v1.11.1
+	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e
+	golang.org/x/exp v0.0.0-20240719175910-8a7402abbf56
+---END---
+### Lock files
+go.sum: EXISTS
+### Setup
+FILE: Makefile (first 30 lines)
+.PHONY: all
+all: build
+
+.PHONY: build
+build:
+	go build -gcflags='all=-N -l'
+
+.PHONY: install
+install:
+	go install
+
+.PHONY: run
+run: build
+	./lazygit
+
+# Run `make run-debug` in one terminal tab and `make print-log` in another to view the program and its log output side by side
+.PHONY: run-debug
+run-debug:
+	go run main.go -debug
+
+.PHONY: print-log
+print-log:
+	go run main.go --logs
+
+.PHONY: unit-test
+unit-test:
+	go test ./... -short
+
+.PHONY: test
+test: unit-test integration-test-all
+---END---
+.devcontainer: EXISTS
+Dockerfile: EXISTS
+
+## Tests
+test_file_count: 85
+ci_workflow_count: 6
+check-required-label.yml
+ci.yml
+close-issues.yml
+codespell.yml
+release.yml
+sponsors.yml
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.golangci.yml: EXISTS
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: 259 lines
+# Contributing
+
+♥ We love pull requests from everyone !
+
+When contributing to this repository, please first discuss the change you wish
+to make via issue, email, or any other method with the owners of this repository
+before making a change.
+
+## PR walkthrough
+
+[This video](https://www.youtube.com/watch?v=kNavnhzZHtk) walks through the process of adding a small feature to lazygit. If you have no idea where to start, watching that video is a good first step.
+
+## Design principles
+
+See [here](./VISION.md) for a set of design principles that we want to consider when building a feature or making a change.
+
+## Codebase guide
+
+[This doc](./docs/dev/Codebase_Guide.md) explains:
+
+---END---
+
+## Scalability
+no env-based port config found
+app_type: Go binary
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 0
+### Largest source files
+ 109650 total
+   2263 ./pkg/i18n/english.go
+   1589 ./pkg/gui/controllers/files_controller.go
+   1559 ./pkg/gui/controllers/local_commits_controller.go
+   1193 ./pkg/gui/gui.go
+   1186 ./pkg/config/app_config_test.go
+   1080 ./pkg/config/user_config.go
+    986 ./pkg/gui/controllers/branches_controller.go
+    952 ./pkg/gui/controllers/helpers/refresh_helper.go
+    893 ./pkg/commands/git_commands/working_tree_test.go
+    796 ./pkg/commands/git_commands/commit_loader_test.go
+
+=== END SIGNALS ===

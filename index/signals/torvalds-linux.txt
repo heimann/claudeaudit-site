@@ -1,0 +1,122 @@
+=== CLAUDEAUDIT SIGNALS ===
+repo_root: /tmp/claudeaudit-site/index/_scratch/torvalds-linux
+
+## Agent Documentation
+FILE: CLAUDE.md DOES NOT EXIST
+FILE: AGENTS.md DOES NOT EXIST
+FILE: .claude/CLAUDE.md DOES NOT EXIST
+FILE: .claude/settings.json DOES NOT EXIST
+FILE: .cursorrules DOES NOT EXIST
+FILE: .github/copilot-instructions.md DOES NOT EXIST
+
+### Subdirectory agent docs
+
+## Repository Structure
+### Top-level layout
+arch
+block
+certs
+COPYING
+CREDITS
+crypto
+Documentation
+drivers
+fs
+include
+init
+io_uring
+ipc
+Kbuild
+Kconfig
+kernel
+lib
+LICENSES
+MAINTAINERS
+Makefile
+mm
+net
+README
+rust
+samples
+scripts
+security
+sound
+tools
+usr
+virt
+
+### README
+
+## Dependencies
+### Lock files
+### Setup
+FILE: Makefile (first 30 lines)
+# SPDX-License-Identifier: GPL-2.0
+VERSION = 7
+PATCHLEVEL = 0
+SUBLEVEL = 0
+EXTRAVERSION = -rc6
+NAME = Baby Opossum Posse
+
+# *DOCUMENTATION*
+# To see a list of typical targets execute "make help"
+# More info can be located in ./README
+# Comments in this file are targeted only to the developer, do not
+# expect to learn how to build the kernel reading this file.
+
+ifeq ($(filter output-sync,$(.FEATURES)),)
+$(error GNU Make >= 4.0 is required. Your Make version is $(MAKE_VERSION))
+endif
+
+$(if $(filter __%, $(MAKECMDGOALS)), \
+	$(error targets prefixed with '__' are only for internal use))
+
+# That's our default target when none is given on the command line
+PHONY := __all
+__all:
+
+# We are using a recursive build, so we need to do a little thinking
+# to get the ordering right.
+#
+# Most importantly: sub-Makefiles should only ever modify files in
+# their own directory. If in some directory we have a dependency on
+# a file in another dir (which doesn't happen often, but it's often
+---END---
+.devcontainer: DOES NOT EXIST
+Dockerfile: DOES NOT EXIST
+
+## Tests
+test_file_count: 1082
+ci: DOES NOT EXIST
+
+## Code Quality
+.pre-commit-config.yaml: DOES NOT EXIST
+.husky/pre-commit: DOES NOT EXIST
+.lefthook.yml: DOES NOT EXIST
+### Linter/formatter configs
+.editorconfig: EXISTS
+
+## Conventions
+CONTRIBUTING.md: DOES NOT EXIST
+
+## Scalability
+no env-based port config found
+app_type: unknown
+
+## Ergonomics
+### Determinism
+sleep_pattern_count_in_tests: 356
+### Largest source files
+  655582 total
+   14592 ./tools/lib/bpf/libbpf.c
+   11637 ./tools/power/x86/turbostat/turbostat.c
+    9839 ./mm/slub.c
+    7910 ./mm/vmscan.c
+    7856 ./mm/page_alloc.c
+    7493 ./mm/memory.c
+    7340 ./mm/hugetlb.c
+    7213 ./tools/power/pm-graph/sleepgraph.py
+    6087 ./tools/lib/bpf/btf.c
+    6022 ./mm/shmem.c
+
+=== END SIGNALS ===
