@@ -323,6 +323,21 @@
     <div class="install-note">Supports Claude Code, Codex, Cursor, and more.</div>
   </div>
 
+  <div class="example">
+    <div class="section-header"><span>Example output</span></div>
+    <div class="output"><span class="v">claudeaudit</span> - acme/billing-service
+
+<span class="v">Ok</span> (permissions blocks Safe)
+
+  docs <span class="s">2</span>  structure <span class="s">3</span>  bootstrap <span class="s">3</span>  tests <span class="s">2</span>  perms <span class="s">1</span>  hooks <span class="s">2</span>  rules <span class="s">2</span>  worktree <span class="s">1</span>  sandbox <span class="s">2</span>
+  feedback <span class="s">2</span>  errors <span class="s">1</span>  types <span class="s">2</span>  determinism <span class="s">2</span>  locality <span class="s">2</span>
+
+Top fixes:
+<span class="s">1.</span> Add .claude/settings.json with allowedTools for mix test/format/credo <span class="v">-></span> perms 1->2, unlocks Safe
+<span class="s">2.</span> Make PORT configurable via env var in config/dev.exs <span class="v">-></span> worktree 1->2, toward Great
+<span class="s">3.</span> Configure --formatter for concise test output <span class="v">-></span> errors 1->2</div>
+  </div>
+
   <div class="categories">
     <div class="section-header"><span>What it checks</span></div>
 
@@ -359,21 +374,6 @@
       <div class="cat">Determinism <span>- same command, same result, no flaky tests</span></div>
       <div class="cat">Change locality <span>- change one thing without reading everything</span></div>
     </div>
-  </div>
-
-  <div class="example">
-    <div class="section-header"><span>Example output</span></div>
-    <div class="output"><span class="v">claudeaudit</span> - acme/billing-service
-
-<span class="v">Ok</span> (permissions blocks Safe)
-
-  docs <span class="s">2</span>  structure <span class="s">3</span>  bootstrap <span class="s">3</span>  tests <span class="s">2</span>  perms <span class="s">1</span>  hooks <span class="s">2</span>  rules <span class="s">2</span>  worktree <span class="s">1</span>  sandbox <span class="s">2</span>
-  feedback <span class="s">2</span>  errors <span class="s">1</span>  types <span class="s">2</span>  determinism <span class="s">2</span>  locality <span class="s">2</span>
-
-Top fixes:
-<span class="s">1.</span> Add .claude/settings.json with allowedTools for mix test/format/credo <span class="v">-></span> perms 1->2, unlocks Safe
-<span class="s">2.</span> Make PORT configurable via env var in config/dev.exs <span class="v">-></span> worktree 1->2, toward Great
-<span class="s">3.</span> Configure --formatter for concise test output <span class="v">-></span> errors 1->2</div>
   </div>
 
   <footer class="footer">
