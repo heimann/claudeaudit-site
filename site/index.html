@@ -363,39 +363,17 @@
 
   <div class="example">
     <div class="section-header"><span>Example output</span></div>
-    <div class="output"><span class="v">claudeaudit</span> · acme/billing-service · 2026-04-01
+    <div class="output"><span class="v">claudeaudit</span> - acme/billing-service
 
-<span class="v">Good</span> - Safe
+<span class="v">Ok</span> (permissions blocks Safe)
 
-Readable
-  Agent documentation  <span class="s">2</span>/3    Repository structure  <span class="s">3</span>/3
+  docs <span class="s">2</span>  structure <span class="s">3</span>  bootstrap <span class="s">3</span>  tests <span class="s">2</span>  perms <span class="s">1</span>  hooks <span class="s">2</span>  rules <span class="s">2</span>  worktree <span class="s">1</span>  sandbox <span class="s">2</span>
+  feedback <span class="s">2</span>  errors <span class="s">1</span>  types <span class="s">2</span>  determinism <span class="s">2</span>  locality <span class="s">2</span>
 
-Runnable
-  Dependency bootstrap <span class="s">3</span>/3    Self-verification     <span class="s">2</span>/3
-
-Safe
-  Permissions          <span class="s">2</span>/3    Code quality hooks    <span class="s">3</span>/3
-  Rules & conventions  <span class="s">2</span>/3
-
-Scalable
-  Worktree readiness   <span class="s">1</span>/3    Sandbox compat.       <span class="s">2</span>/3
-
-Ergonomics
-  Feedback loop        <span class="s">2</span>/3    Error signal quality  <span class="s">1</span>/3
-  Type system          <span class="s">2</span>/3    Determinism           <span class="s">2</span>/3
-  Change locality      <span class="s">2</span>/3
-
-<span class="v">Worktree readiness</span>  <span class="s">1/3</span>
-  Port 4000 hardcoded in config/dev.exs with no env var override.
-  > Read PORT from System.get_env("PORT", "4000") in config/runtime.exs.
-
-<span class="v">Self-verification</span>  <span class="s">2/3</span>
-  Tests exist and pass, CI runs them. No scoped test command documented.
-  > Add to CLAUDE.md: "mix test test/myapp/billing_test.exs:42"
-
-<span class="v">Error signal quality</span>  <span class="s">1/3</span>
-  Default Phoenix error output. No custom error formatters.
-  > Configure --formatter Elixir.CLI.Formatter for concise test output.</div>
+Top fixes:
+<span class="s">1.</span> Add .claude/settings.json with allowedTools for mix test/format/credo <span class="v">-></span> perms 1->2, unlocks Safe
+<span class="s">2.</span> Make PORT configurable via env var in config/dev.exs <span class="v">-></span> worktree 1->2, toward Great
+<span class="s">3.</span> Configure --formatter for concise test output <span class="v">-></span> errors 1->2</div>
   </div>
 
   <footer class="footer">
