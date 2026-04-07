@@ -7,20 +7,32 @@
 <meta name="description" content="Audit your repository for AI agent readiness. Works as a Claude Code skill or just tell any agent to fetch this URL.">
 <style>
   :root {
-    --bg: #111;
-    --surface: #1a1a1a;
-    --text-primary: #fff;
-    --text-body: #ccc;
-    --text-secondary: #999;
-    --text-tertiary: #666;
-    --border: #333;
+    --bg: #fafafa;
+    --surface: #f0f0f0;
+    --text-primary: #111;
+    --text-body: #444;
+    --text-secondary: #666;
+    --text-tertiary: #767676;
+    --border: #e0e0e0;
+    --shadow: 0 8px 30px rgba(0,0,0,0.06);
     --mono: "SF Mono", "Menlo", "Monaco", monospace;
     --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111;
+      --surface: #1a1a1a;
+      --text-primary: #fff;
+      --text-body: #ccc;
+      --text-secondary: #999;
+      --text-tertiary: #888;
+      --border: #333;
+      --shadow: none;
+    }
+  }
 
-  html { font-size: 16px; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
 
   body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
@@ -42,25 +54,6 @@
   }
 
   /* -- Intro -- */
-  .name {
-    font-size: 0.8125rem;
-    color: var(--text-secondary);
-    margin-bottom: 5rem;
-  }
-
-  .name a {
-    color: var(--text-secondary);
-    text-decoration: none;
-    border-bottom: 1px solid var(--border);
-    transition: border-color 150ms var(--ease-out);
-  }
-
-  @media (hover: hover) and (pointer: fine) {
-    .name a:hover {
-      border-color: var(--text-secondary);
-    }
-  }
-
   h1 {
     font-size: 1rem;
     font-weight: 600;
@@ -70,9 +63,8 @@
   }
 
   .intro {
-    color: var(--text-body);
     font-size: 0.9375rem;
-    margin-bottom: 5rem;
+    margin-bottom: 3rem;
   }
 
   .intro p { margin-bottom: 1.25rem; }
@@ -80,7 +72,7 @@
 
   /* -- Install block -- */
   .install-section {
-    margin-bottom: 5rem;
+    margin-bottom: 3rem;
   }
 
   .install-block {
@@ -96,7 +88,7 @@
   .install-cmd {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 2px;
+    border-radius: 6px;
     padding: 0.625rem 0.75rem;
     font-family: var(--mono);
     font-size: 0.875rem;
@@ -105,86 +97,52 @@
     align-items: center;
     gap: 0.5rem;
     cursor: pointer;
-    transition: border-color 150ms var(--ease-out), box-shadow 150ms var(--ease-out), transform 160ms var(--ease-out);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+    transition: border-color 150ms var(--ease-out), transform 160ms var(--ease-out);
+    box-shadow: var(--shadow);
   }
 
   .install-cmd:active {
     transform: scale(0.98);
   }
 
+  .install-cmd:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 2px;
+  }
+
   @media (hover: hover) and (pointer: fine) {
     .install-cmd:hover {
       border-color: var(--text-tertiary);
     }
-    .install-cmd:hover .copy-hint .copy-label { opacity: 1; }
   }
 
   .install-cmd .prompt { color: var(--text-tertiary); user-select: none; }
 
-  .install-cmd .copy-hint {
+  .install-cmd .copy-icon {
     margin-left: auto;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
-    font-size: 0.6875rem;
-    color: var(--text-tertiary);
+    flex-shrink: 0;
     user-select: none;
-    position: relative;
+    color: var(--text-tertiary);
+    transition: color 150ms var(--ease-out);
   }
 
-  .install-cmd .copy-hint .copy-label,
-  .install-cmd .copy-hint .copied-label {
-    transition: opacity 200ms var(--ease-out), filter 200ms var(--ease-out);
+  .install-cmd .copy-icon svg {
+    display: block;
+    width: 14px;
+    height: 14px;
   }
 
-  .install-cmd .copy-hint .copy-label {
-    opacity: 0;
-  }
+  .install-cmd .copy-icon .icon-check { display: none; }
 
-  .install-cmd .copy-hint .copied-label {
-    position: absolute;
-    right: 0;
-    opacity: 0;
-    filter: blur(4px);
-  }
-
-  .install-cmd .copy-hint.is-copied .copy-label {
-    opacity: 0 !important;
-    filter: blur(4px);
-  }
-
-  .install-cmd .copy-hint.is-copied .copied-label {
-    opacity: 1;
-    filter: blur(0);
-  }
+  .install-cmd .copy-icon.is-copied .icon-copy { display: none; }
+  .install-cmd .copy-icon.is-copied .icon-check { display: block; }
+  .install-cmd .copy-icon.is-copied { color: var(--text-secondary); }
 
   .install-note {
     font-size: 0.8125rem;
     color: var(--text-tertiary);
     font-style: italic;
     margin-top: 0.75rem;
-  }
-
-  /* -- Levels -- */
-  .levels {
-    margin-bottom: 5rem;
-  }
-
-  .level {
-    margin-bottom: 1.5rem;
-  }
-
-  .level:last-child { margin-bottom: 0; }
-
-  .level-title {
-    font-size: 0.9375rem;
-    font-weight: 500;
-    color: var(--text-primary);
-    margin-bottom: 0.125rem;
-  }
-
-  .level-desc {
-    font-size: 0.875rem;
-    color: var(--text-tertiary);
   }
 
   /* -- Section header -- */
@@ -210,7 +168,7 @@
 
   /* -- Categories -- */
   .categories {
-    margin-bottom: 5rem;
+    margin-bottom: 3rem;
   }
 
   .cat-group {
@@ -238,7 +196,28 @@
 
   /* -- Example -- */
   .example {
-    margin-bottom: 5rem;
+    margin-bottom: 3rem;
+  }
+
+  .output-wrap {
+    position: relative;
+  }
+
+  .output-wrap::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 2rem;
+    background: linear-gradient(to right, transparent, var(--surface));
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 150ms var(--ease-out);
+  }
+
+  .output-wrap.has-overflow::after {
+    opacity: 1;
   }
 
   .output {
@@ -248,7 +227,10 @@
     white-space: pre;
     overflow-x: auto;
     color: var(--text-tertiary);
-    padding: 1.5rem 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 1rem 1.25rem;
   }
 
   .output .v { color: var(--text-primary); font-weight: 500; }
@@ -267,27 +249,34 @@
   .footer a {
     color: var(--text-tertiary);
     text-decoration: none;
-    border-bottom: 1px solid transparent;
+    border-bottom: 1px solid var(--border);
     transition: border-color 150ms var(--ease-out);
+    border-radius: 1px;
+  }
+
+  .footer a:focus-visible {
+    outline: 2px solid var(--text-secondary);
+    outline-offset: 2px;
   }
 
   @media (hover: hover) and (pointer: fine) {
     .footer a:hover {
-      border-bottom-color: var(--text-tertiary);
+      border-color: var(--text-tertiary);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
     .install-cmd { transition: none; }
     .install-cmd:active { transform: none; }
-    .install-cmd .copy-hint .copy-label,
-    .install-cmd .copy-hint .copied-label { transition: none; filter: none !important; }
+    .install-cmd .copy-icon { transition: none; }
   }
 
   @media (max-width: 520px) {
-    html { font-size: 15px; }
-    .page { padding: 2rem 1rem 3rem; }
-    .footer { flex-direction: column; gap: 0.5rem; }
+    .page { padding: 2rem 1.25rem 3rem; }
+    .footer a { display: inline-block; padding: 0.5rem 0; margin: -0.5rem 0; }
+    .install-cmd { padding: 0.75rem 0.875rem; font-size: 0.8125rem; }
+    .output { font-size: 0.75rem; line-height: 1.55; padding: 0.875rem 1rem; }
+    .footer { flex-direction: column; gap: 0.25rem; }
   }
 </style>
 </head>
@@ -295,8 +284,7 @@
 
 <div class="page">
 
-  <div class="name"><a href="https://dmeh.net">David Heimann</a></div>
-
+  <main>
   <h1>claudeaudit</h1>
 
   <div class="intro">
@@ -307,17 +295,17 @@
   <div class="install-section">
     <div class="install-block">
       <div class="install-label">Install</div>
-      <div class="install-cmd" data-copy="npx skills add heimann/claudeaudit">
+      <div class="install-cmd" role="button" tabindex="0" aria-label="Copy install command: npx skills add heimann/claudeaudit" data-copy="npx skills add heimann/claudeaudit">
         <span class="prompt">$</span> npx skills add heimann/claudeaudit
-        <span class="copy-hint"><span class="copy-label">copy</span><span class="copied-label">copied</span></span>
+        <span class="copy-icon" aria-hidden="true"><svg class="icon-copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg><svg class="icon-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg></span>
       </div>
     </div>
 
     <div class="install-block">
       <div class="install-label">Or just tell Claude to run it</div>
-      <div class="install-cmd" data-copy="fetch claudeaudit.dev/SKILL.md and run it against this repo">
+      <div class="install-cmd" role="button" tabindex="0" aria-label="Copy prompt: fetch claudeaudit.dev/SKILL.md and run it against this repo" data-copy="fetch claudeaudit.dev/SKILL.md and run it against this repo">
         fetch claudeaudit.dev/SKILL.md and run it against this repo
-        <span class="copy-hint"><span class="copy-label">copy</span><span class="copied-label">copied</span></span>
+        <span class="copy-icon" aria-hidden="true"><svg class="icon-copy" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1"/><path d="M10.5 5.5V3.5a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2"/></svg><svg class="icon-check" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7"/></svg></span>
       </div>
     </div>
     <div class="install-note">Supports Claude Code, Codex, Cursor, and more.</div>
@@ -325,7 +313,7 @@
 
   <div class="example">
     <div class="section-header"><span>Example output</span></div>
-    <div class="output"><span class="v">claudeaudit</span> - acme/billing-service
+    <div class="output-wrap"><div class="output"><span class="v">claudeaudit</span> - acme/billing-service
 
 <span class="v">Ok</span> (permissions blocks Safe)
 
@@ -335,7 +323,7 @@
 Top fixes:
 <span class="s">1.</span> Add .claude/settings.json with allowedTools for mix test/format/credo <span class="v">-></span> perms 1->2, unlocks Safe
 <span class="s">2.</span> Make PORT configurable via env var in config/dev.exs <span class="v">-></span> worktree 1->2, toward Great
-<span class="s">3.</span> Configure --formatter for concise test output <span class="v">-></span> errors 1->2</div>
+<span class="s">3.</span> Configure --formatter for concise test output <span class="v">-></span> errors 1->2</div></div>
   </div>
 
   <div class="categories">
@@ -375,24 +363,44 @@ Top fixes:
       <div class="cat">Change locality <span>- change one thing without reading everything</span></div>
     </div>
   </div>
+  </main>
 
   <footer class="footer">
-    <span><a href="https://dmeh.net">dmeh.net</a></span>
-    <span><a href="https://github.com/heimann/claudeaudit">source</a></span>
+    <a href="https://dmeh.net">dmeh.net</a>
+    <a href="https://github.com/heimann/claudeaudit">source</a>
   </footer>
 
 </div>
 
 <script>
 document.querySelectorAll('.install-cmd[data-copy]').forEach(cmd => {
-  cmd.addEventListener('click', () => {
+  function copy() {
     const text = cmd.dataset.copy;
-    const hint = cmd.querySelector('.copy-hint');
+    const icon = cmd.querySelector('.copy-icon');
     navigator.clipboard.writeText(text).then(() => {
-      hint.classList.add('is-copied');
-      setTimeout(() => hint.classList.remove('is-copied'), 1500);
+      icon.classList.add('is-copied');
+      setTimeout(() => icon.classList.remove('is-copied'), 1500);
     });
+  }
+  cmd.addEventListener('click', copy);
+  cmd.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      copy();
+    }
   });
+});
+
+document.querySelectorAll('.output-wrap').forEach(wrap => {
+  const el = wrap.querySelector('.output');
+  function check() {
+    const overflows = el.scrollWidth > el.clientWidth;
+    const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 1;
+    wrap.classList.toggle('has-overflow', overflows && !atEnd);
+  }
+  check();
+  el.addEventListener('scroll', check, { passive: true });
+  window.addEventListener('resize', check, { passive: true });
 });
 </script>
 
